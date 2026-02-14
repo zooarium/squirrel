@@ -1,0 +1,36 @@
+package http
+
+import (
+	"net/http"
+	"net/http/httptest"
+	"testing"
+
+	"vyaya/internal/category"
+
+	"github.com/stretchr/testify/assert"
+)
+
+func TestRouter(t *testing.T) {
+	// Create a handler with nil service - just testing routing to public endpoints
+	catHandler := category.NewHandler(nil)
+	router := NewRouter(catHandler)
+
+	tests := []struct {
+		name           string
+		method         string
+		url            string
+		wantStatusCode int
+	}{
+		{"Health check", "GET", "/health", http.StatusOK},
+		{"NotFound check", "GET", "/non-existent", http.StatusNotFound},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			req, _ := http.NewRequest(tt.method, tt.url, nil)
+			rr := httptest.NewRecorder()
+			router.ServeHTTP(rr, req)
+			assert.Equal(t, tt.wantStatusCode, rr.Code)
+		})
+	}
+}

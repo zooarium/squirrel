@@ -1,0 +1,22 @@
+services:
+  api:
+    build: .
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./data:/app/data
+      - ./log:/app/log
+    environment:
+      - GO_ENV=development
+      - DB_PATH=/app/data/vyaya.db
+      - LOG_DIR=/app/log
+    restart: always
+
+  atlas:
+    image: arigaio/atlas
+    volumes:
+      - .:/app
+      - ./data:/data
+    working_dir: /app
+
+# No volumes section needed for bind mounts

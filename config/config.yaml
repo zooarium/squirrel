@@ -1,0 +1,12 @@
+server:
+  port: "8080"
+  read_timeout: 5s
+  write_timeout: 10s
+  idle_timeout: 120s
+
+database:
+  path: "data/vyaya.db"
+
+logger:
+  directory: "log"
+  level: "info"

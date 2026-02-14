@@ -1,0 +1,223 @@
+basePath: /
+definitions:
+  internal_category.Category:
+    properties:
+      created_at:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      updated_at:
+        type: string
+    required:
+    - name
+    type: object
+  internal_category.CreateCategoryRequest:
+    properties:
+      name:
+        type: string
+    required:
+    - name
+    type: object
+  internal_category.UpdateCategoryRequest:
+    properties:
+      name:
+        type: string
+    required:
+    - name
+    type: object
+  vyaya_internal_platform_render.Response:
+    properties:
+      data: {}
+      error:
+        type: string
+      status:
+        type: integer
+    type: object
+host: localhost:8080
+info:
+  contact: {}
+  description: This is a microservice for expense management.
+  title: Vyaya API
+  version: "1.0"
+paths:
+  /categories:
+    get:
+      description: Get a list of all categories
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/vyaya_internal_platform_render.Response'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/internal_category.Category'
+                  type: array
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/vyaya_internal_platform_render.Response'
+      summary: List all categories
+      tags:
+      - categories
+    post:
+      consumes:
+      - application/json
+      description: Create a new category with the provided name
+      parameters:
+      - description: Category object
+        in: body
+        name: category
+        required: true
+        schema:
+          $ref: '#/definitions/internal_category.CreateCategoryRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            allOf:
+            - $ref: '#/definitions/vyaya_internal_platform_render.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/internal_category.Category'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/vyaya_internal_platform_render.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/vyaya_internal_platform_render.Response'
+      summary: Create a new category
+      tags:
+      - categories
+  /categories/{id}:
+    delete:
+      description: Delete a category by its ID
+      parameters:
+      - description: Category ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/vyaya_internal_platform_render.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/vyaya_internal_platform_render.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/vyaya_internal_platform_render.Response'
+      summary: Delete category by ID
+      tags:
+      - categories
+    get:
+      description: Get a single category by its ID
+      parameters:
+      - description: Category ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/vyaya_internal_platform_render.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/internal_category.Category'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/vyaya_internal_platform_render.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/vyaya_internal_platform_render.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/vyaya_internal_platform_render.Response'
+      summary: Get category by ID
+      tags:
+      - categories
+    post:
+      consumes:
+      - application/json
+      description: Update an existing category with the provided name
+      parameters:
+      - description: Category ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Category object
+        in: body
+        name: category
+        required: true
+        schema:
+          $ref: '#/definitions/internal_category.UpdateCategoryRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/vyaya_internal_platform_render.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/internal_category.Category'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/vyaya_internal_platform_render.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/vyaya_internal_platform_render.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/vyaya_internal_platform_render.Response'
+      summary: Update category by ID
+      tags:
+      - categories
+  /health:
+    get:
+      description: Get the health status of the service
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/vyaya_internal_platform_render.Response'
+      summary: Check service health
+      tags:
+      - health
+swagger: "2.0"
