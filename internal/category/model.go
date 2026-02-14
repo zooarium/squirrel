@@ -16,7 +16,6 @@ type Category struct {
 
 // CreateCategoryRequest defines the request body for creating a category.
 type CreateCategoryRequest struct {
-	UserID int    `json:"user_id" validate:"required"`
 	Name   string `json:"name" validate:"required"`
 	Status int8   `json:"status" validate:"omitempty,oneof=0 1"`
 }

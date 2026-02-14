@@ -8,6 +8,8 @@ import (
 
 	"vyaya/internal/platform/render"
 
+	"dvarapala/pkg/auth"
+
 	"github.com/go-chi/chi/v5"
 	"github.com/go-playground/validator/v10"
 )
@@ -41,25 +43,41 @@ func (h *Handler) Routes() chi.Router {
 	return r
 }
 
+func (h *Handler) getUserID(r *http.Request) (int, error) {
+	claims, ok := auth.GetClaimsFromContext(r.Context())
+	if !ok {
+		return 0, errors.New("user not authenticated")
+	}
+	return claims.UserID, nil
+}
+
 // Create handles transaction creation.
 // @Summary Create a new transaction
-// @Description Create a new transaction with the provided amount, type, and user ID
+// @Description Create a new transaction with the provided amount, type
 // @Tags transactions
 // @Accept json
 // @Produce json
 // @Param transaction body CreateTransactionRequest true "Transaction object"
 // @Success 201 {object} render.Response{data=Transaction}
 // @Failure 400 {object} render.Response
+// @Failure 401 {object} render.Response
 // @Failure 500 {object} render.Response
+// @Security Bearer
 // @Router /transactions [post]
 func (h *Handler) Create(w http.ResponseWriter, r *http.Request) {
+	userID, err := h.getUserID(r)
+	if err != nil {
+		render.Error(w, http.StatusUnauthorized, err.Error())
+		return
+	}
+
 	var req CreateTransactionRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		render.Error(w, http.StatusBadRequest, "invalid request body")
 		return
 	}
 
-	tx, err := h.svc.Create(r.Context(), req)
+	tx, err := h.svc.Create(r.Context(), userID, req)
 	if err != nil {
 		render.Error(w, http.StatusInternalServerError, err.Error())
 		return
@@ -70,14 +88,22 @@ func (h *Handler) Create(w http.ResponseWriter, r *http.Request) {
 
 // List handles listing all transactions.
 // @Summary List all transactions
-// @Description Get a list of all transactions
+// @Description Get a list of all transactions for the authenticated user
 // @Tags transactions
 // @Produce json
 // @Success 200 {object} render.Response{data=[]Transaction}
+// @Failure 401 {object} render.Response
 // @Failure 500 {object} render.Response
+// @Security Bearer
 // @Router /transactions [get]
 func (h *Handler) List(w http.ResponseWriter, r *http.Request) {
-	txs, err := h.svc.List(r.Context())
+	userID, err := h.getUserID(r)
+	if err != nil {
+		render.Error(w, http.StatusUnauthorized, err.Error())
+		return
+	}
+
+	txs, err := h.svc.List(r.Context(), userID)
 	if err != nil {
 		render.Error(w, http.StatusInternalServerError, err.Error())
 		return
@@ -88,23 +114,31 @@ func (h *Handler) List(w http.ResponseWriter, r *http.Request) {
 
 // GetByID handles getting a transaction by ID.
 // @Summary Get transaction by ID
-// @Description Get a single transaction by its ID
+// @Description Get a single transaction by its ID if it belongs to the user
 // @Tags transactions
 // @Produce json
 // @Param id path int true "Transaction ID"
 // @Success 200 {object} render.Response{data=Transaction}
 // @Failure 400 {object} render.Response
+// @Failure 401 {object} render.Response
 // @Failure 404 {object} render.Response
 // @Failure 500 {object} render.Response
+// @Security Bearer
 // @Router /transactions/{id} [get]
 func (h *Handler) GetByID(w http.ResponseWriter, r *http.Request) {
+	userID, err := h.getUserID(r)
+	if err != nil {
+		render.Error(w, http.StatusUnauthorized, err.Error())
+		return
+	}
+
 	id, err := h.getIDParam(r)
 	if err != nil {
 		render.Error(w, http.StatusBadRequest, "invalid transaction ID")
 		return
 	}
 
-	tx, err := h.svc.GetByID(r.Context(), id)
+	tx, err := h.svc.GetByID(r.Context(), userID, id)
 	if err != nil {
 		if errors.Is(err, ErrTransactionNotFound) {
 			render.Error(w, http.StatusNotFound, "transaction not found")
@@ -119,7 +153,7 @@ func (h *Handler) GetByID(w http.ResponseWriter, r *http.Request) {
 
 // Update handles updating a transaction.
 // @Summary Update transaction by ID
-// @Description Update an existing transaction with the provided amount and type
+// @Description Update an existing transaction if it belongs to the user
 // @Tags transactions
 // @Accept json
 // @Produce json
@@ -127,10 +161,18 @@ func (h *Handler) GetByID(w http.ResponseWriter, r *http.Request) {
 // @Param transaction body UpdateTransactionRequest true "Transaction object"
 // @Success 200 {object} render.Response{data=Transaction}
 // @Failure 400 {object} render.Response
+// @Failure 401 {object} render.Response
 // @Failure 404 {object} render.Response
 // @Failure 500 {object} render.Response
+// @Security Bearer
 // @Router /transactions/{id} [post]
 func (h *Handler) Update(w http.ResponseWriter, r *http.Request) {
+	userID, err := h.getUserID(r)
+	if err != nil {
+		render.Error(w, http.StatusUnauthorized, err.Error())
+		return
+	}
+
 	id, err := h.getIDParam(r)
 	if err != nil {
 		render.Error(w, http.StatusBadRequest, "invalid transaction ID")
@@ -143,7 +185,7 @@ func (h *Handler) Update(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	tx, err := h.svc.Update(r.Context(), id, req)
+	tx, err := h.svc.Update(r.Context(), userID, id, req)
 	if err != nil {
 		if errors.Is(err, ErrTransactionNotFound) {
 			render.Error(w, http.StatusNotFound, "transaction not found")
@@ -158,23 +200,31 @@ func (h *Handler) Update(w http.ResponseWriter, r *http.Request) {
 
 // Delete handles deleting a transaction.
 // @Summary Delete transaction by ID
-// @Description Delete a transaction by its ID
+// @Description Delete a transaction by its ID if it belongs to the user
 // @Tags transactions
 // @Produce json
 // @Param id path int true "Transaction ID"
 // @Success 204 "No Content"
 // @Failure 400 {object} render.Response
+// @Failure 401 {object} render.Response
 // @Failure 404 {object} render.Response
 // @Failure 500 {object} render.Response
+// @Security Bearer
 // @Router /transactions/{id} [delete]
 func (h *Handler) Delete(w http.ResponseWriter, r *http.Request) {
+	userID, err := h.getUserID(r)
+	if err != nil {
+		render.Error(w, http.StatusUnauthorized, err.Error())
+		return
+	}
+
 	id, err := h.getIDParam(r)
 	if err != nil {
 		render.Error(w, http.StatusBadRequest, "invalid transaction ID")
 		return
 	}
 
-	err = h.svc.Delete(r.Context(), id)
+	err = h.svc.Delete(r.Context(), userID, id)
 	if err != nil {
 		if errors.Is(err, ErrTransactionNotFound) {
 			render.Error(w, http.StatusNotFound, "transaction not found")

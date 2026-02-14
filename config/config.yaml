@@ -1,7 +1,7 @@
 ENVIRONMENT: production
 SERVER:
-  ADDR: ":8080"
-  HOST: "localhost:8080"
+  ADDR: ":8081"
+  HOST: "localhost:8081"
   READ_TIMEOUT: 5s
   WRITE_TIMEOUT: 10s
   IDLE_TIMEOUT: 120s
@@ -10,3 +10,6 @@ DATABASE:
 LOG:
   DIR: "log"
   LEVEL: "info"
+AUTH:
+  JWT_SECRET: "change-me-in-production"
+  JWT_EXPIRY: 24h

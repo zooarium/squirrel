@@ -18,13 +18,20 @@ import (
 	platformhttp "vyaya/internal/platform/http"
 	"vyaya/internal/transaction"
 	"vyaya/pkg/config"
+
+	"dvarapala/pkg/auth"
 )
 
 // @title Vyaya API
 // @version 1.0
 // @description This is a microservice for expense management.
-// @host localhost:8080
+// @host localhost:8081
 // @BasePath /
+
+// @securityDefinitions.apikey Bearer
+// @in header
+// @name Authorization
+// @description Type "Bearer" followed by a space and JWT token.
 
 func main() {
 	cfg, err := config.Load()
@@ -90,7 +97,9 @@ func main() {
 	transactionSvc := transaction.NewService(transactionRepo)
 	transactionHandler := transaction.NewHandler(transactionSvc)
 
-	router := platformhttp.NewRouter(categoryHandler, transactionHandler)
+	jwtManager := auth.NewJWTManager(cfg.Auth.JWTSecret, cfg.Auth.JWTExpiry)
+
+	router := platformhttp.NewRouter(categoryHandler, transactionHandler, jwtManager)
 
 	srv := &http.Server{
 		Addr:         cfg.Server.Addr,

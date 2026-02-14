@@ -61,8 +61,8 @@ The application uses `viper` for configuration management. It supports multiple 
 | Variable | Description | Default |
 |----------|-------------|---------|
 | `ENVIRONMENT` | Deployment environment (`dev`, `production`) | `production` |
-| `SERVER_ADDR` | Internal network address the server binds to | `:8080` |
-| `SERVER_HOST` | Public-facing host/port for Swagger documentation | `localhost:8080` |
+| `SERVER_ADDR` | Internal network address the server binds to | `:8081` |
+| `SERVER_HOST` | Public-facing host/port for Swagger documentation | `localhost:8081` |
 | `DATABASE_PATH` | Path to the SQLite database file | `data/vyaya.db` |
 | `LOG_DIR` | Directory where log files are stored | `log` |
 

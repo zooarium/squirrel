@@ -167,5 +167,6 @@ To ensure codebase health and consistency, the following steps **must** be compl
 - **Logs**: `./log/` mapped to `/app/log/`.
 - **Environment**:
   - `GO_ENV`: Controls which configuration file is loaded (e.g., `development`, `production`).
+  - `SERVER_ADDR`: Overrides the server address (defaults to `:8081`).
   - `DB_PATH`: Overrides the database path (defaults to `data/vyaya.db`).
   - `LOG_DIR`: Overrides the log directory (defaults to `log`).

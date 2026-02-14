@@ -4,3 +4,6 @@ DATABASE:
 LOG:
   DIR: "log_dev"
   LEVEL: "debug"
+AUTH:
+  JWT_SECRET: "dev-secret-key"
+  JWT_EXPIRY: 24h

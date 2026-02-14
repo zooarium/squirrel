@@ -7,6 +7,8 @@ import (
 	"vyaya/internal/category"
 	"vyaya/internal/transaction"
 
+	"dvarapala/pkg/auth"
+
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/httprate"
@@ -14,7 +16,7 @@ import (
 )
 
 // NewRouter creates a new chi router with default middleware and application routes.
-func NewRouter(categoryHandler *category.Handler, transactionHandler *transaction.Handler) *chi.Mux {
+func NewRouter(categoryHandler *category.Handler, transactionHandler *transaction.Handler, jwtManager *auth.JWTManager) *chi.Mux {
 	r := chi.NewRouter()
 
 	r.Use(middleware.Logger)
@@ -27,8 +29,12 @@ func NewRouter(categoryHandler *category.Handler, transactionHandler *transactio
 
 	r.Get("/health", HealthHandler)
 
-	r.Mount("/categories", categoryHandler.Routes())
-	r.Mount("/transactions", transactionHandler.Routes())
+	// Protected routes
+	r.Group(func(r chi.Router) {
+		r.Use(auth.Middleware(jwtManager))
+		r.Mount("/categories", categoryHandler.Routes())
+		r.Mount("/transactions", transactionHandler.Routes())
+	})
 
 	return r
 }

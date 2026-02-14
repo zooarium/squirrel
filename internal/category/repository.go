@@ -32,10 +32,11 @@ func (r *Repository) Create(ctx context.Context, c Category) (Category, error) {
 	return r.mapToModel(entCat), nil
 }
 
-// List returns all categories.
-func (r *Repository) List(ctx context.Context) ([]Category, error) {
+// List returns all categories for a user.
+func (r *Repository) List(ctx context.Context, userID int) ([]Category, error) {
 	entCats, err := r.client.Category.
 		Query().
+		Where(category.UserID(userID)).
 		Order(ent.Asc(category.FieldName)).
 		All(ctx)
 	if err != nil {
@@ -49,10 +50,12 @@ func (r *Repository) List(ctx context.Context) ([]Category, error) {
 	return cats, nil
 }
 
-// GetByID returns a category by its ID.
-func (r *Repository) GetByID(ctx context.Context, id int) (Category, error) {
+// GetByID returns a category by its ID and user ID.
+func (r *Repository) GetByID(ctx context.Context, userID, id int) (Category, error) {
 	entCat, err := r.client.Category.
-		Get(ctx, id)
+		Query().
+		Where(category.ID(id), category.UserID(userID)).
+		Only(ctx)
 	if err != nil {
 		if ent.IsNotFound(err) {
 			return Category{}, ErrCategoryNotFound
@@ -64,32 +67,37 @@ func (r *Repository) GetByID(ctx context.Context, id int) (Category, error) {
 }
 
 // Update updates a category.
-func (r *Repository) Update(ctx context.Context, id int, c Category) (Category, error) {
-	entCat, err := r.client.Category.
-		UpdateOneID(id).
+func (r *Repository) Update(ctx context.Context, userID, id int, c Category) (Category, error) {
+	// Use Update() with predicate to ensure ownership
+	count, err := r.client.Category.
+		Update().
+		Where(category.ID(id), category.UserID(userID)).
 		SetName(c.Name).
 		SetStatus(c.Status).
 		Save(ctx)
+
 	if err != nil {
-		if ent.IsNotFound(err) {
-			return Category{}, ErrCategoryNotFound
-		}
 		return Category{}, fmt.Errorf("update category: %w", err)
 	}
+	if count == 0 {
+		return Category{}, ErrCategoryNotFound
+	}
 
-	return r.mapToModel(entCat), nil
+	// Fetch updated entity to return
+	return r.GetByID(ctx, userID, id)
 }
 
 // Delete deletes a category.
-func (r *Repository) Delete(ctx context.Context, id int) error {
-	err := r.client.Category.
-		DeleteOneID(id).
+func (r *Repository) Delete(ctx context.Context, userID, id int) error {
+	count, err := r.client.Category.
+		Delete().
+		Where(category.ID(id), category.UserID(userID)).
 		Exec(ctx)
 	if err != nil {
-		if ent.IsNotFound(err) {
-			return ErrCategoryNotFound
-		}
 		return fmt.Errorf("delete category: %w", err)
+	}
+	if count == 0 {
+		return ErrCategoryNotFound
 	}
 	return nil
 }

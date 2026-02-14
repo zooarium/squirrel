@@ -6,12 +6,17 @@
         "contact": {},
         "version": "1.0"
     },
-    "host": "localhost:8080",
+    "host": "localhost:8081",
     "basePath": "/",
     "paths": {
         "/categories": {
             "get": {
-                "description": "Get a list of all categories",
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Get a list of all categories for the authenticated user",
                 "produces": [
                     "application/json"
                 ],
@@ -41,6 +46,12 @@
                             ]
                         }
                     },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/vyaya_internal_platform_render.Response"
+                        }
+                    },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
@@ -50,7 +61,12 @@
                 }
             },
             "post": {
-                "description": "Create a new category with the provided name and user ID",
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Create a new category with the provided name",
                 "consumes": [
                     "application/json"
                 ],
@@ -97,6 +113,12 @@
                             "$ref": "#/definitions/vyaya_internal_platform_render.Response"
                         }
                     },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/vyaya_internal_platform_render.Response"
+                        }
+                    },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
@@ -108,7 +130,12 @@
         },
         "/categories/{id}": {
             "get": {
-                "description": "Get a single category by its ID",
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Get a single category by its ID if it belongs to the user",
                 "produces": [
                     "application/json"
                 ],
@@ -150,6 +177,12 @@
                             "$ref": "#/definitions/vyaya_internal_platform_render.Response"
                         }
                     },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/vyaya_internal_platform_render.Response"
+                        }
+                    },
                     "404": {
                         "description": "Not Found",
                         "schema": {
@@ -165,7 +198,12 @@
                 }
             },
             "post": {
-                "description": "Update an existing category with the provided name and status",
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Update an existing category if it belongs to the user",
                 "consumes": [
                     "application/json"
                 ],
@@ -219,6 +257,12 @@
                             "$ref": "#/definitions/vyaya_internal_platform_render.Response"
                         }
                     },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/vyaya_internal_platform_render.Response"
+                        }
+                    },
                     "404": {
                         "description": "Not Found",
                         "schema": {
@@ -234,7 +278,12 @@
                 }
             },
             "delete": {
-                "description": "Delete a category by its ID",
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Delete a category by its ID if it belongs to the user",
                 "produces": [
                     "application/json"
                 ],
@@ -257,6 +306,12 @@
                     },
                     "400": {
                         "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/vyaya_internal_platform_render.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
                         "schema": {
                             "$ref": "#/definitions/vyaya_internal_platform_render.Response"
                         }
@@ -298,7 +353,12 @@
         },
         "/transactions": {
             "get": {
-                "description": "Get a list of all transactions",
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Get a list of all transactions for the authenticated user",
                 "produces": [
                     "application/json"
                 ],
@@ -328,6 +388,12 @@
                             ]
                         }
                     },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/vyaya_internal_platform_render.Response"
+                        }
+                    },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
@@ -337,7 +403,12 @@
                 }
             },
             "post": {
-                "description": "Create a new transaction with the provided amount, type, and user ID",
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Create a new transaction with the provided amount, type",
                 "consumes": [
                     "application/json"
                 ],
@@ -384,6 +455,12 @@
                             "$ref": "#/definitions/vyaya_internal_platform_render.Response"
                         }
                     },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/vyaya_internal_platform_render.Response"
+                        }
+                    },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
@@ -395,7 +472,12 @@
         },
         "/transactions/{id}": {
             "get": {
-                "description": "Get a single transaction by its ID",
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Get a single transaction by its ID if it belongs to the user",
                 "produces": [
                     "application/json"
                 ],
@@ -437,6 +519,12 @@
                             "$ref": "#/definitions/vyaya_internal_platform_render.Response"
                         }
                     },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/vyaya_internal_platform_render.Response"
+                        }
+                    },
                     "404": {
                         "description": "Not Found",
                         "schema": {
@@ -452,7 +540,12 @@
                 }
             },
             "post": {
-                "description": "Update an existing transaction with the provided amount and type",
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Update an existing transaction if it belongs to the user",
                 "consumes": [
                     "application/json"
                 ],
@@ -506,6 +599,12 @@
                             "$ref": "#/definitions/vyaya_internal_platform_render.Response"
                         }
                     },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/vyaya_internal_platform_render.Response"
+                        }
+                    },
                     "404": {
                         "description": "Not Found",
                         "schema": {
@@ -521,7 +620,12 @@
                 }
             },
             "delete": {
-                "description": "Delete a transaction by its ID",
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Delete a transaction by its ID if it belongs to the user",
                 "produces": [
                     "application/json"
                 ],
@@ -544,6 +648,12 @@
                     },
                     "400": {
                         "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/vyaya_internal_platform_render.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
                         "schema": {
                             "$ref": "#/definitions/vyaya_internal_platform_render.Response"
                         }
@@ -594,8 +704,7 @@
         "internal_category.CreateCategoryRequest": {
             "type": "object",
             "required": [
-                "name",
-                "user_id"
+                "name"
             ],
             "properties": {
                 "name": {
@@ -607,9 +716,6 @@
                         0,
                         1
                     ]
-                },
-                "user_id": {
-                    "type": "integer"
                 }
             }
         },
@@ -635,8 +741,7 @@
             "type": "object",
             "required": [
                 "amount",
-                "type",
-                "user_id"
+                "type"
             ],
             "properties": {
                 "amount": {
@@ -651,9 +756,6 @@
                         "income",
                         "expense"
                     ]
-                },
-                "user_id": {
-                    "type": "integer"
                 }
             }
         },
@@ -717,6 +819,14 @@
                     "type": "integer"
                 }
             }
+        }
+    },
+    "securityDefinitions": {
+        "Bearer": {
+            "description": "Type \"Bearer\" followed by a space and JWT token.",
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
         }
     }
 }

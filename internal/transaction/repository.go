@@ -37,10 +37,11 @@ func (r *Repository) Create(ctx context.Context, t Transaction) (Transaction, er
 	return r.mapToModel(entTx), nil
 }
 
-// List returns all transactions.
-func (r *Repository) List(ctx context.Context) ([]Transaction, error) {
+// List returns all transactions for a user.
+func (r *Repository) List(ctx context.Context, userID int) ([]Transaction, error) {
 	entTxs, err := r.client.Transaction.
 		Query().
+		Where(transaction.UserID(userID)).
 		Order(ent.Desc(transaction.FieldCreatedAt)).
 		All(ctx)
 	if err != nil {
@@ -54,10 +55,12 @@ func (r *Repository) List(ctx context.Context) ([]Transaction, error) {
 	return txs, nil
 }
 
-// GetByID returns a transaction by its ID.
-func (r *Repository) GetByID(ctx context.Context, id int) (Transaction, error) {
+// GetByID returns a transaction by its ID and user ID.
+func (r *Repository) GetByID(ctx context.Context, userID, id int) (Transaction, error) {
 	entTx, err := r.client.Transaction.
-		Get(ctx, id)
+		Query().
+		Where(transaction.ID(id), transaction.UserID(userID)).
+		Only(ctx)
 	if err != nil {
 		if ent.IsNotFound(err) {
 			return Transaction{}, ErrTransactionNotFound
@@ -69,9 +72,10 @@ func (r *Repository) GetByID(ctx context.Context, id int) (Transaction, error) {
 }
 
 // Update updates a transaction.
-func (r *Repository) Update(ctx context.Context, id int, t Transaction) (Transaction, error) {
+func (r *Repository) Update(ctx context.Context, userID, id int, t Transaction) (Transaction, error) {
 	builder := r.client.Transaction.
-		UpdateOneID(id).
+		Update().
+		Where(transaction.ID(id), transaction.UserID(userID)).
 		SetAmount(t.Amount).
 		SetType(transaction.Type(t.Type))
 
@@ -81,27 +85,28 @@ func (r *Repository) Update(ctx context.Context, id int, t Transaction) (Transac
 		builder.ClearCategoryID()
 	}
 
-	entTx, err := builder.Save(ctx)
+	count, err := builder.Save(ctx)
 	if err != nil {
-		if ent.IsNotFound(err) {
-			return Transaction{}, ErrTransactionNotFound
-		}
 		return Transaction{}, fmt.Errorf("update transaction: %w", err)
 	}
+	if count == 0 {
+		return Transaction{}, ErrTransactionNotFound
+	}
 
-	return r.mapToModel(entTx), nil
+	return r.GetByID(ctx, userID, id)
 }
 
 // Delete deletes a transaction.
-func (r *Repository) Delete(ctx context.Context, id int) error {
-	err := r.client.Transaction.
-		DeleteOneID(id).
+func (r *Repository) Delete(ctx context.Context, userID, id int) error {
+	count, err := r.client.Transaction.
+		Delete().
+		Where(transaction.ID(id), transaction.UserID(userID)).
 		Exec(ctx)
 	if err != nil {
-		if ent.IsNotFound(err) {
-			return ErrTransactionNotFound
-		}
 		return fmt.Errorf("delete transaction: %w", err)
+	}
+	if count == 0 {
+		return ErrTransactionNotFound
 	}
 	return nil
 }

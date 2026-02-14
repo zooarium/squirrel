@@ -14,6 +14,7 @@ type Config struct {
 	Server      ServerConfig
 	Database    DatabaseConfig
 	Log         LogConfig `mapstructure:"LOG"`
+	Auth        AuthConfig `mapstructure:"AUTH"`
 }
 
 // ServerConfig holds server related configuration.
@@ -23,6 +24,12 @@ type ServerConfig struct {
 	ReadTimeout  time.Duration `mapstructure:"READ_TIMEOUT"`
 	WriteTimeout time.Duration `mapstructure:"WRITE_TIMEOUT"`
 	IdleTimeout  time.Duration `mapstructure:"IDLE_TIMEOUT"`
+}
+
+// AuthConfig holds authentication related configuration.
+type AuthConfig struct {
+	JWTSecret string        `mapstructure:"JWT_SECRET"`
+	JWTExpiry time.Duration `mapstructure:"JWT_EXPIRY"`
 }
 
 // DatabaseConfig holds database related configuration.
@@ -42,14 +49,16 @@ func Load() (*Config, error) {
 
 	// Default values
 	v.SetDefault("ENVIRONMENT", "production")
-	v.SetDefault("SERVER.ADDR", ":8080")
-	v.SetDefault("SERVER.HOST", "localhost:8080")
+	v.SetDefault("SERVER.ADDR", ":8081")
+	v.SetDefault("SERVER.HOST", "localhost:8081")
 	v.SetDefault("SERVER.READ_TIMEOUT", 5*time.Second)
 	v.SetDefault("SERVER.WRITE_TIMEOUT", 10*time.Second)
 	v.SetDefault("SERVER.IDLE_TIMEOUT", 120*time.Second)
 	v.SetDefault("DATABASE.PATH", "data/vyaya.db")
 	v.SetDefault("LOG.DIR", "log")
 	v.SetDefault("LOG.LEVEL", "info")
+	v.SetDefault("AUTH.JWT_SECRET", "change-me-in-production")
+	v.SetDefault("AUTH.JWT_EXPIRY", 24*time.Hour)
 
 	// Environment variables
 	v.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))

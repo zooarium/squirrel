@@ -2,7 +2,6 @@
 .gitignore
 bin/
 tmp/
-vendor/
 docker-compose.yml
 Dockerfile
 .dockerignore

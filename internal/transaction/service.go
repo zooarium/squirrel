@@ -16,11 +16,11 @@ var (
 
 // Service defines the business logic for transactions.
 type Service interface {
-	Create(ctx context.Context, req CreateTransactionRequest) (Transaction, error)
-	List(ctx context.Context) ([]Transaction, error)
-	GetByID(ctx context.Context, id int) (Transaction, error)
-	Update(ctx context.Context, id int, req UpdateTransactionRequest) (Transaction, error)
-	Delete(ctx context.Context, id int) error
+	Create(ctx context.Context, userID int, req CreateTransactionRequest) (Transaction, error)
+	List(ctx context.Context, userID int) ([]Transaction, error)
+	GetByID(ctx context.Context, userID, id int) (Transaction, error)
+	Update(ctx context.Context, userID, id int, req UpdateTransactionRequest) (Transaction, error)
+	Delete(ctx context.Context, userID, id int) error
 }
 
 type service struct {
@@ -37,13 +37,13 @@ func NewService(repo *Repository) Service {
 }
 
 // Create creates a new transaction.
-func (s *service) Create(ctx context.Context, req CreateTransactionRequest) (Transaction, error) {
+func (s *service) Create(ctx context.Context, userID int, req CreateTransactionRequest) (Transaction, error) {
 	if err := s.validate.Struct(req); err != nil {
 		return Transaction{}, fmt.Errorf("validate request: %w", err)
 	}
 
 	tx := Transaction{
-		UserID:     req.UserID,
+		UserID:     userID,
 		Amount:     req.Amount,
 		Type:       req.Type,
 		CategoryID: req.CategoryID,
@@ -51,7 +51,7 @@ func (s *service) Create(ctx context.Context, req CreateTransactionRequest) (Tra
 
 	created, err := s.repo.Create(ctx, tx)
 	if err != nil {
-		slog.Error("failed to create transaction", "error", err, "user_id", req.UserID)
+		slog.Error("failed to create transaction", "error", err, "user_id", userID)
 		return Transaction{}, err
 	}
 
@@ -59,22 +59,22 @@ func (s *service) Create(ctx context.Context, req CreateTransactionRequest) (Tra
 	return created, nil
 }
 
-// List returns all transactions.
-func (s *service) List(ctx context.Context) ([]Transaction, error) {
-	txs, err := s.repo.List(ctx)
+// List returns all transactions for a user.
+func (s *service) List(ctx context.Context, userID int) ([]Transaction, error) {
+	txs, err := s.repo.List(ctx, userID)
 	if err != nil {
-		slog.Error("failed to list transactions", "error", err)
+		slog.Error("failed to list transactions", "error", err, "user_id", userID)
 		return nil, err
 	}
 	return txs, nil
 }
 
 // GetByID returns a transaction by its ID.
-func (s *service) GetByID(ctx context.Context, id int) (Transaction, error) {
-	tx, err := s.repo.GetByID(ctx, id)
+func (s *service) GetByID(ctx context.Context, userID, id int) (Transaction, error) {
+	tx, err := s.repo.GetByID(ctx, userID, id)
 	if err != nil {
 		if !errors.Is(err, ErrTransactionNotFound) {
-			slog.Error("failed to get transaction by id", "error", err, "id", id)
+			slog.Error("failed to get transaction by id", "error", err, "id", id, "user_id", userID)
 		}
 		return Transaction{}, err
 	}
@@ -82,7 +82,7 @@ func (s *service) GetByID(ctx context.Context, id int) (Transaction, error) {
 }
 
 // Update updates an existing transaction.
-func (s *service) Update(ctx context.Context, id int, req UpdateTransactionRequest) (Transaction, error) {
+func (s *service) Update(ctx context.Context, userID, id int, req UpdateTransactionRequest) (Transaction, error) {
 	if err := s.validate.Struct(req); err != nil {
 		return Transaction{}, fmt.Errorf("validate request: %w", err)
 	}
@@ -93,10 +93,10 @@ func (s *service) Update(ctx context.Context, id int, req UpdateTransactionReque
 		CategoryID: req.CategoryID,
 	}
 
-	updated, err := s.repo.Update(ctx, id, tx)
+	updated, err := s.repo.Update(ctx, userID, id, tx)
 	if err != nil {
 		if !errors.Is(err, ErrTransactionNotFound) {
-			slog.Error("failed to update transaction", "error", err, "id", id)
+			slog.Error("failed to update transaction", "error", err, "id", id, "user_id", userID)
 		}
 		return Transaction{}, err
 	}
@@ -106,11 +106,11 @@ func (s *service) Update(ctx context.Context, id int, req UpdateTransactionReque
 }
 
 // Delete deletes a transaction by its ID.
-func (s *service) Delete(ctx context.Context, id int) error {
-	err := s.repo.Delete(ctx, id)
+func (s *service) Delete(ctx context.Context, userID, id int) error {
+	err := s.repo.Delete(ctx, userID, id)
 	if err != nil {
 		if !errors.Is(err, ErrTransactionNotFound) {
-			slog.Error("failed to delete transaction", "error", err, "id", id)
+			slog.Error("failed to delete transaction", "error", err, "id", id, "user_id", userID)
 		}
 		return err
 	}

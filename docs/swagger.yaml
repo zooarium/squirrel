@@ -26,11 +26,8 @@ definitions:
         - 0
         - 1
         type: integer
-      user_id:
-        type: integer
     required:
     - name
-    - user_id
     type: object
   internal_category.UpdateCategoryRequest:
     properties:
@@ -55,12 +52,9 @@ definitions:
         - income
         - expense
         type: string
-      user_id:
-        type: integer
     required:
     - amount
     - type
-    - user_id
     type: object
   internal_transaction.Transaction:
     properties:
@@ -103,7 +97,7 @@ definitions:
       status:
         type: integer
     type: object
-host: localhost:8080
+host: localhost:8081
 info:
   contact: {}
   description: This is a microservice for expense management.
@@ -112,7 +106,7 @@ info:
 paths:
   /categories:
     get:
-      description: Get a list of all categories
+      description: Get a list of all categories for the authenticated user
       produces:
       - application/json
       responses:
@@ -127,17 +121,23 @@ paths:
                     $ref: '#/definitions/internal_category.Category'
                   type: array
               type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/vyaya_internal_platform_render.Response'
         "500":
           description: Internal Server Error
           schema:
             $ref: '#/definitions/vyaya_internal_platform_render.Response'
+      security:
+      - Bearer: []
       summary: List all categories
       tags:
       - categories
     post:
       consumes:
       - application/json
-      description: Create a new category with the provided name and user ID
+      description: Create a new category with the provided name
       parameters:
       - description: Category object
         in: body
@@ -161,16 +161,22 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/vyaya_internal_platform_render.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/vyaya_internal_platform_render.Response'
         "500":
           description: Internal Server Error
           schema:
             $ref: '#/definitions/vyaya_internal_platform_render.Response'
+      security:
+      - Bearer: []
       summary: Create a new category
       tags:
       - categories
   /categories/{id}:
     delete:
-      description: Delete a category by its ID
+      description: Delete a category by its ID if it belongs to the user
       parameters:
       - description: Category ID
         in: path
@@ -186,6 +192,10 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/vyaya_internal_platform_render.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/vyaya_internal_platform_render.Response'
         "404":
           description: Not Found
           schema:
@@ -194,11 +204,13 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/vyaya_internal_platform_render.Response'
+      security:
+      - Bearer: []
       summary: Delete category by ID
       tags:
       - categories
     get:
-      description: Get a single category by its ID
+      description: Get a single category by its ID if it belongs to the user
       parameters:
       - description: Category ID
         in: path
@@ -221,6 +233,10 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/vyaya_internal_platform_render.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/vyaya_internal_platform_render.Response'
         "404":
           description: Not Found
           schema:
@@ -229,13 +245,15 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/vyaya_internal_platform_render.Response'
+      security:
+      - Bearer: []
       summary: Get category by ID
       tags:
       - categories
     post:
       consumes:
       - application/json
-      description: Update an existing category with the provided name and status
+      description: Update an existing category if it belongs to the user
       parameters:
       - description: Category ID
         in: path
@@ -264,6 +282,10 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/vyaya_internal_platform_render.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/vyaya_internal_platform_render.Response'
         "404":
           description: Not Found
           schema:
@@ -272,6 +294,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/vyaya_internal_platform_render.Response'
+      security:
+      - Bearer: []
       summary: Update category by ID
       tags:
       - categories
@@ -290,7 +314,7 @@ paths:
       - health
   /transactions:
     get:
-      description: Get a list of all transactions
+      description: Get a list of all transactions for the authenticated user
       produces:
       - application/json
       responses:
@@ -305,18 +329,23 @@ paths:
                     $ref: '#/definitions/internal_transaction.Transaction'
                   type: array
               type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/vyaya_internal_platform_render.Response'
         "500":
           description: Internal Server Error
           schema:
             $ref: '#/definitions/vyaya_internal_platform_render.Response'
+      security:
+      - Bearer: []
       summary: List all transactions
       tags:
       - transactions
     post:
       consumes:
       - application/json
-      description: Create a new transaction with the provided amount, type, and user
-        ID
+      description: Create a new transaction with the provided amount, type
       parameters:
       - description: Transaction object
         in: body
@@ -340,16 +369,22 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/vyaya_internal_platform_render.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/vyaya_internal_platform_render.Response'
         "500":
           description: Internal Server Error
           schema:
             $ref: '#/definitions/vyaya_internal_platform_render.Response'
+      security:
+      - Bearer: []
       summary: Create a new transaction
       tags:
       - transactions
   /transactions/{id}:
     delete:
-      description: Delete a transaction by its ID
+      description: Delete a transaction by its ID if it belongs to the user
       parameters:
       - description: Transaction ID
         in: path
@@ -365,6 +400,10 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/vyaya_internal_platform_render.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/vyaya_internal_platform_render.Response'
         "404":
           description: Not Found
           schema:
@@ -373,11 +412,13 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/vyaya_internal_platform_render.Response'
+      security:
+      - Bearer: []
       summary: Delete transaction by ID
       tags:
       - transactions
     get:
-      description: Get a single transaction by its ID
+      description: Get a single transaction by its ID if it belongs to the user
       parameters:
       - description: Transaction ID
         in: path
@@ -400,6 +441,10 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/vyaya_internal_platform_render.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/vyaya_internal_platform_render.Response'
         "404":
           description: Not Found
           schema:
@@ -408,13 +453,15 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/vyaya_internal_platform_render.Response'
+      security:
+      - Bearer: []
       summary: Get transaction by ID
       tags:
       - transactions
     post:
       consumes:
       - application/json
-      description: Update an existing transaction with the provided amount and type
+      description: Update an existing transaction if it belongs to the user
       parameters:
       - description: Transaction ID
         in: path
@@ -443,6 +490,10 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/vyaya_internal_platform_render.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/vyaya_internal_platform_render.Response'
         "404":
           description: Not Found
           schema:
@@ -451,7 +502,15 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/vyaya_internal_platform_render.Response'
+      security:
+      - Bearer: []
       summary: Update transaction by ID
       tags:
       - transactions
+securityDefinitions:
+  Bearer:
+    description: Type "Bearer" followed by a space and JWT token.
+    in: header
+    name: Authorization
+    type: apiKey
 swagger: "2.0"

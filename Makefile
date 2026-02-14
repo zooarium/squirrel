@@ -1,7 +1,7 @@
 .PHONY: build up down restart logs ps test lint swag clean shell help tidy vet generate vendor coverage coverage-view build-local
 
 # Docker Compose commands
-build:
+build: vendor
 	docker-compose build
 
 up:
@@ -21,23 +21,23 @@ ps:
 
 # Run tests inside the container
 test: fmt
-	docker run --rm -v $(shell pwd):/app -w /app \
+	docker run --rm -v $(shell pwd)/..:/workspace -w /workspace/vyaya \
 		-e CGO_ENABLED=1 \
 		-e CGO_CFLAGS="-D_LARGEFILE64_SOURCE" \
 		golang:1.26-alpine \
-		sh -c "apk add --no-cache build-base && go test -v ./..."
+		sh -c "apk add --no-cache build-base && go test -mod=vendor -v ./..."
 
 # Format code and manage imports
 fmt:
-	docker run --rm -v $(shell pwd):/app -w /app golang:1.26-alpine sh -c "go install golang.org/x/tools/cmd/goimports@latest && goimports -w ."
+	docker run --rm -v $(shell pwd)/..:/workspace -w /workspace/vyaya golang:1.26-alpine sh -c "go install golang.org/x/tools/cmd/goimports@latest && goimports -w ."
 
 # Run linter using a docker container
 lint:
-	docker run --rm -v $(shell pwd):/app -w /app golangci/golangci-lint:latest golangci-lint run -v
+	docker run --rm -v $(shell pwd)/..:/workspace -w /workspace/vyaya golangci/golangci-lint:latest golangci-lint run -v --modules-download-mode=vendor
 
 # Generate Swagger documentation
 swag:
-	docker run --rm -v $(shell pwd):/app -w /app golang:latest sh -c "go install github.com/swaggo/swag/cmd/swag@latest && swag init -g cmd/api/main.go --parseDependency --parseInternal"
+	docker run --rm -v $(shell pwd)/..:/workspace -w /workspace/vyaya golang:latest sh -c "go install github.com/swaggo/swag/cmd/swag@latest && swag init -g cmd/api/main.go --parseDependency --parseInternal"
 
 # Open a shell in the running api container
 shell:
@@ -45,31 +45,31 @@ shell:
 
 # Clean up go.mod and go.sum
 tidy:
-	docker run --rm -v $(shell pwd):/app -w /app golang:1.26-alpine go mod tidy
+	docker run --rm -v $(shell pwd)/..:/workspace -w /workspace/vyaya golang:1.26-alpine sh -c "apk add git && go mod tidy"
 
 # Run go vet for static analysis
 vet:
-	docker run --rm -v $(shell pwd):/app -w /app golang:1.26-alpine go vet ./...
+	docker run --rm -v $(shell pwd)/..:/workspace -w /workspace/vyaya golang:1.26-alpine go vet -mod=vendor ./...
 
 # Run go generate for code generation
 generate:
-	docker run --rm -v $(shell pwd):/app -w /app \
+	docker run --rm -v $(shell pwd)/..:/workspace -w /workspace/vyaya \
 		-e CGO_ENABLED=1 \
 		-e CGO_CFLAGS="-D_LARGEFILE64_SOURCE" \
 		golang:1.26-alpine \
-		sh -c "apk add --no-cache build-base && go generate ./..."
+		sh -c "apk add --no-cache build-base && go generate -mod=vendor ./..."
 
 # Create vendor directory
 vendor:
-	docker run --rm -v $(shell pwd):/app -w /app golang:1.26-alpine go mod vendor
+	docker run --rm -v $(shell pwd)/..:/workspace -w /workspace/vyaya golang:1.26-alpine sh -c "apk add git && go mod tidy && go mod vendor"
 
 # Generate test coverage report
 coverage:
-	docker run --rm -v $(shell pwd):/app -w /app \
+	docker run --rm -v $(shell pwd)/..:/workspace -w /workspace/vyaya \
 		-e CGO_ENABLED=1 \
 		-e CGO_CFLAGS="-D_LARGEFILE64_SOURCE" \
 		golang:1.26-alpine \
-		sh -c "apk add --no-cache build-base && go test -coverprofile=coverage.out ./... && go tool cover -html=coverage.out -o coverage.html"
+		sh -c "apk add --no-cache build-base && go test -mod=vendor -coverprofile=coverage.out ./... && go tool cover -html=coverage.out -o coverage.html"
 
 # Open the coverage report in a browser
 coverage-view:
@@ -81,9 +81,9 @@ build-local:
 
 # Update Go dependencies
 deps-upgrade:
-	docker run --rm -v $(shell pwd):/app -w /app \
+	docker run --rm -v $(shell pwd)/..:/workspace -w /workspace/vyaya \
 		golang:1.26-alpine \
-		sh -c "go get -u ./... && go mod tidy"
+		sh -c "apk add git && go get -u ./... && go mod tidy && go mod vendor"
 	$(MAKE) test
 
 # Upgrade Go version across the project
@@ -96,11 +96,11 @@ go-upgrade:
 
 # Database migrations
 migrate-gen:
-	docker run --rm -v $(shell pwd):/app -w /app \
+	docker run --rm -v $(shell pwd)/..:/workspace -w /workspace/vyaya \
 		-e CGO_ENABLED=1 \
 		-e CGO_CFLAGS="-D_LARGEFILE64_SOURCE" \
 		golang:1.26-alpine \
-		sh -c "apk add --no-cache build-base && go run -mod=mod ent/migrate/main.go $(name)"
+		sh -c "apk add --no-cache build-base && go run -mod=vendor ent/migrate/main.go $(name)"
 
 migrate-apply:
 	docker-compose run --rm atlas migrate apply \

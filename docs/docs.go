@@ -17,7 +17,12 @@ const docTemplate = `{
     "paths": {
         "/categories": {
             "get": {
-                "description": "Get a list of all categories",
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Get a list of all categories for the authenticated user",
                 "produces": [
                     "application/json"
                 ],
@@ -47,6 +52,12 @@ const docTemplate = `{
                             ]
                         }
                     },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/vyaya_internal_platform_render.Response"
+                        }
+                    },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
@@ -56,7 +67,12 @@ const docTemplate = `{
                 }
             },
             "post": {
-                "description": "Create a new category with the provided name and user ID",
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Create a new category with the provided name",
                 "consumes": [
                     "application/json"
                 ],
@@ -103,6 +119,12 @@ const docTemplate = `{
                             "$ref": "#/definitions/vyaya_internal_platform_render.Response"
                         }
                     },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/vyaya_internal_platform_render.Response"
+                        }
+                    },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
@@ -114,7 +136,12 @@ const docTemplate = `{
         },
         "/categories/{id}": {
             "get": {
-                "description": "Get a single category by its ID",
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Get a single category by its ID if it belongs to the user",
                 "produces": [
                     "application/json"
                 ],
@@ -156,6 +183,12 @@ const docTemplate = `{
                             "$ref": "#/definitions/vyaya_internal_platform_render.Response"
                         }
                     },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/vyaya_internal_platform_render.Response"
+                        }
+                    },
                     "404": {
                         "description": "Not Found",
                         "schema": {
@@ -171,7 +204,12 @@ const docTemplate = `{
                 }
             },
             "post": {
-                "description": "Update an existing category with the provided name and status",
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Update an existing category if it belongs to the user",
                 "consumes": [
                     "application/json"
                 ],
@@ -225,6 +263,12 @@ const docTemplate = `{
                             "$ref": "#/definitions/vyaya_internal_platform_render.Response"
                         }
                     },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/vyaya_internal_platform_render.Response"
+                        }
+                    },
                     "404": {
                         "description": "Not Found",
                         "schema": {
@@ -240,7 +284,12 @@ const docTemplate = `{
                 }
             },
             "delete": {
-                "description": "Delete a category by its ID",
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Delete a category by its ID if it belongs to the user",
                 "produces": [
                     "application/json"
                 ],
@@ -263,6 +312,12 @@ const docTemplate = `{
                     },
                     "400": {
                         "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/vyaya_internal_platform_render.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
                         "schema": {
                             "$ref": "#/definitions/vyaya_internal_platform_render.Response"
                         }
@@ -304,7 +359,12 @@ const docTemplate = `{
         },
         "/transactions": {
             "get": {
-                "description": "Get a list of all transactions",
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Get a list of all transactions for the authenticated user",
                 "produces": [
                     "application/json"
                 ],
@@ -334,6 +394,12 @@ const docTemplate = `{
                             ]
                         }
                     },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/vyaya_internal_platform_render.Response"
+                        }
+                    },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
@@ -343,7 +409,12 @@ const docTemplate = `{
                 }
             },
             "post": {
-                "description": "Create a new transaction with the provided amount, type, and user ID",
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Create a new transaction with the provided amount, type",
                 "consumes": [
                     "application/json"
                 ],
@@ -390,6 +461,12 @@ const docTemplate = `{
                             "$ref": "#/definitions/vyaya_internal_platform_render.Response"
                         }
                     },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/vyaya_internal_platform_render.Response"
+                        }
+                    },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
@@ -401,7 +478,12 @@ const docTemplate = `{
         },
         "/transactions/{id}": {
             "get": {
-                "description": "Get a single transaction by its ID",
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Get a single transaction by its ID if it belongs to the user",
                 "produces": [
                     "application/json"
                 ],
@@ -443,6 +525,12 @@ const docTemplate = `{
                             "$ref": "#/definitions/vyaya_internal_platform_render.Response"
                         }
                     },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/vyaya_internal_platform_render.Response"
+                        }
+                    },
                     "404": {
                         "description": "Not Found",
                         "schema": {
@@ -458,7 +546,12 @@ const docTemplate = `{
                 }
             },
             "post": {
-                "description": "Update an existing transaction with the provided amount and type",
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Update an existing transaction if it belongs to the user",
                 "consumes": [
                     "application/json"
                 ],
@@ -512,6 +605,12 @@ const docTemplate = `{
                             "$ref": "#/definitions/vyaya_internal_platform_render.Response"
                         }
                     },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/vyaya_internal_platform_render.Response"
+                        }
+                    },
                     "404": {
                         "description": "Not Found",
                         "schema": {
@@ -527,7 +626,12 @@ const docTemplate = `{
                 }
             },
             "delete": {
-                "description": "Delete a transaction by its ID",
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Delete a transaction by its ID if it belongs to the user",
                 "produces": [
                     "application/json"
                 ],
@@ -550,6 +654,12 @@ const docTemplate = `{
                     },
                     "400": {
                         "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/vyaya_internal_platform_render.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
                         "schema": {
                             "$ref": "#/definitions/vyaya_internal_platform_render.Response"
                         }
@@ -600,8 +710,7 @@ const docTemplate = `{
         "internal_category.CreateCategoryRequest": {
             "type": "object",
             "required": [
-                "name",
-                "user_id"
+                "name"
             ],
             "properties": {
                 "name": {
@@ -613,9 +722,6 @@ const docTemplate = `{
                         0,
                         1
                     ]
-                },
-                "user_id": {
-                    "type": "integer"
                 }
             }
         },
@@ -641,8 +747,7 @@ const docTemplate = `{
             "type": "object",
             "required": [
                 "amount",
-                "type",
-                "user_id"
+                "type"
             ],
             "properties": {
                 "amount": {
@@ -657,9 +762,6 @@ const docTemplate = `{
                         "income",
                         "expense"
                     ]
-                },
-                "user_id": {
-                    "type": "integer"
                 }
             }
         },
@@ -724,13 +826,21 @@ const docTemplate = `{
                 }
             }
         }
+    },
+    "securityDefinitions": {
+        "Bearer": {
+            "description": "Type \"Bearer\" followed by a space and JWT token.",
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
+        }
     }
 }`
 
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
 	Version:          "1.0",
-	Host:             "localhost:8080",
+	Host:             "localhost:8081",
 	BasePath:         "/",
 	Schemes:          []string{},
 	Title:            "Vyaya API",

@@ -8,17 +8,17 @@ WORKDIR /app
 
 # Copy go mod and sum files
 COPY go.mod ./
-# COPY go.sum ./ # Uncomment if go.sum exists
+COPY go.sum ./
 
-# Download dependencies
-RUN go mod download
+# Copy vendor directory
+COPY vendor/ vendor/
 
 # Copy source code
 COPY . .
 
 # Build the application
 # CGO_ENABLED=1 is required for the standard SQLite driver
-RUN CGO_ENABLED=1 CGO_CFLAGS="-D_LARGEFILE64_SOURCE" GOOS=linux go build -a -installsuffix cgo -o vyaya ./cmd/api/main.go
+RUN CGO_ENABLED=1 CGO_CFLAGS="-D_LARGEFILE64_SOURCE" GOOS=linux go build -mod=vendor -a -installsuffix cgo -o vyaya ./cmd/api/main.go
 
 # Final stage
 FROM alpine:latest
@@ -30,8 +30,8 @@ WORKDIR /app
 # Copy the binary from the builder stage
 COPY --from=builder /app/vyaya .
 
-# Expose port 8080
-EXPOSE 8080
+# Expose port 8081
+EXPOSE 8081
 
 # Command to run the executable
 CMD ["./vyaya"]

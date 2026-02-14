@@ -16,11 +16,11 @@ var (
 
 // Service defines the business logic for categories.
 type Service interface {
-	Create(ctx context.Context, req CreateCategoryRequest) (Category, error)
-	List(ctx context.Context) ([]Category, error)
-	GetByID(ctx context.Context, id int) (Category, error)
-	Update(ctx context.Context, id int, req UpdateCategoryRequest) (Category, error)
-	Delete(ctx context.Context, id int) error
+	Create(ctx context.Context, userID int, req CreateCategoryRequest) (Category, error)
+	List(ctx context.Context, userID int) ([]Category, error)
+	GetByID(ctx context.Context, userID, id int) (Category, error)
+	Update(ctx context.Context, userID, id int, req UpdateCategoryRequest) (Category, error)
+	Delete(ctx context.Context, userID, id int) error
 }
 
 type service struct {
@@ -37,50 +37,47 @@ func NewService(repo *Repository) Service {
 }
 
 // Create creates a new category.
-func (s *service) Create(ctx context.Context, req CreateCategoryRequest) (Category, error) {
+func (s *service) Create(ctx context.Context, userID int, req CreateCategoryRequest) (Category, error) {
 	if err := s.validate.Struct(req); err != nil {
 		return Category{}, fmt.Errorf("validate request: %w", err)
 	}
 
 	if req.Status == 0 {
-		req.Status = 1 // Default to active if not provided or 0 is passed as empty?
-		// Actually validator oneof=0 1 will allow 0.
-		// If req.Status is not provided, it will be 0.
-		// Let's assume if it's 0 it's valid if they really want inactive.
+		req.Status = 1
 	}
 
 	cat := Category{
-		UserID: req.UserID,
+		UserID: userID,
 		Name:   req.Name,
 		Status: req.Status,
 	}
 
 	created, err := s.repo.Create(ctx, cat)
 	if err != nil {
-		slog.Error("failed to create category", "error", err, "name", req.Name, "user_id", req.UserID)
+		slog.Error("failed to create category", "error", err, "name", req.Name, "user_id", userID)
 		return Category{}, err
 	}
 
-	slog.Info("category created", "id", created.ID, "name", created.Name, "user_id", created.UserID)
+	slog.Info("category created", "id", created.ID, "name", created.Name, "user_id", userID)
 	return created, nil
 }
 
-// List returns all categories.
-func (s *service) List(ctx context.Context) ([]Category, error) {
-	cats, err := s.repo.List(ctx)
+// List returns all categories for a user.
+func (s *service) List(ctx context.Context, userID int) ([]Category, error) {
+	cats, err := s.repo.List(ctx, userID)
 	if err != nil {
-		slog.Error("failed to list categories", "error", err)
+		slog.Error("failed to list categories", "error", err, "user_id", userID)
 		return nil, err
 	}
 	return cats, nil
 }
 
-// GetByID returns a category by its ID.
-func (s *service) GetByID(ctx context.Context, id int) (Category, error) {
-	cat, err := s.repo.GetByID(ctx, id)
+// GetByID returns a category by its ID and user ID.
+func (s *service) GetByID(ctx context.Context, userID, id int) (Category, error) {
+	cat, err := s.repo.GetByID(ctx, userID, id)
 	if err != nil {
 		if !errors.Is(err, ErrCategoryNotFound) {
-			slog.Error("failed to get category by id", "error", err, "id", id)
+			slog.Error("failed to get category by id", "error", err, "id", id, "user_id", userID)
 		}
 		return Category{}, err
 	}
@@ -88,7 +85,7 @@ func (s *service) GetByID(ctx context.Context, id int) (Category, error) {
 }
 
 // Update updates an existing category.
-func (s *service) Update(ctx context.Context, id int, req UpdateCategoryRequest) (Category, error) {
+func (s *service) Update(ctx context.Context, userID, id int, req UpdateCategoryRequest) (Category, error) {
 	if err := s.validate.Struct(req); err != nil {
 		return Category{}, fmt.Errorf("validate request: %w", err)
 	}
@@ -98,10 +95,10 @@ func (s *service) Update(ctx context.Context, id int, req UpdateCategoryRequest)
 		Status: req.Status,
 	}
 
-	updated, err := s.repo.Update(ctx, id, cat)
+	updated, err := s.repo.Update(ctx, userID, id, cat)
 	if err != nil {
 		if !errors.Is(err, ErrCategoryNotFound) {
-			slog.Error("failed to update category", "error", err, "id", id)
+			slog.Error("failed to update category", "error", err, "id", id, "user_id", userID)
 		}
 		return Category{}, err
 	}
@@ -111,11 +108,11 @@ func (s *service) Update(ctx context.Context, id int, req UpdateCategoryRequest)
 }
 
 // Delete deletes a category by its ID.
-func (s *service) Delete(ctx context.Context, id int) error {
-	err := s.repo.Delete(ctx, id)
+func (s *service) Delete(ctx context.Context, userID, id int) error {
+	err := s.repo.Delete(ctx, userID, id)
 	if err != nil {
 		if !errors.Is(err, ErrCategoryNotFound) {
-			slog.Error("failed to delete category", "error", err, "id", id)
+			slog.Error("failed to delete category", "error", err, "id", id, "user_id", userID)
 		}
 		return err
 	}

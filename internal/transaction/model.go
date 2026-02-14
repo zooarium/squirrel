@@ -17,7 +17,6 @@ type Transaction struct {
 
 // CreateTransactionRequest defines the request body for creating a transaction.
 type CreateTransactionRequest struct {
-	UserID     int     `json:"user_id" validate:"required"`
 	Amount     float64 `json:"amount" validate:"required"`
 	Type       string  `json:"type" validate:"required,oneof=income expense"`
 	CategoryID *int    `json:"category_id,omitempty"`
