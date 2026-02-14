@@ -30,3 +30,4 @@ log/
 *.db-journal
 dvarapala
 coverage.html
+\n# Vendor directory\nvendor/

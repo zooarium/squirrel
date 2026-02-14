@@ -57,7 +57,7 @@ func Load() (*Config, error) {
 	v.SetDefault("DATABASE.PATH", "data/vyaya.db")
 	v.SetDefault("LOG.DIR", "log")
 	v.SetDefault("LOG.LEVEL", "info")
-	v.SetDefault("AUTH.JWT_SECRET", "change-me-in-production")
+	v.SetDefault("AUTH.JWT_SECRET", "a-very-secure-and-shared-secret-key")
 	v.SetDefault("AUTH.JWT_EXPIRY", 24*time.Hour)
 
 	// Environment variables
