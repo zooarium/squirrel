@@ -16,8 +16,8 @@ func TestCategoryService(t *testing.T) {
 		_ = client.Close()
 	}()
 
-	repo := NewRepository(client)
-	svc := NewService(repo)
+	repo := NewCategoryRepository(client)
+	svc := NewCategoryService(repo)
 	ctx := context.Background()
 
 	t.Run("Create Category", func(t *testing.T) {

@@ -14,22 +14,22 @@ var (
 	ErrTransactionNotFound = errors.New("transaction not found")
 )
 
-// Service handles business logic for transactions.
-type Service struct {
-	repo     *Repository
+// TransactionService handles business logic for transactions.
+type TransactionService struct {
+	repo     *TransactionRepository
 	validate *validator.Validate
 }
 
-// NewService creates a new transaction service.
-func NewService(repo *Repository) *Service {
-	return &Service{
+// NewTransactionService creates a new transaction service.
+func NewTransactionService(repo *TransactionRepository) *TransactionService {
+	return &TransactionService{
 		repo:     repo,
 		validate: validator.New(),
 	}
 }
 
 // Create creates a new transaction.
-func (s *Service) Create(ctx context.Context, req CreateTransactionRequest) (Transaction, error) {
+func (s *TransactionService) Create(ctx context.Context, req CreateTransactionRequest) (Transaction, error) {
 	if err := s.validate.Struct(req); err != nil {
 		return Transaction{}, fmt.Errorf("validate request: %w", err)
 	}
@@ -52,7 +52,7 @@ func (s *Service) Create(ctx context.Context, req CreateTransactionRequest) (Tra
 }
 
 // List returns all transactions.
-func (s *Service) List(ctx context.Context) ([]Transaction, error) {
+func (s *TransactionService) List(ctx context.Context) ([]Transaction, error) {
 	txs, err := s.repo.List(ctx)
 	if err != nil {
 		slog.Error("failed to list transactions", "error", err)
@@ -62,7 +62,7 @@ func (s *Service) List(ctx context.Context) ([]Transaction, error) {
 }
 
 // GetByID returns a transaction by its ID.
-func (s *Service) GetByID(ctx context.Context, id int) (Transaction, error) {
+func (s *TransactionService) GetByID(ctx context.Context, id int) (Transaction, error) {
 	tx, err := s.repo.GetByID(ctx, id)
 	if err != nil {
 		if !errors.Is(err, ErrTransactionNotFound) {
@@ -74,7 +74,7 @@ func (s *Service) GetByID(ctx context.Context, id int) (Transaction, error) {
 }
 
 // Update updates an existing transaction.
-func (s *Service) Update(ctx context.Context, id int, req UpdateTransactionRequest) (Transaction, error) {
+func (s *TransactionService) Update(ctx context.Context, id int, req UpdateTransactionRequest) (Transaction, error) {
 	if err := s.validate.Struct(req); err != nil {
 		return Transaction{}, fmt.Errorf("validate request: %w", err)
 	}
@@ -98,7 +98,7 @@ func (s *Service) Update(ctx context.Context, id int, req UpdateTransactionReque
 }
 
 // Delete deletes a transaction by its ID.
-func (s *Service) Delete(ctx context.Context, id int) error {
+func (s *TransactionService) Delete(ctx context.Context, id int) error {
 	err := s.repo.Delete(ctx, id)
 	if err != nil {
 		if !errors.Is(err, ErrTransactionNotFound) {

@@ -66,18 +66,18 @@ HTTP → Service → Repository
 #### Handler (Delivery Layer):
 - Only HTTP concerns
 - No business logic
-```
+```go
 type CategoryHandler struct {
-    svc categorieservice
+    svc *CategoryService
 }
 ```
 
 #### Service (Business Logic):
 - Pure Go logic
 - No HTTP, no SQL
-```
-type categorieservice interface {
-    Create(ctx context.Context, u Category) error
+```go
+type CategoryService struct {
+    repo *CategoryRepository
 }
 ```
 
@@ -242,6 +242,11 @@ The database initialization is fully aligned with the Ent migration setup. On ev
 - `GET /categories/{id}`: Get category by ID.
 - `POST /categories/{id}`: Update category by ID.
 - `DELETE /categories/{id}`: Delete category by ID.
+- `POST /transactions`: Create a new transaction.
+- `GET /transactions`: List all transactions.
+- `GET /transactions/{id}`: Get transaction by ID.
+- `POST /transactions/{id}`: Update transaction by ID.
+- `DELETE /transactions/{id}`: Delete transaction by ID.
 - `GET /swagger/*`: Swagger UI.
 
 ## Rate Limiting

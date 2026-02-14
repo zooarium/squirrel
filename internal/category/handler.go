@@ -11,32 +11,32 @@ import (
 	"github.com/go-chi/chi/v5"
 )
 
-// Handler handles HTTP requests for categories.
-type Handler struct {
-	svc *Service
+// CategoryHandler handles HTTP requests for categories.
+type CategoryHandler struct {
+	svc *CategoryService
 }
 
-// NewHandler creates a new category handler.
-func NewHandler(svc *Service) *Handler {
-	return &Handler{svc: svc}
+// NewCategoryHandler creates a new category handler.
+func NewCategoryHandler(svc *CategoryService) *CategoryHandler {
+	return &CategoryHandler{svc: svc}
 }
 
 // Routes returns the chi router for category endpoints.
-func (h *Handler) Routes() chi.Router {
+func (h *CategoryHandler) Routes() chi.Router {
 	r := chi.NewRouter()
 
-	r.Post("/", h.Create)
-	r.Get("/", h.List)
+	r.Post("/", h.CreateCategory)
+	r.Get("/", h.ListCategories)
 	r.Route("/{id}", func(r chi.Router) {
-		r.Get("/", h.GetByID)
-		r.Post("/", h.Update)
-		r.Delete("/", h.Delete)
+		r.Get("/", h.GetCategoryByID)
+		r.Post("/", h.UpdateCategory)
+		r.Delete("/", h.DeleteCategory)
 	})
 
 	return r
 }
 
-// Create handles category creation.
+// CreateCategory handles category creation.
 // @Summary Create a new category
 // @Description Create a new category with the provided name and user ID
 // @Tags categories
@@ -47,7 +47,7 @@ func (h *Handler) Routes() chi.Router {
 // @Failure 400 {object} render.Response
 // @Failure 500 {object} render.Response
 // @Router /categories [post]
-func (h *Handler) Create(w http.ResponseWriter, r *http.Request) {
+func (h *CategoryHandler) CreateCategory(w http.ResponseWriter, r *http.Request) {
 	var req CreateCategoryRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		render.Error(w, http.StatusBadRequest, "invalid request body")
@@ -63,7 +63,7 @@ func (h *Handler) Create(w http.ResponseWriter, r *http.Request) {
 	render.JSON(w, http.StatusCreated, cat)
 }
 
-// List handles listing all categories.
+// ListCategories handles listing all categories.
 // @Summary List all categories
 // @Description Get a list of all categories
 // @Tags categories
@@ -71,7 +71,7 @@ func (h *Handler) Create(w http.ResponseWriter, r *http.Request) {
 // @Success 200 {object} render.Response{data=[]Category}
 // @Failure 500 {object} render.Response
 // @Router /categories [get]
-func (h *Handler) List(w http.ResponseWriter, r *http.Request) {
+func (h *CategoryHandler) ListCategories(w http.ResponseWriter, r *http.Request) {
 	cats, err := h.svc.List(r.Context())
 	if err != nil {
 		render.Error(w, http.StatusInternalServerError, err.Error())
@@ -81,7 +81,7 @@ func (h *Handler) List(w http.ResponseWriter, r *http.Request) {
 	render.JSON(w, http.StatusOK, cats)
 }
 
-// GetByID handles getting a category by ID.
+// GetCategoryByID handles getting a category by ID.
 // @Summary Get category by ID
 // @Description Get a single category by its ID
 // @Tags categories
@@ -92,7 +92,7 @@ func (h *Handler) List(w http.ResponseWriter, r *http.Request) {
 // @Failure 404 {object} render.Response
 // @Failure 500 {object} render.Response
 // @Router /categories/{id} [get]
-func (h *Handler) GetByID(w http.ResponseWriter, r *http.Request) {
+func (h *CategoryHandler) GetCategoryByID(w http.ResponseWriter, r *http.Request) {
 	id, err := h.getIDParam(r)
 	if err != nil {
 		render.Error(w, http.StatusBadRequest, "invalid category ID")
@@ -112,7 +112,7 @@ func (h *Handler) GetByID(w http.ResponseWriter, r *http.Request) {
 	render.JSON(w, http.StatusOK, cat)
 }
 
-// Update handles updating a category.
+// UpdateCategory handles updating a category.
 // @Summary Update category by ID
 // @Description Update an existing category with the provided name and status
 // @Tags categories
@@ -125,7 +125,7 @@ func (h *Handler) GetByID(w http.ResponseWriter, r *http.Request) {
 // @Failure 404 {object} render.Response
 // @Failure 500 {object} render.Response
 // @Router /categories/{id} [post]
-func (h *Handler) Update(w http.ResponseWriter, r *http.Request) {
+func (h *CategoryHandler) UpdateCategory(w http.ResponseWriter, r *http.Request) {
 	id, err := h.getIDParam(r)
 	if err != nil {
 		render.Error(w, http.StatusBadRequest, "invalid category ID")
@@ -151,7 +151,7 @@ func (h *Handler) Update(w http.ResponseWriter, r *http.Request) {
 	render.JSON(w, http.StatusOK, cat)
 }
 
-// Delete handles deleting a category.
+// DeleteCategory handles deleting a category.
 // @Summary Delete category by ID
 // @Description Delete a category by its ID
 // @Tags categories
@@ -162,7 +162,7 @@ func (h *Handler) Update(w http.ResponseWriter, r *http.Request) {
 // @Failure 404 {object} render.Response
 // @Failure 500 {object} render.Response
 // @Router /categories/{id} [delete]
-func (h *Handler) Delete(w http.ResponseWriter, r *http.Request) {
+func (h *CategoryHandler) DeleteCategory(w http.ResponseWriter, r *http.Request) {
 	id, err := h.getIDParam(r)
 	if err != nil {
 		render.Error(w, http.StatusBadRequest, "invalid category ID")
@@ -182,7 +182,7 @@ func (h *Handler) Delete(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusNoContent)
 }
 
-func (h *Handler) getIDParam(r *http.Request) (int, error) {
+func (h *CategoryHandler) getIDParam(r *http.Request) (int, error) {
 	idStr := chi.URLParam(r, "id")
 	return strconv.Atoi(idStr)
 }

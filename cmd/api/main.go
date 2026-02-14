@@ -79,13 +79,13 @@ func main() {
 	}()
 
 	// Initialize components
-	categoryRepo := category.NewRepository(client)
-	categorySvc := category.NewService(categoryRepo)
-	categoryHandler := category.NewHandler(categorySvc)
+	categoryRepo := category.NewCategoryRepository(client)
+	categorySvc := category.NewCategoryService(categoryRepo)
+	categoryHandler := category.NewCategoryHandler(categorySvc)
 
-	transactionRepo := transaction.NewRepository(client)
-	transactionSvc := transaction.NewService(transactionRepo)
-	transactionHandler := transaction.NewHandler(transactionSvc)
+	transactionRepo := transaction.NewTransactionRepository(client)
+	transactionSvc := transaction.NewTransactionService(transactionRepo)
+	transactionHandler := transaction.NewTransactionHandler(transactionSvc)
 
 	router := platformhttp.NewRouter(categoryHandler, transactionHandler)
 

@@ -7,18 +7,18 @@ import (
 	"vyaya/ent/transaction"
 )
 
-// Repository handles database operations for transactions.
-type Repository struct {
+// TransactionRepository handles database operations for transactions.
+type TransactionRepository struct {
 	client *ent.Client
 }
 
-// NewRepository creates a new transaction repository.
-func NewRepository(client *ent.Client) *Repository {
-	return &Repository{client: client}
+// NewTransactionRepository creates a new transaction repository.
+func NewTransactionRepository(client *ent.Client) *TransactionRepository {
+	return &TransactionRepository{client: client}
 }
 
 // Create creates a new transaction.
-func (r *Repository) Create(ctx context.Context, t Transaction) (Transaction, error) {
+func (r *TransactionRepository) Create(ctx context.Context, t Transaction) (Transaction, error) {
 	builder := r.client.Transaction.
 		Create().
 		SetUserID(t.UserID).
@@ -38,7 +38,7 @@ func (r *Repository) Create(ctx context.Context, t Transaction) (Transaction, er
 }
 
 // List returns all transactions.
-func (r *Repository) List(ctx context.Context) ([]Transaction, error) {
+func (r *TransactionRepository) List(ctx context.Context) ([]Transaction, error) {
 	entTxs, err := r.client.Transaction.
 		Query().
 		Order(ent.Desc(transaction.FieldCreatedAt)).
@@ -55,7 +55,7 @@ func (r *Repository) List(ctx context.Context) ([]Transaction, error) {
 }
 
 // GetByID returns a transaction by its ID.
-func (r *Repository) GetByID(ctx context.Context, id int) (Transaction, error) {
+func (r *TransactionRepository) GetByID(ctx context.Context, id int) (Transaction, error) {
 	entTx, err := r.client.Transaction.
 		Get(ctx, id)
 	if err != nil {
@@ -69,7 +69,7 @@ func (r *Repository) GetByID(ctx context.Context, id int) (Transaction, error) {
 }
 
 // Update updates a transaction.
-func (r *Repository) Update(ctx context.Context, id int, t Transaction) (Transaction, error) {
+func (r *TransactionRepository) Update(ctx context.Context, id int, t Transaction) (Transaction, error) {
 	builder := r.client.Transaction.
 		UpdateOneID(id).
 		SetAmount(t.Amount).
@@ -93,7 +93,7 @@ func (r *Repository) Update(ctx context.Context, id int, t Transaction) (Transac
 }
 
 // Delete deletes a transaction.
-func (r *Repository) Delete(ctx context.Context, id int) error {
+func (r *TransactionRepository) Delete(ctx context.Context, id int) error {
 	err := r.client.Transaction.
 		DeleteOneID(id).
 		Exec(ctx)
@@ -106,7 +106,7 @@ func (r *Repository) Delete(ctx context.Context, id int) error {
 	return nil
 }
 
-func (r *Repository) mapToModel(entTx *ent.Transaction) Transaction {
+func (r *TransactionRepository) mapToModel(entTx *ent.Transaction) Transaction {
 	return Transaction{
 		ID:         entTx.ID,
 		UserID:     entTx.UserID,

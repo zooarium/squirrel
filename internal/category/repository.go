@@ -7,18 +7,18 @@ import (
 	"vyaya/ent/category"
 )
 
-// Repository handles database operations for categories.
-type Repository struct {
+// CategoryRepository handles database operations for categories.
+type CategoryRepository struct {
 	client *ent.Client
 }
 
-// NewRepository creates a new category repository.
-func NewRepository(client *ent.Client) *Repository {
-	return &Repository{client: client}
+// NewCategoryRepository creates a new category repository.
+func NewCategoryRepository(client *ent.Client) *CategoryRepository {
+	return &CategoryRepository{client: client}
 }
 
 // Create creates a new category.
-func (r *Repository) Create(ctx context.Context, c Category) (Category, error) {
+func (r *CategoryRepository) Create(ctx context.Context, c Category) (Category, error) {
 	entCat, err := r.client.Category.
 		Create().
 		SetUserID(c.UserID).
@@ -33,7 +33,7 @@ func (r *Repository) Create(ctx context.Context, c Category) (Category, error) {
 }
 
 // List returns all categories.
-func (r *Repository) List(ctx context.Context) ([]Category, error) {
+func (r *CategoryRepository) List(ctx context.Context) ([]Category, error) {
 	entCats, err := r.client.Category.
 		Query().
 		Order(ent.Asc(category.FieldName)).
@@ -50,7 +50,7 @@ func (r *Repository) List(ctx context.Context) ([]Category, error) {
 }
 
 // GetByID returns a category by its ID.
-func (r *Repository) GetByID(ctx context.Context, id int) (Category, error) {
+func (r *CategoryRepository) GetByID(ctx context.Context, id int) (Category, error) {
 	entCat, err := r.client.Category.
 		Get(ctx, id)
 	if err != nil {
@@ -64,7 +64,7 @@ func (r *Repository) GetByID(ctx context.Context, id int) (Category, error) {
 }
 
 // Update updates a category.
-func (r *Repository) Update(ctx context.Context, id int, c Category) (Category, error) {
+func (r *CategoryRepository) Update(ctx context.Context, id int, c Category) (Category, error) {
 	entCat, err := r.client.Category.
 		UpdateOneID(id).
 		SetName(c.Name).
@@ -81,7 +81,7 @@ func (r *Repository) Update(ctx context.Context, id int, c Category) (Category, 
 }
 
 // Delete deletes a category.
-func (r *Repository) Delete(ctx context.Context, id int) error {
+func (r *CategoryRepository) Delete(ctx context.Context, id int) error {
 	err := r.client.Category.
 		DeleteOneID(id).
 		Exec(ctx)
@@ -94,7 +94,7 @@ func (r *Repository) Delete(ctx context.Context, id int) error {
 	return nil
 }
 
-func (r *Repository) mapToModel(entCat *ent.Category) Category {
+func (r *CategoryRepository) mapToModel(entCat *ent.Category) Category {
 	return Category{
 		ID:        entCat.ID,
 		UserID:    entCat.UserID,

@@ -65,19 +65,33 @@ The application uses `viper` for configuration management, supporting multiple e
 - **Context Propagation**: `context.Context` is passed through all layers for cancellation and timeouts.
 - **Graceful Shutdown**: The API server handles `SIGINT` and `SIGTERM` for graceful termination.
 
+## Naming Conventions
+- **Packages**: Short, lowercase, single-word names (e.g., `category`, `auth`). Avoid underscores or mixedCaps.
+- **Files**: Lowercase, using underscores only if necessary (e.g., `handler.go`, `service_test.go`).
+- **Variables & Constants**: Use `CamelCase` (`MixedCaps` for exported, `mixedCaps` for unexported). Keep acronyms consistent (e.g., `categoryID`, `APIKey`).
+- **Receivers**: Use short, consistent names (1-3 letters) representing the type (e.g., `func (u *Category) ...`).
+- **Interfaces**: Name based on behavior, often ending in `-er` for single-action interfaces (e.g., `Reader`), or use descriptive nouns for domain logic (e.g., `Service`, `Repository`).
+- **REST API Components**:
+    - **Handlers**: `[Action][Entity]` (e.g., `CreateCategory`, `ListCategories`).
+    - **Services**: `[Entity]Service`.
+    - **Repositories**: `[Entity]Repository`.
+    - **Models**: Use `[Entity]` for domain models and `[Action][Entity]Request/Response` for DTOs.
+- **Database**: Table names and Ent schemas **must** be singular (e.g., `category`).
+
 ## Development Workflow
 
 ### Mandatory Workflow for Every Change
 To ensure codebase health and consistency, the following steps **must** be completed for every modification or new feature:
-1.  **Structured Logging**: Add or update structured logging (using `slog`) to capture important events, business logic milestones, and error conditions.
-2.  **Write Unit Tests**: Every new feature or bug fix must include corresponding unit tests (e.g., `*_test.go`).
-3.  **Update Makefile**: If new development commands are required, add them to the `Makefile` and update the documentation accordingly.
-4.  **Run Formatter**: Ensure code style and imports are consistent by running `make fmt`.
-5.  **Run Linter**: Ensure code quality by running `make lint` after code and test changes.
-6.  **Update Swagger Documentation**: If any API endpoints are added or modified, regenerate documentation using `make swag`.
-7.  **Update README.md**: Ensure any new features, endpoints, or configuration changes are documented in `README.md`.
-8.  **Update GEMINI.md**: Ensure this project guide is updated to reflect any changes in architecture, workflows, or documentation standards.
-9.  **Run All Tests**: Verify that all tests pass by running `make test`.
+1. **Follow Naming Conventions**: Adhere to the project's naming conventions for packages, files, variables, and API components as defined in this document.
+2.  **Structured Logging**: Add or update structured logging (using `slog`) to capture important events, business logic milestones, and error conditions.
+3.  **Write Unit Tests**: Every new feature or bug fix must include corresponding unit tests (e.g., `*_test.go`).
+4.  **Update Makefile**: If new development commands are required, add them to the `Makefile` and update the documentation accordingly.
+5.  **Run Formatter**: Ensure code style and imports are consistent by running `make fmt`.
+6.  **Run Linter**: Ensure code quality by running `make lint` after code and test changes.
+7.  **Update Swagger Documentation**: If any API endpoints are added or modified, regenerate documentation using `make swag`.
+8.  **Update README.md**: Ensure any new features, endpoints, or configuration changes are documented in `README.md`.
+9.  **Update GEMINI.md**: Ensure this project guide is updated to reflect any changes in architecture, workflows, or documentation standards.
+10.  **Run All Tests**: Verify that all tests pass by running `make test`.
 
 ### Common Commands (Makefile)
 - `make build`: Build Docker images.
@@ -106,11 +120,26 @@ To ensure codebase health and consistency, the following steps **must** be compl
 4.  **Generate Migration**: `make migrate-gen name=change_description`.
 5.  **Apply**: `make migrate-apply` (or restart the app for auto-migration).
 
-## Database Schema (Category Table)
+## Database Schema
+
+### Category Table
 | Field      | Type      | Description                          |
 |------------|-----------|--------------------------------------|
 | ID         | int       | Primary Key (Auto-increment)         |
+| UserID     | int       | Owner user ID                        |
 | Name       | string    | Category name                        |
+| Status     | int8      | Status (1: Active, 0: Inactive)      |
+| CreatedAt  | datetime  | Creation timestamp                   |
+| UpdatedAt  | datetime  | Last update timestamp                |
+
+### Transaction Table
+| Field      | Type      | Description                          |
+|------------|-----------|--------------------------------------|
+| ID         | int       | Primary Key (Auto-increment)         |
+| UserID     | int       | Owner user ID                        |
+| Amount     | float     | Transaction amount                   |
+| Type       | enum      | Type (income, expense)               |
+| CategoryID | int       | Foreign Key to Category (Optional)   |
 | CreatedAt  | datetime  | Creation timestamp                   |
 | UpdatedAt  | datetime  | Last update timestamp                |
 
@@ -121,6 +150,11 @@ To ensure codebase health and consistency, the following steps **must** be compl
 - `GET /categories/{id}`: Get category by ID.
 - `POST /categories/{id}`: Update category by ID.
 - `DELETE /categories/{id}`: Delete category by ID.
+- `POST /transactions`: Create a new transaction.
+- `GET /transactions`: List all transactions.
+- `GET /transactions/{id}`: Get transaction by ID.
+- `POST /transactions/{id}`: Update transaction by ID.
+- `DELETE /transactions/{id}`: Delete transaction by ID.
 - `GET /swagger/*`: Swagger UI.
 
 ## Logging & Monitoring
@@ -131,7 +165,7 @@ To ensure codebase health and consistency, the following steps **must** be compl
 ## Persistence & Volumes
 - **Database**: `./data/vyaya.db` mapped to `/app/data/vyaya.db`.
 - **Logs**: `./log/` mapped to `/app/log/`.
-- **Environment**: 
+- **Environment**:
   - `GO_ENV`: Controls which configuration file is loaded (e.g., `development`, `production`).
   - `DB_PATH`: Overrides the database path (defaults to `data/vyaya.db`).
   - `LOG_DIR`: Overrides the log directory (defaults to `log`).
