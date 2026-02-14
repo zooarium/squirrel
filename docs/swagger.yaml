@@ -250,7 +250,7 @@ paths:
       summary: Get category by ID
       tags:
       - categories
-    post:
+    put:
       consumes:
       - application/json
       description: Update an existing category if it belongs to the user
@@ -458,7 +458,7 @@ paths:
       summary: Get transaction by ID
       tags:
       - transactions
-    post:
+    put:
       consumes:
       - application/json
       description: Update an existing transaction if it belongs to the user

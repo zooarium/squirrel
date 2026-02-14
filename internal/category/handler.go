@@ -36,7 +36,7 @@ func (h *Handler) Routes() chi.Router {
 	r.Get("/", h.List)
 	r.Route("/{id}", func(r chi.Router) {
 		r.Get("/", h.GetByID)
-		r.Post("/", h.Update)
+		r.Put("/", h.Update)
 		r.Delete("/", h.Delete)
 	})
 
@@ -165,7 +165,7 @@ func (h *Handler) GetByID(w http.ResponseWriter, r *http.Request) {
 // @Failure 404 {object} render.Response
 // @Failure 500 {object} render.Response
 // @Security Bearer
-// @Router /categories/{id} [post]
+// @Router /categories/{id} [put]
 func (h *Handler) Update(w http.ResponseWriter, r *http.Request) {
 	userID, err := h.getUserID(r)
 	if err != nil {
