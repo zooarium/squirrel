@@ -9,6 +9,7 @@ import (
 	"reflect"
 	"sync"
 	"vyaya/ent/category"
+	"vyaya/ent/transaction"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
@@ -73,7 +74,8 @@ var (
 func checkColumn(t, c string) error {
 	initCheck.Do(func() {
 		columnCheck = sql.NewColumnCheck(map[string]func(string) bool{
-			category.Table: category.ValidColumn,
+			category.Table:    category.ValidColumn,
+			transaction.Table: transaction.ValidColumn,
 		})
 	})
 	return columnCheck(t, c)

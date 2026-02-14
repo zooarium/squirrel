@@ -21,7 +21,9 @@ func NewRepository(client *ent.Client) *Repository {
 func (r *Repository) Create(ctx context.Context, c Category) (Category, error) {
 	entCat, err := r.client.Category.
 		Create().
+		SetUserID(c.UserID).
 		SetName(c.Name).
+		SetStatus(c.Status).
 		Save(ctx)
 	if err != nil {
 		return Category{}, fmt.Errorf("create category: %w", err)
@@ -66,6 +68,7 @@ func (r *Repository) Update(ctx context.Context, id int, c Category) (Category, 
 	entCat, err := r.client.Category.
 		UpdateOneID(id).
 		SetName(c.Name).
+		SetStatus(c.Status).
 		Save(ctx)
 	if err != nil {
 		if ent.IsNotFound(err) {
@@ -94,7 +97,9 @@ func (r *Repository) Delete(ctx context.Context, id int) error {
 func (r *Repository) mapToModel(entCat *ent.Category) Category {
 	return Category{
 		ID:        entCat.ID,
+		UserID:    entCat.UserID,
 		Name:      entCat.Name,
+		Status:    entCat.Status,
 		CreatedAt: entCat.CreatedAt,
 		UpdatedAt: entCat.UpdatedAt,
 	}

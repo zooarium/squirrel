@@ -1,4 +1,4 @@
-package category
+package transaction
 
 import (
 	"encoding/json"
@@ -11,17 +11,17 @@ import (
 	"github.com/go-chi/chi/v5"
 )
 
-// Handler handles HTTP requests for categories.
+// Handler handles HTTP requests for transactions.
 type Handler struct {
 	svc *Service
 }
 
-// NewHandler creates a new category handler.
+// NewHandler creates a new transaction handler.
 func NewHandler(svc *Service) *Handler {
 	return &Handler{svc: svc}
 }
 
-// Routes returns the chi router for category endpoints.
+// Routes returns the chi router for transaction endpoints.
 func (h *Handler) Routes() chi.Router {
 	r := chi.NewRouter()
 
@@ -36,143 +36,143 @@ func (h *Handler) Routes() chi.Router {
 	return r
 }
 
-// Create handles category creation.
-// @Summary Create a new category
-// @Description Create a new category with the provided name and user ID
-// @Tags categories
+// Create handles transaction creation.
+// @Summary Create a new transaction
+// @Description Create a new transaction with the provided amount, type, and user ID
+// @Tags transactions
 // @Accept json
 // @Produce json
-// @Param category body CreateCategoryRequest true "Category object"
-// @Success 201 {object} render.Response{data=Category}
+// @Param transaction body CreateTransactionRequest true "Transaction object"
+// @Success 201 {object} render.Response{data=Transaction}
 // @Failure 400 {object} render.Response
 // @Failure 500 {object} render.Response
-// @Router /categories [post]
+// @Router /transactions [post]
 func (h *Handler) Create(w http.ResponseWriter, r *http.Request) {
-	var req CreateCategoryRequest
+	var req CreateTransactionRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		render.Error(w, http.StatusBadRequest, "invalid request body")
 		return
 	}
 
-	cat, err := h.svc.Create(r.Context(), req)
+	tx, err := h.svc.Create(r.Context(), req)
 	if err != nil {
 		render.Error(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	render.JSON(w, http.StatusCreated, cat)
+	render.JSON(w, http.StatusCreated, tx)
 }
 
-// List handles listing all categories.
-// @Summary List all categories
-// @Description Get a list of all categories
-// @Tags categories
+// List handles listing all transactions.
+// @Summary List all transactions
+// @Description Get a list of all transactions
+// @Tags transactions
 // @Produce json
-// @Success 200 {object} render.Response{data=[]Category}
+// @Success 200 {object} render.Response{data=[]Transaction}
 // @Failure 500 {object} render.Response
-// @Router /categories [get]
+// @Router /transactions [get]
 func (h *Handler) List(w http.ResponseWriter, r *http.Request) {
-	cats, err := h.svc.List(r.Context())
+	txs, err := h.svc.List(r.Context())
 	if err != nil {
 		render.Error(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	render.JSON(w, http.StatusOK, cats)
+	render.JSON(w, http.StatusOK, txs)
 }
 
-// GetByID handles getting a category by ID.
-// @Summary Get category by ID
-// @Description Get a single category by its ID
-// @Tags categories
+// GetByID handles getting a transaction by ID.
+// @Summary Get transaction by ID
+// @Description Get a single transaction by its ID
+// @Tags transactions
 // @Produce json
-// @Param id path int true "Category ID"
-// @Success 200 {object} render.Response{data=Category}
+// @Param id path int true "Transaction ID"
+// @Success 200 {object} render.Response{data=Transaction}
 // @Failure 400 {object} render.Response
 // @Failure 404 {object} render.Response
 // @Failure 500 {object} render.Response
-// @Router /categories/{id} [get]
+// @Router /transactions/{id} [get]
 func (h *Handler) GetByID(w http.ResponseWriter, r *http.Request) {
 	id, err := h.getIDParam(r)
 	if err != nil {
-		render.Error(w, http.StatusBadRequest, "invalid category ID")
+		render.Error(w, http.StatusBadRequest, "invalid transaction ID")
 		return
 	}
 
-	cat, err := h.svc.GetByID(r.Context(), id)
+	tx, err := h.svc.GetByID(r.Context(), id)
 	if err != nil {
-		if errors.Is(err, ErrCategoryNotFound) {
-			render.Error(w, http.StatusNotFound, "category not found")
+		if errors.Is(err, ErrTransactionNotFound) {
+			render.Error(w, http.StatusNotFound, "transaction not found")
 			return
 		}
 		render.Error(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	render.JSON(w, http.StatusOK, cat)
+	render.JSON(w, http.StatusOK, tx)
 }
 
-// Update handles updating a category.
-// @Summary Update category by ID
-// @Description Update an existing category with the provided name and status
-// @Tags categories
+// Update handles updating a transaction.
+// @Summary Update transaction by ID
+// @Description Update an existing transaction with the provided amount and type
+// @Tags transactions
 // @Accept json
 // @Produce json
-// @Param id path int true "Category ID"
-// @Param category body UpdateCategoryRequest true "Category object"
-// @Success 200 {object} render.Response{data=Category}
+// @Param id path int true "Transaction ID"
+// @Param transaction body UpdateTransactionRequest true "Transaction object"
+// @Success 200 {object} render.Response{data=Transaction}
 // @Failure 400 {object} render.Response
 // @Failure 404 {object} render.Response
 // @Failure 500 {object} render.Response
-// @Router /categories/{id} [post]
+// @Router /transactions/{id} [post]
 func (h *Handler) Update(w http.ResponseWriter, r *http.Request) {
 	id, err := h.getIDParam(r)
 	if err != nil {
-		render.Error(w, http.StatusBadRequest, "invalid category ID")
+		render.Error(w, http.StatusBadRequest, "invalid transaction ID")
 		return
 	}
 
-	var req UpdateCategoryRequest
+	var req UpdateTransactionRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		render.Error(w, http.StatusBadRequest, "invalid request body")
 		return
 	}
 
-	cat, err := h.svc.Update(r.Context(), id, req)
+	tx, err := h.svc.Update(r.Context(), id, req)
 	if err != nil {
-		if errors.Is(err, ErrCategoryNotFound) {
-			render.Error(w, http.StatusNotFound, "category not found")
+		if errors.Is(err, ErrTransactionNotFound) {
+			render.Error(w, http.StatusNotFound, "transaction not found")
 			return
 		}
 		render.Error(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	render.JSON(w, http.StatusOK, cat)
+	render.JSON(w, http.StatusOK, tx)
 }
 
-// Delete handles deleting a category.
-// @Summary Delete category by ID
-// @Description Delete a category by its ID
-// @Tags categories
+// Delete handles deleting a transaction.
+// @Summary Delete transaction by ID
+// @Description Delete a transaction by its ID
+// @Tags transactions
 // @Produce json
-// @Param id path int true "Category ID"
+// @Param id path int true "Transaction ID"
 // @Success 204 "No Content"
 // @Failure 400 {object} render.Response
 // @Failure 404 {object} render.Response
 // @Failure 500 {object} render.Response
-// @Router /categories/{id} [delete]
+// @Router /transactions/{id} [delete]
 func (h *Handler) Delete(w http.ResponseWriter, r *http.Request) {
 	id, err := h.getIDParam(r)
 	if err != nil {
-		render.Error(w, http.StatusBadRequest, "invalid category ID")
+		render.Error(w, http.StatusBadRequest, "invalid transaction ID")
 		return
 	}
 
 	err = h.svc.Delete(r.Context(), id)
 	if err != nil {
-		if errors.Is(err, ErrCategoryNotFound) {
-			render.Error(w, http.StatusNotFound, "category not found")
+		if errors.Is(err, ErrTransactionNotFound) {
+			render.Error(w, http.StatusNotFound, "transaction not found")
 			return
 		}
 		render.Error(w, http.StatusInternalServerError, err.Error())

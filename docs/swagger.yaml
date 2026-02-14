@@ -8,8 +8,12 @@ definitions:
         type: integer
       name:
         type: string
+      status:
+        type: integer
       updated_at:
         type: string
+      user_id:
+        type: integer
     required:
     - name
     type: object
@@ -17,15 +21,79 @@ definitions:
     properties:
       name:
         type: string
+      status:
+        enum:
+        - 0
+        - 1
+        type: integer
+      user_id:
+        type: integer
     required:
     - name
+    - user_id
     type: object
   internal_category.UpdateCategoryRequest:
     properties:
       name:
         type: string
+      status:
+        enum:
+        - 0
+        - 1
+        type: integer
     required:
     - name
+    type: object
+  internal_transaction.CreateTransactionRequest:
+    properties:
+      amount:
+        type: number
+      category_id:
+        type: integer
+      type:
+        enum:
+        - income
+        - expense
+        type: string
+      user_id:
+        type: integer
+    required:
+    - amount
+    - type
+    - user_id
+    type: object
+  internal_transaction.Transaction:
+    properties:
+      amount:
+        type: number
+      category_id:
+        type: integer
+      created_at:
+        type: string
+      id:
+        type: integer
+      type:
+        description: income, expense
+        type: string
+      updated_at:
+        type: string
+      user_id:
+        type: integer
+    type: object
+  internal_transaction.UpdateTransactionRequest:
+    properties:
+      amount:
+        type: number
+      category_id:
+        type: integer
+      type:
+        enum:
+        - income
+        - expense
+        type: string
+    required:
+    - amount
+    - type
     type: object
   vyaya_internal_platform_render.Response:
     properties:
@@ -69,7 +137,7 @@ paths:
     post:
       consumes:
       - application/json
-      description: Create a new category with the provided name
+      description: Create a new category with the provided name and user ID
       parameters:
       - description: Category object
         in: body
@@ -167,7 +235,7 @@ paths:
     post:
       consumes:
       - application/json
-      description: Update an existing category with the provided name
+      description: Update an existing category with the provided name and status
       parameters:
       - description: Category ID
         in: path
@@ -220,4 +288,170 @@ paths:
       summary: Check service health
       tags:
       - health
+  /transactions:
+    get:
+      description: Get a list of all transactions
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/vyaya_internal_platform_render.Response'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/internal_transaction.Transaction'
+                  type: array
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/vyaya_internal_platform_render.Response'
+      summary: List all transactions
+      tags:
+      - transactions
+    post:
+      consumes:
+      - application/json
+      description: Create a new transaction with the provided amount, type, and user
+        ID
+      parameters:
+      - description: Transaction object
+        in: body
+        name: transaction
+        required: true
+        schema:
+          $ref: '#/definitions/internal_transaction.CreateTransactionRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            allOf:
+            - $ref: '#/definitions/vyaya_internal_platform_render.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/internal_transaction.Transaction'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/vyaya_internal_platform_render.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/vyaya_internal_platform_render.Response'
+      summary: Create a new transaction
+      tags:
+      - transactions
+  /transactions/{id}:
+    delete:
+      description: Delete a transaction by its ID
+      parameters:
+      - description: Transaction ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/vyaya_internal_platform_render.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/vyaya_internal_platform_render.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/vyaya_internal_platform_render.Response'
+      summary: Delete transaction by ID
+      tags:
+      - transactions
+    get:
+      description: Get a single transaction by its ID
+      parameters:
+      - description: Transaction ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/vyaya_internal_platform_render.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/internal_transaction.Transaction'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/vyaya_internal_platform_render.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/vyaya_internal_platform_render.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/vyaya_internal_platform_render.Response'
+      summary: Get transaction by ID
+      tags:
+      - transactions
+    post:
+      consumes:
+      - application/json
+      description: Update an existing transaction with the provided amount and type
+      parameters:
+      - description: Transaction ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Transaction object
+        in: body
+        name: transaction
+        required: true
+        schema:
+          $ref: '#/definitions/internal_transaction.UpdateTransactionRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/vyaya_internal_platform_render.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/internal_transaction.Transaction'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/vyaya_internal_platform_render.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/vyaya_internal_platform_render.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/vyaya_internal_platform_render.Response'
+      summary: Update transaction by ID
+      tags:
+      - transactions
 swagger: "2.0"

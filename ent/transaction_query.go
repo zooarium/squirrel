@@ -4,7 +4,6 @@ package ent
 
 import (
 	"context"
-	"database/sql/driver"
 	"fmt"
 	"math"
 	"vyaya/ent/category"
@@ -17,53 +16,53 @@ import (
 	"entgo.io/ent/schema/field"
 )
 
-// CategoryQuery is the builder for querying Category entities.
-type CategoryQuery struct {
+// TransactionQuery is the builder for querying Transaction entities.
+type TransactionQuery struct {
 	config
-	ctx              *QueryContext
-	order            []category.OrderOption
-	inters           []Interceptor
-	predicates       []predicate.Category
-	withTransactions *TransactionQuery
+	ctx          *QueryContext
+	order        []transaction.OrderOption
+	inters       []Interceptor
+	predicates   []predicate.Transaction
+	withCategory *CategoryQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
 }
 
-// Where adds a new predicate for the CategoryQuery builder.
-func (_q *CategoryQuery) Where(ps ...predicate.Category) *CategoryQuery {
+// Where adds a new predicate for the TransactionQuery builder.
+func (_q *TransactionQuery) Where(ps ...predicate.Transaction) *TransactionQuery {
 	_q.predicates = append(_q.predicates, ps...)
 	return _q
 }
 
 // Limit the number of records to be returned by this query.
-func (_q *CategoryQuery) Limit(limit int) *CategoryQuery {
+func (_q *TransactionQuery) Limit(limit int) *TransactionQuery {
 	_q.ctx.Limit = &limit
 	return _q
 }
 
 // Offset to start from.
-func (_q *CategoryQuery) Offset(offset int) *CategoryQuery {
+func (_q *TransactionQuery) Offset(offset int) *TransactionQuery {
 	_q.ctx.Offset = &offset
 	return _q
 }
 
 // Unique configures the query builder to filter duplicate records on query.
 // By default, unique is set to true, and can be disabled using this method.
-func (_q *CategoryQuery) Unique(unique bool) *CategoryQuery {
+func (_q *TransactionQuery) Unique(unique bool) *TransactionQuery {
 	_q.ctx.Unique = &unique
 	return _q
 }
 
 // Order specifies how the records should be ordered.
-func (_q *CategoryQuery) Order(o ...category.OrderOption) *CategoryQuery {
+func (_q *TransactionQuery) Order(o ...transaction.OrderOption) *TransactionQuery {
 	_q.order = append(_q.order, o...)
 	return _q
 }
 
-// QueryTransactions chains the current query on the "transactions" edge.
-func (_q *CategoryQuery) QueryTransactions() *TransactionQuery {
-	query := (&TransactionClient{config: _q.config}).Query()
+// QueryCategory chains the current query on the "category" edge.
+func (_q *TransactionQuery) QueryCategory() *CategoryQuery {
+	query := (&CategoryClient{config: _q.config}).Query()
 	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
 		if err := _q.prepareQuery(ctx); err != nil {
 			return nil, err
@@ -73,9 +72,9 @@ func (_q *CategoryQuery) QueryTransactions() *TransactionQuery {
 			return nil, err
 		}
 		step := sqlgraph.NewStep(
-			sqlgraph.From(category.Table, category.FieldID, selector),
-			sqlgraph.To(transaction.Table, transaction.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, category.TransactionsTable, category.TransactionsColumn),
+			sqlgraph.From(transaction.Table, transaction.FieldID, selector),
+			sqlgraph.To(category.Table, category.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, transaction.CategoryTable, transaction.CategoryColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
 		return fromU, nil
@@ -83,21 +82,21 @@ func (_q *CategoryQuery) QueryTransactions() *TransactionQuery {
 	return query
 }
 
-// First returns the first Category entity from the query.
-// Returns a *NotFoundError when no Category was found.
-func (_q *CategoryQuery) First(ctx context.Context) (*Category, error) {
+// First returns the first Transaction entity from the query.
+// Returns a *NotFoundError when no Transaction was found.
+func (_q *TransactionQuery) First(ctx context.Context) (*Transaction, error) {
 	nodes, err := _q.Limit(1).All(setContextOp(ctx, _q.ctx, ent.OpQueryFirst))
 	if err != nil {
 		return nil, err
 	}
 	if len(nodes) == 0 {
-		return nil, &NotFoundError{category.Label}
+		return nil, &NotFoundError{transaction.Label}
 	}
 	return nodes[0], nil
 }
 
 // FirstX is like First, but panics if an error occurs.
-func (_q *CategoryQuery) FirstX(ctx context.Context) *Category {
+func (_q *TransactionQuery) FirstX(ctx context.Context) *Transaction {
 	node, err := _q.First(ctx)
 	if err != nil && !IsNotFound(err) {
 		panic(err)
@@ -105,22 +104,22 @@ func (_q *CategoryQuery) FirstX(ctx context.Context) *Category {
 	return node
 }
 
-// FirstID returns the first Category ID from the query.
-// Returns a *NotFoundError when no Category ID was found.
-func (_q *CategoryQuery) FirstID(ctx context.Context) (id int, err error) {
+// FirstID returns the first Transaction ID from the query.
+// Returns a *NotFoundError when no Transaction ID was found.
+func (_q *TransactionQuery) FirstID(ctx context.Context) (id int, err error) {
 	var ids []int
 	if ids, err = _q.Limit(1).IDs(setContextOp(ctx, _q.ctx, ent.OpQueryFirstID)); err != nil {
 		return
 	}
 	if len(ids) == 0 {
-		err = &NotFoundError{category.Label}
+		err = &NotFoundError{transaction.Label}
 		return
 	}
 	return ids[0], nil
 }
 
 // FirstIDX is like FirstID, but panics if an error occurs.
-func (_q *CategoryQuery) FirstIDX(ctx context.Context) int {
+func (_q *TransactionQuery) FirstIDX(ctx context.Context) int {
 	id, err := _q.FirstID(ctx)
 	if err != nil && !IsNotFound(err) {
 		panic(err)
@@ -128,10 +127,10 @@ func (_q *CategoryQuery) FirstIDX(ctx context.Context) int {
 	return id
 }
 
-// Only returns a single Category entity found by the query, ensuring it only returns one.
-// Returns a *NotSingularError when more than one Category entity is found.
-// Returns a *NotFoundError when no Category entities are found.
-func (_q *CategoryQuery) Only(ctx context.Context) (*Category, error) {
+// Only returns a single Transaction entity found by the query, ensuring it only returns one.
+// Returns a *NotSingularError when more than one Transaction entity is found.
+// Returns a *NotFoundError when no Transaction entities are found.
+func (_q *TransactionQuery) Only(ctx context.Context) (*Transaction, error) {
 	nodes, err := _q.Limit(2).All(setContextOp(ctx, _q.ctx, ent.OpQueryOnly))
 	if err != nil {
 		return nil, err
@@ -140,14 +139,14 @@ func (_q *CategoryQuery) Only(ctx context.Context) (*Category, error) {
 	case 1:
 		return nodes[0], nil
 	case 0:
-		return nil, &NotFoundError{category.Label}
+		return nil, &NotFoundError{transaction.Label}
 	default:
-		return nil, &NotSingularError{category.Label}
+		return nil, &NotSingularError{transaction.Label}
 	}
 }
 
 // OnlyX is like Only, but panics if an error occurs.
-func (_q *CategoryQuery) OnlyX(ctx context.Context) *Category {
+func (_q *TransactionQuery) OnlyX(ctx context.Context) *Transaction {
 	node, err := _q.Only(ctx)
 	if err != nil {
 		panic(err)
@@ -155,10 +154,10 @@ func (_q *CategoryQuery) OnlyX(ctx context.Context) *Category {
 	return node
 }
 
-// OnlyID is like Only, but returns the only Category ID in the query.
-// Returns a *NotSingularError when more than one Category ID is found.
+// OnlyID is like Only, but returns the only Transaction ID in the query.
+// Returns a *NotSingularError when more than one Transaction ID is found.
 // Returns a *NotFoundError when no entities are found.
-func (_q *CategoryQuery) OnlyID(ctx context.Context) (id int, err error) {
+func (_q *TransactionQuery) OnlyID(ctx context.Context) (id int, err error) {
 	var ids []int
 	if ids, err = _q.Limit(2).IDs(setContextOp(ctx, _q.ctx, ent.OpQueryOnlyID)); err != nil {
 		return
@@ -167,15 +166,15 @@ func (_q *CategoryQuery) OnlyID(ctx context.Context) (id int, err error) {
 	case 1:
 		id = ids[0]
 	case 0:
-		err = &NotFoundError{category.Label}
+		err = &NotFoundError{transaction.Label}
 	default:
-		err = &NotSingularError{category.Label}
+		err = &NotSingularError{transaction.Label}
 	}
 	return
 }
 
 // OnlyIDX is like OnlyID, but panics if an error occurs.
-func (_q *CategoryQuery) OnlyIDX(ctx context.Context) int {
+func (_q *TransactionQuery) OnlyIDX(ctx context.Context) int {
 	id, err := _q.OnlyID(ctx)
 	if err != nil {
 		panic(err)
@@ -183,18 +182,18 @@ func (_q *CategoryQuery) OnlyIDX(ctx context.Context) int {
 	return id
 }
 
-// All executes the query and returns a list of Categories.
-func (_q *CategoryQuery) All(ctx context.Context) ([]*Category, error) {
+// All executes the query and returns a list of Transactions.
+func (_q *TransactionQuery) All(ctx context.Context) ([]*Transaction, error) {
 	ctx = setContextOp(ctx, _q.ctx, ent.OpQueryAll)
 	if err := _q.prepareQuery(ctx); err != nil {
 		return nil, err
 	}
-	qr := querierAll[[]*Category, *CategoryQuery]()
-	return withInterceptors[[]*Category](ctx, _q, qr, _q.inters)
+	qr := querierAll[[]*Transaction, *TransactionQuery]()
+	return withInterceptors[[]*Transaction](ctx, _q, qr, _q.inters)
 }
 
 // AllX is like All, but panics if an error occurs.
-func (_q *CategoryQuery) AllX(ctx context.Context) []*Category {
+func (_q *TransactionQuery) AllX(ctx context.Context) []*Transaction {
 	nodes, err := _q.All(ctx)
 	if err != nil {
 		panic(err)
@@ -202,20 +201,20 @@ func (_q *CategoryQuery) AllX(ctx context.Context) []*Category {
 	return nodes
 }
 
-// IDs executes the query and returns a list of Category IDs.
-func (_q *CategoryQuery) IDs(ctx context.Context) (ids []int, err error) {
+// IDs executes the query and returns a list of Transaction IDs.
+func (_q *TransactionQuery) IDs(ctx context.Context) (ids []int, err error) {
 	if _q.ctx.Unique == nil && _q.path != nil {
 		_q.Unique(true)
 	}
 	ctx = setContextOp(ctx, _q.ctx, ent.OpQueryIDs)
-	if err = _q.Select(category.FieldID).Scan(ctx, &ids); err != nil {
+	if err = _q.Select(transaction.FieldID).Scan(ctx, &ids); err != nil {
 		return nil, err
 	}
 	return ids, nil
 }
 
 // IDsX is like IDs, but panics if an error occurs.
-func (_q *CategoryQuery) IDsX(ctx context.Context) []int {
+func (_q *TransactionQuery) IDsX(ctx context.Context) []int {
 	ids, err := _q.IDs(ctx)
 	if err != nil {
 		panic(err)
@@ -224,16 +223,16 @@ func (_q *CategoryQuery) IDsX(ctx context.Context) []int {
 }
 
 // Count returns the count of the given query.
-func (_q *CategoryQuery) Count(ctx context.Context) (int, error) {
+func (_q *TransactionQuery) Count(ctx context.Context) (int, error) {
 	ctx = setContextOp(ctx, _q.ctx, ent.OpQueryCount)
 	if err := _q.prepareQuery(ctx); err != nil {
 		return 0, err
 	}
-	return withInterceptors[int](ctx, _q, querierCount[*CategoryQuery](), _q.inters)
+	return withInterceptors[int](ctx, _q, querierCount[*TransactionQuery](), _q.inters)
 }
 
 // CountX is like Count, but panics if an error occurs.
-func (_q *CategoryQuery) CountX(ctx context.Context) int {
+func (_q *TransactionQuery) CountX(ctx context.Context) int {
 	count, err := _q.Count(ctx)
 	if err != nil {
 		panic(err)
@@ -242,7 +241,7 @@ func (_q *CategoryQuery) CountX(ctx context.Context) int {
 }
 
 // Exist returns true if the query has elements in the graph.
-func (_q *CategoryQuery) Exist(ctx context.Context) (bool, error) {
+func (_q *TransactionQuery) Exist(ctx context.Context) (bool, error) {
 	ctx = setContextOp(ctx, _q.ctx, ent.OpQueryExist)
 	switch _, err := _q.FirstID(ctx); {
 	case IsNotFound(err):
@@ -255,7 +254,7 @@ func (_q *CategoryQuery) Exist(ctx context.Context) (bool, error) {
 }
 
 // ExistX is like Exist, but panics if an error occurs.
-func (_q *CategoryQuery) ExistX(ctx context.Context) bool {
+func (_q *TransactionQuery) ExistX(ctx context.Context) bool {
 	exist, err := _q.Exist(ctx)
 	if err != nil {
 		panic(err)
@@ -263,33 +262,33 @@ func (_q *CategoryQuery) ExistX(ctx context.Context) bool {
 	return exist
 }
 
-// Clone returns a duplicate of the CategoryQuery builder, including all associated steps. It can be
+// Clone returns a duplicate of the TransactionQuery builder, including all associated steps. It can be
 // used to prepare common query builders and use them differently after the clone is made.
-func (_q *CategoryQuery) Clone() *CategoryQuery {
+func (_q *TransactionQuery) Clone() *TransactionQuery {
 	if _q == nil {
 		return nil
 	}
-	return &CategoryQuery{
-		config:           _q.config,
-		ctx:              _q.ctx.Clone(),
-		order:            append([]category.OrderOption{}, _q.order...),
-		inters:           append([]Interceptor{}, _q.inters...),
-		predicates:       append([]predicate.Category{}, _q.predicates...),
-		withTransactions: _q.withTransactions.Clone(),
+	return &TransactionQuery{
+		config:       _q.config,
+		ctx:          _q.ctx.Clone(),
+		order:        append([]transaction.OrderOption{}, _q.order...),
+		inters:       append([]Interceptor{}, _q.inters...),
+		predicates:   append([]predicate.Transaction{}, _q.predicates...),
+		withCategory: _q.withCategory.Clone(),
 		// clone intermediate query.
 		sql:  _q.sql.Clone(),
 		path: _q.path,
 	}
 }
 
-// WithTransactions tells the query-builder to eager-load the nodes that are connected to
-// the "transactions" edge. The optional arguments are used to configure the query builder of the edge.
-func (_q *CategoryQuery) WithTransactions(opts ...func(*TransactionQuery)) *CategoryQuery {
-	query := (&TransactionClient{config: _q.config}).Query()
+// WithCategory tells the query-builder to eager-load the nodes that are connected to
+// the "category" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *TransactionQuery) WithCategory(opts ...func(*CategoryQuery)) *TransactionQuery {
+	query := (&CategoryClient{config: _q.config}).Query()
 	for _, opt := range opts {
 		opt(query)
 	}
-	_q.withTransactions = query
+	_q.withCategory = query
 	return _q
 }
 
@@ -303,15 +302,15 @@ func (_q *CategoryQuery) WithTransactions(opts ...func(*TransactionQuery)) *Cate
 //		Count int `json:"count,omitempty"`
 //	}
 //
-//	client.Category.Query().
-//		GroupBy(category.FieldCreatedAt).
+//	client.Transaction.Query().
+//		GroupBy(transaction.FieldCreatedAt).
 //		Aggregate(ent.Count()).
 //		Scan(ctx, &v)
-func (_q *CategoryQuery) GroupBy(field string, fields ...string) *CategoryGroupBy {
+func (_q *TransactionQuery) GroupBy(field string, fields ...string) *TransactionGroupBy {
 	_q.ctx.Fields = append([]string{field}, fields...)
-	grbuild := &CategoryGroupBy{build: _q}
+	grbuild := &TransactionGroupBy{build: _q}
 	grbuild.flds = &_q.ctx.Fields
-	grbuild.label = category.Label
+	grbuild.label = transaction.Label
 	grbuild.scan = grbuild.Scan
 	return grbuild
 }
@@ -325,23 +324,23 @@ func (_q *CategoryQuery) GroupBy(field string, fields ...string) *CategoryGroupB
 //		CreatedAt time.Time `json:"created_at,omitempty"`
 //	}
 //
-//	client.Category.Query().
-//		Select(category.FieldCreatedAt).
+//	client.Transaction.Query().
+//		Select(transaction.FieldCreatedAt).
 //		Scan(ctx, &v)
-func (_q *CategoryQuery) Select(fields ...string) *CategorySelect {
+func (_q *TransactionQuery) Select(fields ...string) *TransactionSelect {
 	_q.ctx.Fields = append(_q.ctx.Fields, fields...)
-	sbuild := &CategorySelect{CategoryQuery: _q}
-	sbuild.label = category.Label
+	sbuild := &TransactionSelect{TransactionQuery: _q}
+	sbuild.label = transaction.Label
 	sbuild.flds, sbuild.scan = &_q.ctx.Fields, sbuild.Scan
 	return sbuild
 }
 
-// Aggregate returns a CategorySelect configured with the given aggregations.
-func (_q *CategoryQuery) Aggregate(fns ...AggregateFunc) *CategorySelect {
+// Aggregate returns a TransactionSelect configured with the given aggregations.
+func (_q *TransactionQuery) Aggregate(fns ...AggregateFunc) *TransactionSelect {
 	return _q.Select().Aggregate(fns...)
 }
 
-func (_q *CategoryQuery) prepareQuery(ctx context.Context) error {
+func (_q *TransactionQuery) prepareQuery(ctx context.Context) error {
 	for _, inter := range _q.inters {
 		if inter == nil {
 			return fmt.Errorf("ent: uninitialized interceptor (forgotten import ent/runtime?)")
@@ -353,7 +352,7 @@ func (_q *CategoryQuery) prepareQuery(ctx context.Context) error {
 		}
 	}
 	for _, f := range _q.ctx.Fields {
-		if !category.ValidColumn(f) {
+		if !transaction.ValidColumn(f) {
 			return &ValidationError{Name: f, err: fmt.Errorf("ent: invalid field %q for query", f)}
 		}
 	}
@@ -367,19 +366,19 @@ func (_q *CategoryQuery) prepareQuery(ctx context.Context) error {
 	return nil
 }
 
-func (_q *CategoryQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Category, error) {
+func (_q *TransactionQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Transaction, error) {
 	var (
-		nodes       = []*Category{}
+		nodes       = []*Transaction{}
 		_spec       = _q.querySpec()
 		loadedTypes = [1]bool{
-			_q.withTransactions != nil,
+			_q.withCategory != nil,
 		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
-		return (*Category).scanValues(nil, columns)
+		return (*Transaction).scanValues(nil, columns)
 	}
 	_spec.Assign = func(columns []string, values []any) error {
-		node := &Category{config: _q.config}
+		node := &Transaction{config: _q.config}
 		nodes = append(nodes, node)
 		node.Edges.loadedTypes = loadedTypes
 		return node.assignValues(columns, values)
@@ -393,51 +392,49 @@ func (_q *CategoryQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Cat
 	if len(nodes) == 0 {
 		return nodes, nil
 	}
-	if query := _q.withTransactions; query != nil {
-		if err := _q.loadTransactions(ctx, query, nodes,
-			func(n *Category) { n.Edges.Transactions = []*Transaction{} },
-			func(n *Category, e *Transaction) { n.Edges.Transactions = append(n.Edges.Transactions, e) }); err != nil {
+	if query := _q.withCategory; query != nil {
+		if err := _q.loadCategory(ctx, query, nodes, nil,
+			func(n *Transaction, e *Category) { n.Edges.Category = e }); err != nil {
 			return nil, err
 		}
 	}
 	return nodes, nil
 }
 
-func (_q *CategoryQuery) loadTransactions(ctx context.Context, query *TransactionQuery, nodes []*Category, init func(*Category), assign func(*Category, *Transaction)) error {
-	fks := make([]driver.Value, 0, len(nodes))
-	nodeids := make(map[int]*Category)
+func (_q *TransactionQuery) loadCategory(ctx context.Context, query *CategoryQuery, nodes []*Transaction, init func(*Transaction), assign func(*Transaction, *Category)) error {
+	ids := make([]int, 0, len(nodes))
+	nodeids := make(map[int][]*Transaction)
 	for i := range nodes {
-		fks = append(fks, nodes[i].ID)
-		nodeids[nodes[i].ID] = nodes[i]
-		if init != nil {
-			init(nodes[i])
+		if nodes[i].CategoryID == nil {
+			continue
 		}
+		fk := *nodes[i].CategoryID
+		if _, ok := nodeids[fk]; !ok {
+			ids = append(ids, fk)
+		}
+		nodeids[fk] = append(nodeids[fk], nodes[i])
 	}
-	if len(query.ctx.Fields) > 0 {
-		query.ctx.AppendFieldOnce(transaction.FieldCategoryID)
+	if len(ids) == 0 {
+		return nil
 	}
-	query.Where(predicate.Transaction(func(s *sql.Selector) {
-		s.Where(sql.InValues(s.C(category.TransactionsColumn), fks...))
-	}))
+	query.Where(category.IDIn(ids...))
 	neighbors, err := query.All(ctx)
 	if err != nil {
 		return err
 	}
 	for _, n := range neighbors {
-		fk := n.CategoryID
-		if fk == nil {
-			return fmt.Errorf(`foreign-key "category_id" is nil for node %v`, n.ID)
-		}
-		node, ok := nodeids[*fk]
+		nodes, ok := nodeids[n.ID]
 		if !ok {
-			return fmt.Errorf(`unexpected referenced foreign-key "category_id" returned %v for node %v`, *fk, n.ID)
+			return fmt.Errorf(`unexpected foreign-key "category_id" returned %v`, n.ID)
 		}
-		assign(node, n)
+		for i := range nodes {
+			assign(nodes[i], n)
+		}
 	}
 	return nil
 }
 
-func (_q *CategoryQuery) sqlCount(ctx context.Context) (int, error) {
+func (_q *TransactionQuery) sqlCount(ctx context.Context) (int, error) {
 	_spec := _q.querySpec()
 	_spec.Node.Columns = _q.ctx.Fields
 	if len(_q.ctx.Fields) > 0 {
@@ -446,8 +443,8 @@ func (_q *CategoryQuery) sqlCount(ctx context.Context) (int, error) {
 	return sqlgraph.CountNodes(ctx, _q.driver, _spec)
 }
 
-func (_q *CategoryQuery) querySpec() *sqlgraph.QuerySpec {
-	_spec := sqlgraph.NewQuerySpec(category.Table, category.Columns, sqlgraph.NewFieldSpec(category.FieldID, field.TypeInt))
+func (_q *TransactionQuery) querySpec() *sqlgraph.QuerySpec {
+	_spec := sqlgraph.NewQuerySpec(transaction.Table, transaction.Columns, sqlgraph.NewFieldSpec(transaction.FieldID, field.TypeInt))
 	_spec.From = _q.sql
 	if unique := _q.ctx.Unique; unique != nil {
 		_spec.Unique = *unique
@@ -456,11 +453,14 @@ func (_q *CategoryQuery) querySpec() *sqlgraph.QuerySpec {
 	}
 	if fields := _q.ctx.Fields; len(fields) > 0 {
 		_spec.Node.Columns = make([]string, 0, len(fields))
-		_spec.Node.Columns = append(_spec.Node.Columns, category.FieldID)
+		_spec.Node.Columns = append(_spec.Node.Columns, transaction.FieldID)
 		for i := range fields {
-			if fields[i] != category.FieldID {
+			if fields[i] != transaction.FieldID {
 				_spec.Node.Columns = append(_spec.Node.Columns, fields[i])
 			}
+		}
+		if _q.withCategory != nil {
+			_spec.Node.AddColumnOnce(transaction.FieldCategoryID)
 		}
 	}
 	if ps := _q.predicates; len(ps) > 0 {
@@ -486,12 +486,12 @@ func (_q *CategoryQuery) querySpec() *sqlgraph.QuerySpec {
 	return _spec
 }
 
-func (_q *CategoryQuery) sqlQuery(ctx context.Context) *sql.Selector {
+func (_q *TransactionQuery) sqlQuery(ctx context.Context) *sql.Selector {
 	builder := sql.Dialect(_q.driver.Dialect())
-	t1 := builder.Table(category.Table)
+	t1 := builder.Table(transaction.Table)
 	columns := _q.ctx.Fields
 	if len(columns) == 0 {
-		columns = category.Columns
+		columns = transaction.Columns
 	}
 	selector := builder.Select(t1.Columns(columns...)...).From(t1)
 	if _q.sql != nil {
@@ -518,28 +518,28 @@ func (_q *CategoryQuery) sqlQuery(ctx context.Context) *sql.Selector {
 	return selector
 }
 
-// CategoryGroupBy is the group-by builder for Category entities.
-type CategoryGroupBy struct {
+// TransactionGroupBy is the group-by builder for Transaction entities.
+type TransactionGroupBy struct {
 	selector
-	build *CategoryQuery
+	build *TransactionQuery
 }
 
 // Aggregate adds the given aggregation functions to the group-by query.
-func (_g *CategoryGroupBy) Aggregate(fns ...AggregateFunc) *CategoryGroupBy {
+func (_g *TransactionGroupBy) Aggregate(fns ...AggregateFunc) *TransactionGroupBy {
 	_g.fns = append(_g.fns, fns...)
 	return _g
 }
 
 // Scan applies the selector query and scans the result into the given value.
-func (_g *CategoryGroupBy) Scan(ctx context.Context, v any) error {
+func (_g *TransactionGroupBy) Scan(ctx context.Context, v any) error {
 	ctx = setContextOp(ctx, _g.build.ctx, ent.OpQueryGroupBy)
 	if err := _g.build.prepareQuery(ctx); err != nil {
 		return err
 	}
-	return scanWithInterceptors[*CategoryQuery, *CategoryGroupBy](ctx, _g.build, _g, _g.build.inters, v)
+	return scanWithInterceptors[*TransactionQuery, *TransactionGroupBy](ctx, _g.build, _g, _g.build.inters, v)
 }
 
-func (_g *CategoryGroupBy) sqlScan(ctx context.Context, root *CategoryQuery, v any) error {
+func (_g *TransactionGroupBy) sqlScan(ctx context.Context, root *TransactionQuery, v any) error {
 	selector := root.sqlQuery(ctx).Select()
 	aggregation := make([]string, 0, len(_g.fns))
 	for _, fn := range _g.fns {
@@ -566,28 +566,28 @@ func (_g *CategoryGroupBy) sqlScan(ctx context.Context, root *CategoryQuery, v a
 	return sql.ScanSlice(rows, v)
 }
 
-// CategorySelect is the builder for selecting fields of Category entities.
-type CategorySelect struct {
-	*CategoryQuery
+// TransactionSelect is the builder for selecting fields of Transaction entities.
+type TransactionSelect struct {
+	*TransactionQuery
 	selector
 }
 
 // Aggregate adds the given aggregation functions to the selector query.
-func (_s *CategorySelect) Aggregate(fns ...AggregateFunc) *CategorySelect {
+func (_s *TransactionSelect) Aggregate(fns ...AggregateFunc) *TransactionSelect {
 	_s.fns = append(_s.fns, fns...)
 	return _s
 }
 
 // Scan applies the selector query and scans the result into the given value.
-func (_s *CategorySelect) Scan(ctx context.Context, v any) error {
+func (_s *TransactionSelect) Scan(ctx context.Context, v any) error {
 	ctx = setContextOp(ctx, _s.ctx, ent.OpQuerySelect)
 	if err := _s.prepareQuery(ctx); err != nil {
 		return err
 	}
-	return scanWithInterceptors[*CategoryQuery, *CategorySelect](ctx, _s.CategoryQuery, _s, _s.inters, v)
+	return scanWithInterceptors[*TransactionQuery, *TransactionSelect](ctx, _s.TransactionQuery, _s, _s.inters, v)
 }
 
-func (_s *CategorySelect) sqlScan(ctx context.Context, root *CategoryQuery, v any) error {
+func (_s *TransactionSelect) sqlScan(ctx context.Context, root *TransactionQuery, v any) error {
 	selector := root.sqlQuery(ctx)
 	aggregation := make([]string, 0, len(_s.fns))
 	for _, fn := range _s.fns {

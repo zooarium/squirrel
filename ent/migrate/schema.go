@@ -3,29 +3,64 @@
 package migrate
 
 import (
+	"entgo.io/ent/dialect/entsql"
 	"entgo.io/ent/dialect/sql/schema"
 	"entgo.io/ent/schema/field"
 )
 
 var (
-	// CategoriesColumns holds the columns for the "categories" table.
-	CategoriesColumns = []*schema.Column{
+	// CategoryColumns holds the columns for the "category" table.
+	CategoryColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
 		{Name: "created_at", Type: field.TypeTime},
 		{Name: "updated_at", Type: field.TypeTime},
-		{Name: "name", Type: field.TypeString, Unique: true},
+		{Name: "user_id", Type: field.TypeInt},
+		{Name: "name", Type: field.TypeString},
+		{Name: "status", Type: field.TypeInt8, Default: 1},
 	}
-	// CategoriesTable holds the schema information for the "categories" table.
-	CategoriesTable = &schema.Table{
-		Name:       "categories",
-		Columns:    CategoriesColumns,
-		PrimaryKey: []*schema.Column{CategoriesColumns[0]},
+	// CategoryTable holds the schema information for the "category" table.
+	CategoryTable = &schema.Table{
+		Name:       "category",
+		Columns:    CategoryColumns,
+		PrimaryKey: []*schema.Column{CategoryColumns[0]},
+	}
+	// TransactionColumns holds the columns for the "transaction" table.
+	TransactionColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "user_id", Type: field.TypeInt},
+		{Name: "amount", Type: field.TypeFloat64},
+		{Name: "type", Type: field.TypeEnum, Enums: []string{"income", "expense"}},
+		{Name: "category_id", Type: field.TypeInt, Nullable: true},
+	}
+	// TransactionTable holds the schema information for the "transaction" table.
+	TransactionTable = &schema.Table{
+		Name:       "transaction",
+		Columns:    TransactionColumns,
+		PrimaryKey: []*schema.Column{TransactionColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "transaction_category_transactions",
+				Columns:    []*schema.Column{TransactionColumns[6]},
+				RefColumns: []*schema.Column{CategoryColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+		},
 	}
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
-		CategoriesTable,
+		CategoryTable,
+		TransactionTable,
 	}
 )
 
 func init() {
+	CategoryTable.Annotation = &entsql.Annotation{
+		Table: "category",
+	}
+	TransactionTable.ForeignKeys[0].RefTable = CategoryTable
+	TransactionTable.Annotation = &entsql.Annotation{
+		Table: "transaction",
+	}
 }

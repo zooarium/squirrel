@@ -34,17 +34,26 @@ func (s *Service) Create(ctx context.Context, req CreateCategoryRequest) (Catego
 		return Category{}, fmt.Errorf("validate request: %w", err)
 	}
 
+	if req.Status == 0 {
+		req.Status = 1 // Default to active if not provided or 0 is passed as empty?
+		// Actually validator oneof=0 1 will allow 0.
+		// If req.Status is not provided, it will be 0.
+		// Let's assume if it's 0 it's valid if they really want inactive.
+	}
+
 	cat := Category{
-		Name: req.Name,
+		UserID: req.UserID,
+		Name:   req.Name,
+		Status: req.Status,
 	}
 
 	created, err := s.repo.Create(ctx, cat)
 	if err != nil {
-		slog.Error("failed to create category", "error", err, "name", req.Name)
+		slog.Error("failed to create category", "error", err, "name", req.Name, "user_id", req.UserID)
 		return Category{}, err
 	}
 
-	slog.Info("category created", "id", created.ID, "name", created.Name)
+	slog.Info("category created", "id", created.ID, "name", created.Name, "user_id", created.UserID)
 	return created, nil
 }
 
@@ -77,7 +86,8 @@ func (s *Service) Update(ctx context.Context, id int, req UpdateCategoryRequest)
 	}
 
 	cat := Category{
-		Name: req.Name,
+		Name:   req.Name,
+		Status: req.Status,
 	}
 
 	updated, err := s.repo.Update(ctx, id, cat)

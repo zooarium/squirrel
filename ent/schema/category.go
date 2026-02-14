@@ -4,6 +4,9 @@ import (
 	"time"
 
 	"entgo.io/ent"
+	"entgo.io/ent/dialect/entsql"
+	"entgo.io/ent/schema"
+	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
 	"entgo.io/ent/schema/mixin"
 )
@@ -29,6 +32,13 @@ type Category struct {
 	ent.Schema
 }
 
+// Annotations of the Category.
+func (Category) Annotations() []schema.Annotation {
+	return []schema.Annotation{
+		entsql.Annotation{Table: "category"},
+	}
+}
+
 // Mixin of the Category.
 func (Category) Mixin() []ent.Mixin {
 	return []ent.Mixin{
@@ -39,13 +49,17 @@ func (Category) Mixin() []ent.Mixin {
 // Fields of the Category.
 func (Category) Fields() []ent.Field {
 	return []ent.Field{
+		field.Int("user_id"),
 		field.String("name").
-			Unique().
 			NotEmpty(),
+		field.Int8("status").
+			Default(1),
 	}
 }
 
 // Edges of the Category.
 func (Category) Edges() []ent.Edge {
-	return nil
+	return []ent.Edge{
+		edge.To("transactions", Transaction.Type),
+	}
 }

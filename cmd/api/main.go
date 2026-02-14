@@ -15,6 +15,7 @@ import (
 	"vyaya/internal/category"
 	"vyaya/internal/db"
 	platformhttp "vyaya/internal/platform/http"
+	"vyaya/internal/transaction"
 	"vyaya/pkg/config"
 )
 
@@ -82,7 +83,11 @@ func main() {
 	categorySvc := category.NewService(categoryRepo)
 	categoryHandler := category.NewHandler(categorySvc)
 
-	router := platformhttp.NewRouter(categoryHandler)
+	transactionRepo := transaction.NewRepository(client)
+	transactionSvc := transaction.NewService(transactionRepo)
+	transactionHandler := transaction.NewHandler(transactionSvc)
+
+	router := platformhttp.NewRouter(categoryHandler, transactionHandler)
 
 	srv := &http.Server{
 		Addr:         ":" + cfg.Server.Port,

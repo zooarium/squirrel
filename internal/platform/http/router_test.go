@@ -6,14 +6,16 @@ import (
 	"testing"
 
 	"vyaya/internal/category"
+	"vyaya/internal/transaction"
 
 	"github.com/stretchr/testify/assert"
 )
 
 func TestRouter(t *testing.T) {
-	// Create a handler with nil service - just testing routing to public endpoints
+	// Create handlers with nil services - just testing routing to public endpoints
 	catHandler := category.NewHandler(nil)
-	router := NewRouter(catHandler)
+	txHandler := transaction.NewHandler(nil)
+	router := NewRouter(catHandler, txHandler)
 
 	tests := []struct {
 		name           string

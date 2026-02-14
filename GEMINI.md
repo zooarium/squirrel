@@ -101,9 +101,10 @@ To ensure codebase health and consistency, the following steps **must** be compl
 
 ### Database Migrations
 1.  **Modify Schema**: Edit `ent/schema/category.go`.
-2.  **Generate Code**: `docker run --rm -v $(pwd):/app -w /app golang:1.26-alpine go generate ./ent/...`
-3.  **Generate Migration**: `make migrate-gen name=change_description`.
-4.  **Apply**: `make migrate-apply` (or restart the app for auto-migration).
+2.  **Singular Table Names**: All database table names **must** be in singular format. Use `entsql.Annotation{Table: "singular_name"}` in the schema definition's `Annotations()` method.
+3.  **Generate Code**: `docker run --rm -v $(pwd):/app -w /app golang:1.26-alpine go generate ./ent/...`
+4.  **Generate Migration**: `make migrate-gen name=change_description`.
+5.  **Apply**: `make migrate-apply` (or restart the app for auto-migration).
 
 ## Database Schema (Category Table)
 | Field      | Type      | Description                          |
