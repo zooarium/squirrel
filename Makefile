@@ -13,6 +13,8 @@ down:
 restart:
 	docker-compose restart
 
+refresh: down swag build up
+
 logs:
 	docker-compose logs -f
 
@@ -121,6 +123,7 @@ help:
 	@echo "  up            Start services in background"
 	@echo "  down          Stop services"
 	@echo "  restart       Restart services"
+	@echo "  refresh       Rebuild and restart all services"
 	@echo "  logs          Follow container logs"
 	@echo "  ps            List running containers"
 	@echo "  test          Run unit tests"

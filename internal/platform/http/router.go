@@ -6,19 +6,26 @@ import (
 	_ "vyaya/docs" // Import generated docs
 	"vyaya/internal/category"
 	"vyaya/internal/transaction"
+	"vyaya/pkg/config"
 
 	"dvarapala/pkg/auth"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
+	"github.com/go-chi/cors"
 	"github.com/go-chi/httprate"
 	httpSwagger "github.com/swaggo/http-swagger/v2"
 )
 
 // NewRouter creates a new chi router with default middleware and application routes.
-func NewRouter(categoryHandler *category.Handler, transactionHandler *transaction.Handler, jwtManager *auth.JWTManager) *chi.Mux {
+func NewRouter(cfg *config.Config, categoryHandler *category.Handler, transactionHandler *transaction.Handler, jwtManager *auth.JWTManager) *chi.Mux {
 	r := chi.NewRouter()
 
+	r.Use(cors.Handler(cors.Options{
+		AllowedOrigins: cfg.CORS.AllowedOrigins,
+		AllowedMethods: []string{"GET", "POST", "OPTIONS", "PUT", "DELETE"},
+		AllowedHeaders: []string{"Origin", "Content-Type", "Authorization"},
+	}))
 	r.Use(middleware.Logger)
 	r.Use(middleware.Recoverer)
 	r.Use(httprate.LimitByIP(100, 1*time.Minute))

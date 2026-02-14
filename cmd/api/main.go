@@ -99,7 +99,7 @@ func main() {
 
 	jwtManager := auth.NewJWTManager(cfg.Auth.JWTSecret, cfg.Auth.JWTExpiry)
 
-	router := platformhttp.NewRouter(categoryHandler, transactionHandler, jwtManager)
+	router := platformhttp.NewRouter(cfg, categoryHandler, transactionHandler, jwtManager)
 
 	srv := &http.Server{
 		Addr:         cfg.Server.Addr,

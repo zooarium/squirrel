@@ -6,6 +6,7 @@ require (
 	dvarapala v0.0.0
 	entgo.io/ent v0.14.5
 	github.com/go-chi/chi/v5 v5.2.5
+	github.com/go-chi/cors v1.2.2
 	github.com/go-chi/httprate v0.15.0
 	github.com/go-playground/validator/v10 v10.30.1
 	github.com/mattn/go-sqlite3 v1.14.34

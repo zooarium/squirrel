@@ -27,12 +27,11 @@ func TestTransactionService(t *testing.T) {
 
 	t.Run("Create Transaction", func(t *testing.T) {
 		req := CreateTransactionRequest{
-			UserID:     1,
 			Amount:     100.50,
 			Type:       "expense",
 			CategoryID: &cat.ID,
 		}
-		tx, err := svc.Create(ctx, req)
+		tx, err := svc.Create(ctx, 1, req)
 		assert.NoError(t, err)
 		assert.Equal(t, 100.50, tx.Amount)
 		assert.Equal(t, "expense", tx.Type)
@@ -40,13 +39,13 @@ func TestTransactionService(t *testing.T) {
 	})
 
 	t.Run("List Transactions", func(t *testing.T) {
-		txs, err := svc.List(ctx)
+		txs, err := svc.List(ctx, 1)
 		assert.NoError(t, err)
 		assert.Len(t, txs, 1)
 	})
 
 	t.Run("Get Transaction By ID", func(t *testing.T) {
-		tx, err := svc.GetByID(ctx, 1)
+		tx, err := svc.GetByID(ctx, 1, 1)
 		assert.NoError(t, err)
 		assert.Equal(t, 100.50, tx.Amount)
 	})
@@ -56,7 +55,7 @@ func TestTransactionService(t *testing.T) {
 			Amount: 200.75,
 			Type:   "income",
 		}
-		tx, err := svc.Update(ctx, 1, req)
+		tx, err := svc.Update(ctx, 1, 1, req)
 		assert.NoError(t, err)
 		assert.Equal(t, 200.75, tx.Amount)
 		assert.Equal(t, "income", tx.Type)
@@ -64,10 +63,10 @@ func TestTransactionService(t *testing.T) {
 	})
 
 	t.Run("Delete Transaction", func(t *testing.T) {
-		err := svc.Delete(ctx, 1)
+		err := svc.Delete(ctx, 1, 1)
 		assert.NoError(t, err)
 
-		_, err = svc.GetByID(ctx, 1)
+		_, err = svc.GetByID(ctx, 1, 1)
 		assert.ErrorIs(t, err, ErrTransactionNotFound)
 	})
 }
