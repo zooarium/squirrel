@@ -13,8 +13,8 @@ import (
 
 func TestRouter(t *testing.T) {
 	// Create handlers with nil services - just testing routing to public endpoints
-	catHandler := category.NewCategoryHandler(nil)
-	txHandler := transaction.NewTransactionHandler(nil)
+	catHandler := category.NewHandler(nil)
+	txHandler := transaction.NewHandler(nil)
 	router := NewRouter(catHandler, txHandler)
 
 	tests := []struct {

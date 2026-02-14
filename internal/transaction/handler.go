@@ -9,34 +9,39 @@ import (
 	"vyaya/internal/platform/render"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/go-playground/validator/v10"
 )
 
-// TransactionHandler handles HTTP requests for transactions.
-type TransactionHandler struct {
-	svc *TransactionService
+// Handler handles HTTP requests for transactions.
+type Handler struct {
+	svc      Service
+	validate *validator.Validate
 }
 
-// NewTransactionHandler creates a new transaction handler.
-func NewTransactionHandler(svc *TransactionService) *TransactionHandler {
-	return &TransactionHandler{svc: svc}
+// NewHandler creates a new transaction handler.
+func NewHandler(svc Service) *Handler {
+	return &Handler{
+		svc:      svc,
+		validate: validator.New(),
+	}
 }
 
 // Routes returns the chi router for transaction endpoints.
-func (h *TransactionHandler) Routes() chi.Router {
+func (h *Handler) Routes() chi.Router {
 	r := chi.NewRouter()
 
-	r.Post("/", h.CreateTransaction)
-	r.Get("/", h.ListTransactions)
+	r.Post("/", h.Create)
+	r.Get("/", h.List)
 	r.Route("/{id}", func(r chi.Router) {
-		r.Get("/", h.GetTransactionByID)
-		r.Post("/", h.UpdateTransaction)
-		r.Delete("/", h.DeleteTransaction)
+		r.Get("/", h.GetByID)
+		r.Post("/", h.Update)
+		r.Delete("/", h.Delete)
 	})
 
 	return r
 }
 
-// CreateTransaction handles transaction creation.
+// Create handles transaction creation.
 // @Summary Create a new transaction
 // @Description Create a new transaction with the provided amount, type, and user ID
 // @Tags transactions
@@ -47,7 +52,7 @@ func (h *TransactionHandler) Routes() chi.Router {
 // @Failure 400 {object} render.Response
 // @Failure 500 {object} render.Response
 // @Router /transactions [post]
-func (h *TransactionHandler) CreateTransaction(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) Create(w http.ResponseWriter, r *http.Request) {
 	var req CreateTransactionRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		render.Error(w, http.StatusBadRequest, "invalid request body")
@@ -63,7 +68,7 @@ func (h *TransactionHandler) CreateTransaction(w http.ResponseWriter, r *http.Re
 	render.JSON(w, http.StatusCreated, tx)
 }
 
-// ListTransactions handles listing all transactions.
+// List handles listing all transactions.
 // @Summary List all transactions
 // @Description Get a list of all transactions
 // @Tags transactions
@@ -71,7 +76,7 @@ func (h *TransactionHandler) CreateTransaction(w http.ResponseWriter, r *http.Re
 // @Success 200 {object} render.Response{data=[]Transaction}
 // @Failure 500 {object} render.Response
 // @Router /transactions [get]
-func (h *TransactionHandler) ListTransactions(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) List(w http.ResponseWriter, r *http.Request) {
 	txs, err := h.svc.List(r.Context())
 	if err != nil {
 		render.Error(w, http.StatusInternalServerError, err.Error())
@@ -81,7 +86,7 @@ func (h *TransactionHandler) ListTransactions(w http.ResponseWriter, r *http.Req
 	render.JSON(w, http.StatusOK, txs)
 }
 
-// GetTransactionByID handles getting a transaction by ID.
+// GetByID handles getting a transaction by ID.
 // @Summary Get transaction by ID
 // @Description Get a single transaction by its ID
 // @Tags transactions
@@ -92,7 +97,7 @@ func (h *TransactionHandler) ListTransactions(w http.ResponseWriter, r *http.Req
 // @Failure 404 {object} render.Response
 // @Failure 500 {object} render.Response
 // @Router /transactions/{id} [get]
-func (h *TransactionHandler) GetTransactionByID(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) GetByID(w http.ResponseWriter, r *http.Request) {
 	id, err := h.getIDParam(r)
 	if err != nil {
 		render.Error(w, http.StatusBadRequest, "invalid transaction ID")
@@ -112,7 +117,7 @@ func (h *TransactionHandler) GetTransactionByID(w http.ResponseWriter, r *http.R
 	render.JSON(w, http.StatusOK, tx)
 }
 
-// UpdateTransaction handles updating a transaction.
+// Update handles updating a transaction.
 // @Summary Update transaction by ID
 // @Description Update an existing transaction with the provided amount and type
 // @Tags transactions
@@ -125,7 +130,7 @@ func (h *TransactionHandler) GetTransactionByID(w http.ResponseWriter, r *http.R
 // @Failure 404 {object} render.Response
 // @Failure 500 {object} render.Response
 // @Router /transactions/{id} [post]
-func (h *TransactionHandler) UpdateTransaction(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) Update(w http.ResponseWriter, r *http.Request) {
 	id, err := h.getIDParam(r)
 	if err != nil {
 		render.Error(w, http.StatusBadRequest, "invalid transaction ID")
@@ -151,7 +156,7 @@ func (h *TransactionHandler) UpdateTransaction(w http.ResponseWriter, r *http.Re
 	render.JSON(w, http.StatusOK, tx)
 }
 
-// DeleteTransaction handles deleting a transaction.
+// Delete handles deleting a transaction.
 // @Summary Delete transaction by ID
 // @Description Delete a transaction by its ID
 // @Tags transactions
@@ -162,7 +167,7 @@ func (h *TransactionHandler) UpdateTransaction(w http.ResponseWriter, r *http.Re
 // @Failure 404 {object} render.Response
 // @Failure 500 {object} render.Response
 // @Router /transactions/{id} [delete]
-func (h *TransactionHandler) DeleteTransaction(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) Delete(w http.ResponseWriter, r *http.Request) {
 	id, err := h.getIDParam(r)
 	if err != nil {
 		render.Error(w, http.StatusBadRequest, "invalid transaction ID")
@@ -182,7 +187,7 @@ func (h *TransactionHandler) DeleteTransaction(w http.ResponseWriter, r *http.Re
 	w.WriteHeader(http.StatusNoContent)
 }
 
-func (h *TransactionHandler) getIDParam(r *http.Request) (int, error) {
+func (h *Handler) getIDParam(r *http.Request) (int, error) {
 	idStr := chi.URLParam(r, "id")
 	return strconv.Atoi(idStr)
 }

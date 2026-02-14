@@ -26,7 +26,9 @@ func NewSQLiteClient(path string) (*ent.Client, error) {
 	slog.Info("running auto migration")
 	if err := client.Schema.Create(context.Background(), migrate.WithGlobalUniqueID(true)); err != nil {
 		slog.Error("failed to create schema resources", "error", err)
-		_ = client.Close()
+		if cerr := client.Close(); cerr != nil {
+			slog.Error("failed to close client after schema creation failure", "error", cerr)
+		}
 		return nil, fmt.Errorf("failed creating schema resources: %v", err)
 	}
 

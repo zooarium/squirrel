@@ -1,8 +1,7 @@
-server:
-  port: "8080"
-
-database:
-  path: "data/vyaya.db"
-
-logger:
-  level: "debug"
+ENVIRONMENT: development
+SERVER:
+  ADDR: ":8080"
+DATABASE:
+  PATH: "data/vyaya_dev.db"
+LOG:
+  LEVEL: "debug"

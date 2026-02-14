@@ -26,33 +26,30 @@ import (
 // @BasePath /
 
 func main() {
-	env := os.Getenv("GO_ENV")
-	if env == "" {
-		env = "development"
-	}
-
-	cfg, err := config.Load(env)
+	cfg, err := config.Load()
 	if err != nil {
 		fmt.Printf("failed to load config: %v\n", err)
 		os.Exit(1)
 	}
 
-	if err := os.MkdirAll(cfg.Logger.Directory, 0755); err != nil {
+	if err := os.MkdirAll(cfg.Log.Dir, 0755); err != nil {
 		fmt.Printf("failed to create log directory: %v\n", err)
 		os.Exit(1)
 	}
 
-	logFile, err := os.OpenFile(filepath.Join(cfg.Logger.Directory, "api.log"), os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	logFile, err := os.OpenFile(filepath.Join(cfg.Log.Dir, "api.log"), os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
 		fmt.Printf("failed to open log file: %v\n", err)
 		os.Exit(1)
 	}
 	defer func() {
-		_ = logFile.Close()
+		if err := logFile.Close(); err != nil {
+			fmt.Printf("failed to close log file: %v\n", err)
+		}
 	}()
 
 	var logLevel slog.Level
-	switch cfg.Logger.Level {
+	switch cfg.Log.Level {
 	case "debug":
 		logLevel = slog.LevelDebug
 	case "info":
@@ -75,22 +72,24 @@ func main() {
 		os.Exit(1)
 	}
 	defer func() {
-		_ = client.Close()
+		if err := client.Close(); err != nil {
+			slog.Error("failed to close sqlite client", "error", err)
+		}
 	}()
 
 	// Initialize components
-	categoryRepo := category.NewCategoryRepository(client)
-	categorySvc := category.NewCategoryService(categoryRepo)
-	categoryHandler := category.NewCategoryHandler(categorySvc)
+	categoryRepo := category.NewRepository(client)
+	categorySvc := category.NewService(categoryRepo)
+	categoryHandler := category.NewHandler(categorySvc)
 
-	transactionRepo := transaction.NewTransactionRepository(client)
-	transactionSvc := transaction.NewTransactionService(transactionRepo)
-	transactionHandler := transaction.NewTransactionHandler(transactionSvc)
+	transactionRepo := transaction.NewRepository(client)
+	transactionSvc := transaction.NewService(transactionRepo)
+	transactionHandler := transaction.NewHandler(transactionSvc)
 
 	router := platformhttp.NewRouter(categoryHandler, transactionHandler)
 
 	srv := &http.Server{
-		Addr:         ":" + cfg.Server.Port,
+		Addr:         cfg.Server.Addr,
 		Handler:      router,
 		ReadTimeout:  cfg.Server.ReadTimeout,
 		WriteTimeout: cfg.Server.WriteTimeout,
@@ -98,7 +97,7 @@ func main() {
 	}
 
 	go func() {
-		slog.Info("starting server", "addr", srv.Addr, "env", env)
+		slog.Info("starting server", "addr", srv.Addr, "env", cfg.Environment)
 		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 			slog.Error("failed to listen and serve", "error", err)
 			os.Exit(1)

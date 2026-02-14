@@ -1,8 +1,7 @@
-server:
-  port: "8081"
-
-database:
-  path: ":memory:"
-
-logger:
-  level: "warn"
+ENVIRONMENT: test
+SERVER:
+  ADDR: ":8081"
+DATABASE:
+  PATH: ":memory:"
+LOG:
+  LEVEL: "warn"

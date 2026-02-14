@@ -10,75 +10,76 @@ import (
 
 // Config holds all configuration for the application.
 type Config struct {
-	Server   ServerConfig   `mapstructure:"server"`
-	Database DatabaseConfig `mapstructure:"database"`
-	Logger   LoggerConfig   `mapstructure:"logger"`
+	Environment string `mapstructure:"ENVIRONMENT"`
+	Server      ServerConfig
+	Database    DatabaseConfig
+	Log         LogConfig `mapstructure:"LOG"`
 }
 
 // ServerConfig holds server related configuration.
 type ServerConfig struct {
-	Port         string        `mapstructure:"port"`
-	ReadTimeout  time.Duration `mapstructure:"read_timeout"`
-	WriteTimeout time.Duration `mapstructure:"write_timeout"`
-	IdleTimeout  time.Duration `mapstructure:"idle_timeout"`
+	Addr         string        `mapstructure:"ADDR"`
+	ReadTimeout  time.Duration `mapstructure:"READ_TIMEOUT"`
+	WriteTimeout time.Duration `mapstructure:"WRITE_TIMEOUT"`
+	IdleTimeout  time.Duration `mapstructure:"IDLE_TIMEOUT"`
 }
 
 // DatabaseConfig holds database related configuration.
 type DatabaseConfig struct {
-	Path string `mapstructure:"path"`
+	Path string `mapstructure:"PATH"`
 }
 
-// LoggerConfig holds logger related configuration.
-type LoggerConfig struct {
-	Directory string `mapstructure:"directory"`
-	Level     string `mapstructure:"level"`
+// LogConfig holds logging-specific configuration.
+type LogConfig struct {
+	Dir   string `mapstructure:"DIR"`
+	Level string `mapstructure:"LEVEL"`
 }
 
 // Load loads the configuration from files and environment variables.
-func Load(env string) (*Config, error) {
+func Load() (*Config, error) {
 	v := viper.New()
 
-	// Set default values
-	v.SetDefault("server.port", "8080")
-	v.SetDefault("server.read_timeout", 5*time.Second)
-	v.SetDefault("server.write_timeout", 10*time.Second)
-	v.SetDefault("server.idle_timeout", 120*time.Second)
-	v.SetDefault("database.path", "data/vyaya.db")
-	v.SetDefault("logger.directory", "log")
-	v.SetDefault("logger.level", "info")
+	// Default values
+	v.SetDefault("ENVIRONMENT", "production")
+	v.SetDefault("SERVER.ADDR", ":8080")
+	v.SetDefault("SERVER.READ_TIMEOUT", 5*time.Second)
+	v.SetDefault("SERVER.WRITE_TIMEOUT", 10*time.Second)
+	v.SetDefault("SERVER.IDLE_TIMEOUT", 120*time.Second)
+	v.SetDefault("DATABASE.PATH", "data/vyaya.db")
+	v.SetDefault("LOG.DIR", "log")
+	v.SetDefault("LOG.LEVEL", "info")
 
-	v.SetConfigName("config") // base config file name
-	v.AddConfigPath("config") // path to look for the config file in
+	// Environment variables
+	v.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
+	v.AutomaticEnv()
+
+	// Config file
 	v.SetConfigType("yaml")
+	v.AddConfigPath(".")
+	v.AddConfigPath("./config")
 
-	// Read base config
+	// 1. Try to load base config.yaml
+	v.SetConfigName("config")
 	if err := v.ReadInConfig(); err != nil {
 		if _, ok := err.(viper.ConfigFileNotFoundError); !ok {
-			return nil, fmt.Errorf("read config: %w", err)
+			return nil, fmt.Errorf("failed to read base config file: %w", err)
 		}
 	}
 
-	// Read environment specific config
+	// 2. Try to load environment-specific config (e.g. config.development.yaml)
+	env := v.GetString("ENVIRONMENT")
 	if env != "" {
-		v.SetConfigName("config." + env)
+		v.SetConfigName(fmt.Sprintf("config.%s", env))
 		if err := v.MergeInConfig(); err != nil {
 			if _, ok := err.(viper.ConfigFileNotFoundError); !ok {
-				return nil, fmt.Errorf("merge env config: %w", err)
+				return nil, fmt.Errorf("failed to merge environment-specific config file: %w", err)
 			}
 		}
 	}
 
-	// Read from environment variables
-	v.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
-	v.AutomaticEnv()
-
-	// Explicitly bind traditional environment variables
-	_ = v.BindEnv("database.path", "DB_PATH")
-	_ = v.BindEnv("logger.directory", "LOG_DIR")
-
 	var cfg Config
 	if err := v.Unmarshal(&cfg); err != nil {
-		return nil, fmt.Errorf("unmarshal config: %w", err)
+		return nil, fmt.Errorf("failed to unmarshal config: %w", err)
 	}
 
 	return &cfg, nil

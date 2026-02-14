@@ -18,11 +18,11 @@ func TestTransactionService(t *testing.T) {
 	}()
 
 	// Create a category first
-	catRepo := category.NewCategoryRepository(client)
+	catRepo := category.NewRepository(client)
 	cat, _ := catRepo.Create(context.Background(), category.Category{UserID: 1, Name: "Food", Status: 1})
 
-	repo := NewTransactionRepository(client)
-	svc := NewTransactionService(repo)
+	repo := NewRepository(client)
+	svc := NewService(repo)
 	ctx := context.Background()
 
 	t.Run("Create Transaction", func(t *testing.T) {

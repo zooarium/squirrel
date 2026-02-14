@@ -14,7 +14,7 @@ import (
 )
 
 // NewRouter creates a new chi router with default middleware and application routes.
-func NewRouter(categoryHandler *category.CategoryHandler, transactionHandler *transaction.TransactionHandler) *chi.Mux {
+func NewRouter(categoryHandler *category.Handler, transactionHandler *transaction.Handler) *chi.Mux {
 	r := chi.NewRouter()
 
 	r.Use(middleware.Logger)
