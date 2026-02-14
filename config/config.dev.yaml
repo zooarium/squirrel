@@ -1,7 +1,6 @@
-ENVIRONMENT: development
-SERVER:
-  ADDR: ":8080"
+ENVIRONMENT: dev
 DATABASE:
   PATH: "data/vyaya_dev.db"
 LOG:
+  DIR: "log_dev"
   LEVEL: "debug"

@@ -1,7 +1,0 @@
-ENVIRONMENT: test
-SERVER:
-  ADDR: ":8081"
-DATABASE:
-  PATH: ":memory:"
-LOG:
-  LEVEL: "warn"
