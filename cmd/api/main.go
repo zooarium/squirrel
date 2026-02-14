@@ -12,6 +12,7 @@ import (
 	"syscall"
 	"time"
 
+	"vyaya/docs"
 	"vyaya/internal/category"
 	"vyaya/internal/db"
 	platformhttp "vyaya/internal/platform/http"
@@ -65,6 +66,9 @@ func main() {
 	mw := io.MultiWriter(os.Stdout, logFile)
 	logger := slog.New(slog.NewJSONHandler(mw, &slog.HandlerOptions{Level: logLevel}))
 	slog.SetDefault(logger)
+
+	// Override Swagger host
+	docs.SwaggerInfo.Host = cfg.Server.Host
 
 	client, err := db.NewSQLiteClient(cfg.Database.Path)
 	if err != nil {

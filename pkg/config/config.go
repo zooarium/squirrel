@@ -19,6 +19,7 @@ type Config struct {
 // ServerConfig holds server related configuration.
 type ServerConfig struct {
 	Addr         string        `mapstructure:"ADDR"`
+	Host         string        `mapstructure:"HOST"`
 	ReadTimeout  time.Duration `mapstructure:"READ_TIMEOUT"`
 	WriteTimeout time.Duration `mapstructure:"WRITE_TIMEOUT"`
 	IdleTimeout  time.Duration `mapstructure:"IDLE_TIMEOUT"`
@@ -42,6 +43,7 @@ func Load() (*Config, error) {
 	// Default values
 	v.SetDefault("ENVIRONMENT", "production")
 	v.SetDefault("SERVER.ADDR", ":8080")
+	v.SetDefault("SERVER.HOST", "localhost:8080")
 	v.SetDefault("SERVER.READ_TIMEOUT", 5*time.Second)
 	v.SetDefault("SERVER.WRITE_TIMEOUT", 10*time.Second)
 	v.SetDefault("SERVER.IDLE_TIMEOUT", 120*time.Second)

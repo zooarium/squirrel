@@ -56,7 +56,19 @@ The application uses `viper` for configuration management. It supports multiple 
 1. **Defaults**: Hardcoded in `pkg/config/config.go`.
 2. **Base Config**: `config/config.yaml`.
 3. **Environment Overrides**: `config/config.{GO_ENV}.yaml`.
-4. **Environment Variables**: Overrides any of the above using `SERVER_PORT` for `server.port` etc.
+4. **Environment Variables**: Overrides any of the above using `SERVER_ADDR` for `server.addr`, `SERVER_HOST` for `server.host`, etc.
+
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `ENVIRONMENT` | Deployment environment (`dev`, `production`) | `production` |
+| `SERVER_ADDR` | Internal network address the server binds to | `:8080` |
+| `SERVER_HOST` | Public-facing host/port for Swagger documentation | `localhost:8080` |
+| `DATABASE_PATH` | Path to the SQLite database file | `data/vyaya.db` |
+| `LOG_DIR` | Directory where log files are stored | `log` |
+
+### Running on a different Port/Host
+- To change the port the server listens on: set `SERVER_ADDR=:9090`.
+- To change the address used in Swagger documentation: set `SERVER_HOST=api.example.com`.
 
 ## Code architecture
 
@@ -230,9 +242,11 @@ The database initialization is fully aligned with the Ent migration setup. On ev
 
 ## Service URLs
 
-- **API Gateway**: [http://localhost:8080](http://localhost:8080)
-- **Health Check**: [http://localhost:8080/health](http://localhost:8080/health)
-- **Swagger UI**: [http://localhost:8080/swagger/index.html](http://localhost:8080/swagger/index.html)
+By default, the services are available at:
+
+- **API Gateway**: `http://<SERVER_HOST>`
+- **Health Check**: `http://<SERVER_HOST>/health`
+- **Swagger UI**: `http://<SERVER_HOST>/swagger/index.html`
 
 ## API Endpoints
 
