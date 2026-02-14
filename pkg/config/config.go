@@ -72,6 +72,10 @@ func Load(env string) (*Config, error) {
 	v.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
 	v.AutomaticEnv()
 
+	// Explicitly bind traditional environment variables
+	_ = v.BindEnv("database.path", "DB_PATH")
+	_ = v.BindEnv("logger.directory", "LOG_DIR")
+
 	var cfg Config
 	if err := v.Unmarshal(&cfg); err != nil {
 		return nil, fmt.Errorf("unmarshal config: %w", err)

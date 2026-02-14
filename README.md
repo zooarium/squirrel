@@ -19,6 +19,12 @@
 
 ```
 /cmd/api/main.go
+/config/
+  config.yaml
+  config.development.yaml
+  config.test.yaml
+  config.cat.yaml
+  config.production.yaml
 /internal/
   category/
     handler.go
@@ -33,9 +39,24 @@
   db/
     sqlite.go
 /pkg/
-  logger/
   config/
 ```
+
+## Configuration
+
+The application uses `viper` for configuration management. It supports multiple environments via the `GO_ENV` environment variable.
+
+### Environment Variable: `GO_ENV`
+- `development` (default): Uses `config/config.development.yaml`
+- `test`: Uses `config/config.test.yaml`
+- `cat`: Uses `config/config.cat.yaml`
+- `production`: Uses `config/config.production.yaml`
+
+### Configuration Loading Order
+1. **Defaults**: Hardcoded in `pkg/config/config.go`.
+2. **Base Config**: `config/config.yaml`.
+3. **Environment Overrides**: `config/config.{GO_ENV}.yaml`.
+4. **Environment Variables**: Overrides any of the above using `SERVER_PORT` for `server.port` etc.
 
 ## Code architecture
 
@@ -192,7 +213,9 @@ The SQLite database is stored at `/app/data/vyaya.db` inside the container. This
 
 - **Host Path**: `./data/vyaya.db`
 - **Container Path**: `/app/data/vyaya.db`
-- **Environment Variable**: `DB_PATH`
+- **Environment Variables**: 
+  - `GO_ENV`: Environment name (e.g., `development`).
+  - `DB_PATH`: Overrides the database path (e.g., `/app/data/vyaya.db`).
 
 The database initialization is fully aligned with the Ent migration setup. On every startup, the application verifies the schema against the generated Ent code and applies any necessary changes to the SQLite file, ensuring the physical database always matches your versioned migration files.
 

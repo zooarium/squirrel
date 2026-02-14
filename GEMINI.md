@@ -130,4 +130,7 @@ To ensure codebase health and consistency, the following steps **must** be compl
 ## Persistence & Volumes
 - **Database**: `./data/vyaya.db` mapped to `/app/data/vyaya.db`.
 - **Logs**: `./log/` mapped to `/app/log/`.
-- **Environment**: `DB_PATH` and `LOG_DIR` control these paths.
+- **Environment**: 
+  - `GO_ENV`: Controls which configuration file is loaded (e.g., `development`, `production`).
+  - `DB_PATH`: Overrides the database path (defaults to `data/vyaya.db`).
+  - `LOG_DIR`: Overrides the log directory (defaults to `log`).
