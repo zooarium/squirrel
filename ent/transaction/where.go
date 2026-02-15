@@ -65,6 +65,11 @@ func UpdatedAt(v time.Time) predicate.Transaction {
 	return predicate.Transaction(sql.FieldEQ(FieldUpdatedAt, v))
 }
 
+// AppID applies equality check predicate on the "app_id" field. It's identical to AppIDEQ.
+func AppID(v int) predicate.Transaction {
+	return predicate.Transaction(sql.FieldEQ(FieldAppID, v))
+}
+
 // UserID applies equality check predicate on the "user_id" field. It's identical to UserIDEQ.
 func UserID(v int) predicate.Transaction {
 	return predicate.Transaction(sql.FieldEQ(FieldUserID, v))
@@ -158,6 +163,46 @@ func UpdatedAtLT(v time.Time) predicate.Transaction {
 // UpdatedAtLTE applies the LTE predicate on the "updated_at" field.
 func UpdatedAtLTE(v time.Time) predicate.Transaction {
 	return predicate.Transaction(sql.FieldLTE(FieldUpdatedAt, v))
+}
+
+// AppIDEQ applies the EQ predicate on the "app_id" field.
+func AppIDEQ(v int) predicate.Transaction {
+	return predicate.Transaction(sql.FieldEQ(FieldAppID, v))
+}
+
+// AppIDNEQ applies the NEQ predicate on the "app_id" field.
+func AppIDNEQ(v int) predicate.Transaction {
+	return predicate.Transaction(sql.FieldNEQ(FieldAppID, v))
+}
+
+// AppIDIn applies the In predicate on the "app_id" field.
+func AppIDIn(vs ...int) predicate.Transaction {
+	return predicate.Transaction(sql.FieldIn(FieldAppID, vs...))
+}
+
+// AppIDNotIn applies the NotIn predicate on the "app_id" field.
+func AppIDNotIn(vs ...int) predicate.Transaction {
+	return predicate.Transaction(sql.FieldNotIn(FieldAppID, vs...))
+}
+
+// AppIDGT applies the GT predicate on the "app_id" field.
+func AppIDGT(v int) predicate.Transaction {
+	return predicate.Transaction(sql.FieldGT(FieldAppID, v))
+}
+
+// AppIDGTE applies the GTE predicate on the "app_id" field.
+func AppIDGTE(v int) predicate.Transaction {
+	return predicate.Transaction(sql.FieldGTE(FieldAppID, v))
+}
+
+// AppIDLT applies the LT predicate on the "app_id" field.
+func AppIDLT(v int) predicate.Transaction {
+	return predicate.Transaction(sql.FieldLT(FieldAppID, v))
+}
+
+// AppIDLTE applies the LTE predicate on the "app_id" field.
+func AppIDLTE(v int) predicate.Transaction {
+	return predicate.Transaction(sql.FieldLTE(FieldAppID, v))
 }
 
 // UserIDEQ applies the EQ predicate on the "user_id" field.

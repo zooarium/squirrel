@@ -37,6 +37,8 @@ type CategoryMutation struct {
 	id                  *int
 	created_at          *time.Time
 	updated_at          *time.Time
+	app_id              *int
+	addapp_id           *int
 	user_id             *int
 	adduser_id          *int
 	name                *string
@@ -219,6 +221,62 @@ func (m *CategoryMutation) OldUpdatedAt(ctx context.Context) (v time.Time, err e
 // ResetUpdatedAt resets all changes to the "updated_at" field.
 func (m *CategoryMutation) ResetUpdatedAt() {
 	m.updated_at = nil
+}
+
+// SetAppID sets the "app_id" field.
+func (m *CategoryMutation) SetAppID(i int) {
+	m.app_id = &i
+	m.addapp_id = nil
+}
+
+// AppID returns the value of the "app_id" field in the mutation.
+func (m *CategoryMutation) AppID() (r int, exists bool) {
+	v := m.app_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldAppID returns the old "app_id" field's value of the Category entity.
+// If the Category object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *CategoryMutation) OldAppID(ctx context.Context) (v int, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldAppID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldAppID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldAppID: %w", err)
+	}
+	return oldValue.AppID, nil
+}
+
+// AddAppID adds i to the "app_id" field.
+func (m *CategoryMutation) AddAppID(i int) {
+	if m.addapp_id != nil {
+		*m.addapp_id += i
+	} else {
+		m.addapp_id = &i
+	}
+}
+
+// AddedAppID returns the value that was added to the "app_id" field in this mutation.
+func (m *CategoryMutation) AddedAppID() (r int, exists bool) {
+	v := m.addapp_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetAppID resets all changes to the "app_id" field.
+func (m *CategoryMutation) ResetAppID() {
+	m.app_id = nil
+	m.addapp_id = nil
 }
 
 // SetUserID sets the "user_id" field.
@@ -457,12 +515,15 @@ func (m *CategoryMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *CategoryMutation) Fields() []string {
-	fields := make([]string, 0, 5)
+	fields := make([]string, 0, 6)
 	if m.created_at != nil {
 		fields = append(fields, category.FieldCreatedAt)
 	}
 	if m.updated_at != nil {
 		fields = append(fields, category.FieldUpdatedAt)
+	}
+	if m.app_id != nil {
+		fields = append(fields, category.FieldAppID)
 	}
 	if m.user_id != nil {
 		fields = append(fields, category.FieldUserID)
@@ -485,6 +546,8 @@ func (m *CategoryMutation) Field(name string) (ent.Value, bool) {
 		return m.CreatedAt()
 	case category.FieldUpdatedAt:
 		return m.UpdatedAt()
+	case category.FieldAppID:
+		return m.AppID()
 	case category.FieldUserID:
 		return m.UserID()
 	case category.FieldName:
@@ -504,6 +567,8 @@ func (m *CategoryMutation) OldField(ctx context.Context, name string) (ent.Value
 		return m.OldCreatedAt(ctx)
 	case category.FieldUpdatedAt:
 		return m.OldUpdatedAt(ctx)
+	case category.FieldAppID:
+		return m.OldAppID(ctx)
 	case category.FieldUserID:
 		return m.OldUserID(ctx)
 	case category.FieldName:
@@ -532,6 +597,13 @@ func (m *CategoryMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetUpdatedAt(v)
+		return nil
+	case category.FieldAppID:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetAppID(v)
 		return nil
 	case category.FieldUserID:
 		v, ok := value.(int)
@@ -562,6 +634,9 @@ func (m *CategoryMutation) SetField(name string, value ent.Value) error {
 // this mutation.
 func (m *CategoryMutation) AddedFields() []string {
 	var fields []string
+	if m.addapp_id != nil {
+		fields = append(fields, category.FieldAppID)
+	}
 	if m.adduser_id != nil {
 		fields = append(fields, category.FieldUserID)
 	}
@@ -576,6 +651,8 @@ func (m *CategoryMutation) AddedFields() []string {
 // was not set, or was not defined in the schema.
 func (m *CategoryMutation) AddedField(name string) (ent.Value, bool) {
 	switch name {
+	case category.FieldAppID:
+		return m.AddedAppID()
 	case category.FieldUserID:
 		return m.AddedUserID()
 	case category.FieldStatus:
@@ -589,6 +666,13 @@ func (m *CategoryMutation) AddedField(name string) (ent.Value, bool) {
 // type.
 func (m *CategoryMutation) AddField(name string, value ent.Value) error {
 	switch name {
+	case category.FieldAppID:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddAppID(v)
+		return nil
 	case category.FieldUserID:
 		v, ok := value.(int)
 		if !ok {
@@ -635,6 +719,9 @@ func (m *CategoryMutation) ResetField(name string) error {
 		return nil
 	case category.FieldUpdatedAt:
 		m.ResetUpdatedAt()
+		return nil
+	case category.FieldAppID:
+		m.ResetAppID()
 		return nil
 	case category.FieldUserID:
 		m.ResetUserID()
@@ -741,6 +828,8 @@ type TransactionMutation struct {
 	id              *int
 	created_at      *time.Time
 	updated_at      *time.Time
+	app_id          *int
+	addapp_id       *int
 	user_id         *int
 	adduser_id      *int
 	amount          *float64
@@ -922,6 +1011,62 @@ func (m *TransactionMutation) OldUpdatedAt(ctx context.Context) (v time.Time, er
 // ResetUpdatedAt resets all changes to the "updated_at" field.
 func (m *TransactionMutation) ResetUpdatedAt() {
 	m.updated_at = nil
+}
+
+// SetAppID sets the "app_id" field.
+func (m *TransactionMutation) SetAppID(i int) {
+	m.app_id = &i
+	m.addapp_id = nil
+}
+
+// AppID returns the value of the "app_id" field in the mutation.
+func (m *TransactionMutation) AppID() (r int, exists bool) {
+	v := m.app_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldAppID returns the old "app_id" field's value of the Transaction entity.
+// If the Transaction object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *TransactionMutation) OldAppID(ctx context.Context) (v int, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldAppID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldAppID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldAppID: %w", err)
+	}
+	return oldValue.AppID, nil
+}
+
+// AddAppID adds i to the "app_id" field.
+func (m *TransactionMutation) AddAppID(i int) {
+	if m.addapp_id != nil {
+		*m.addapp_id += i
+	} else {
+		m.addapp_id = &i
+	}
+}
+
+// AddedAppID returns the value that was added to the "app_id" field in this mutation.
+func (m *TransactionMutation) AddedAppID() (r int, exists bool) {
+	v := m.addapp_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetAppID resets all changes to the "app_id" field.
+func (m *TransactionMutation) ResetAppID() {
+	m.app_id = nil
+	m.addapp_id = nil
 }
 
 // SetUserID sets the "user_id" field.
@@ -1182,12 +1327,15 @@ func (m *TransactionMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *TransactionMutation) Fields() []string {
-	fields := make([]string, 0, 6)
+	fields := make([]string, 0, 7)
 	if m.created_at != nil {
 		fields = append(fields, transaction.FieldCreatedAt)
 	}
 	if m.updated_at != nil {
 		fields = append(fields, transaction.FieldUpdatedAt)
+	}
+	if m.app_id != nil {
+		fields = append(fields, transaction.FieldAppID)
 	}
 	if m.user_id != nil {
 		fields = append(fields, transaction.FieldUserID)
@@ -1213,6 +1361,8 @@ func (m *TransactionMutation) Field(name string) (ent.Value, bool) {
 		return m.CreatedAt()
 	case transaction.FieldUpdatedAt:
 		return m.UpdatedAt()
+	case transaction.FieldAppID:
+		return m.AppID()
 	case transaction.FieldUserID:
 		return m.UserID()
 	case transaction.FieldAmount:
@@ -1234,6 +1384,8 @@ func (m *TransactionMutation) OldField(ctx context.Context, name string) (ent.Va
 		return m.OldCreatedAt(ctx)
 	case transaction.FieldUpdatedAt:
 		return m.OldUpdatedAt(ctx)
+	case transaction.FieldAppID:
+		return m.OldAppID(ctx)
 	case transaction.FieldUserID:
 		return m.OldUserID(ctx)
 	case transaction.FieldAmount:
@@ -1264,6 +1416,13 @@ func (m *TransactionMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetUpdatedAt(v)
+		return nil
+	case transaction.FieldAppID:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetAppID(v)
 		return nil
 	case transaction.FieldUserID:
 		v, ok := value.(int)
@@ -1301,6 +1460,9 @@ func (m *TransactionMutation) SetField(name string, value ent.Value) error {
 // this mutation.
 func (m *TransactionMutation) AddedFields() []string {
 	var fields []string
+	if m.addapp_id != nil {
+		fields = append(fields, transaction.FieldAppID)
+	}
 	if m.adduser_id != nil {
 		fields = append(fields, transaction.FieldUserID)
 	}
@@ -1315,6 +1477,8 @@ func (m *TransactionMutation) AddedFields() []string {
 // was not set, or was not defined in the schema.
 func (m *TransactionMutation) AddedField(name string) (ent.Value, bool) {
 	switch name {
+	case transaction.FieldAppID:
+		return m.AddedAppID()
 	case transaction.FieldUserID:
 		return m.AddedUserID()
 	case transaction.FieldAmount:
@@ -1328,6 +1492,13 @@ func (m *TransactionMutation) AddedField(name string) (ent.Value, bool) {
 // type.
 func (m *TransactionMutation) AddField(name string, value ent.Value) error {
 	switch name {
+	case transaction.FieldAppID:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddAppID(v)
+		return nil
 	case transaction.FieldUserID:
 		v, ok := value.(int)
 		if !ok {
@@ -1383,6 +1554,9 @@ func (m *TransactionMutation) ResetField(name string) error {
 		return nil
 	case transaction.FieldUpdatedAt:
 		m.ResetUpdatedAt()
+		return nil
+	case transaction.FieldAppID:
+		m.ResetAppID()
 		return nil
 	case transaction.FieldUserID:
 		m.ResetUserID()

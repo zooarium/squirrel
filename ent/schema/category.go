@@ -49,6 +49,7 @@ func (Category) Mixin() []ent.Mixin {
 // Fields of the Category.
 func (Category) Fields() []ent.Field {
 	return []ent.Field{
+		field.Int("app_id"),
 		field.Int("user_id"),
 		field.String("name").
 			NotEmpty(),

@@ -14,6 +14,7 @@ var (
 		{Name: "id", Type: field.TypeInt, Increment: true},
 		{Name: "created_at", Type: field.TypeTime},
 		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "app_id", Type: field.TypeInt},
 		{Name: "user_id", Type: field.TypeInt},
 		{Name: "name", Type: field.TypeString},
 		{Name: "status", Type: field.TypeInt8, Default: 1},
@@ -29,6 +30,7 @@ var (
 		{Name: "id", Type: field.TypeInt, Increment: true},
 		{Name: "created_at", Type: field.TypeTime},
 		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "app_id", Type: field.TypeInt},
 		{Name: "user_id", Type: field.TypeInt},
 		{Name: "amount", Type: field.TypeFloat64},
 		{Name: "type", Type: field.TypeEnum, Enums: []string{"income", "expense"}},
@@ -42,7 +44,7 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "transaction_category_transactions",
-				Columns:    []*schema.Column{TransactionColumns[6]},
+				Columns:    []*schema.Column{TransactionColumns[7]},
 				RefColumns: []*schema.Column{CategoryColumns[0]},
 				OnDelete:   schema.SetNull,
 			},

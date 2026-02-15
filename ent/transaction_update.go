@@ -35,6 +35,27 @@ func (_u *TransactionUpdate) SetUpdatedAt(v time.Time) *TransactionUpdate {
 	return _u
 }
 
+// SetAppID sets the "app_id" field.
+func (_u *TransactionUpdate) SetAppID(v int) *TransactionUpdate {
+	_u.mutation.ResetAppID()
+	_u.mutation.SetAppID(v)
+	return _u
+}
+
+// SetNillableAppID sets the "app_id" field if the given value is not nil.
+func (_u *TransactionUpdate) SetNillableAppID(v *int) *TransactionUpdate {
+	if v != nil {
+		_u.SetAppID(*v)
+	}
+	return _u
+}
+
+// AddAppID adds value to the "app_id" field.
+func (_u *TransactionUpdate) AddAppID(v int) *TransactionUpdate {
+	_u.mutation.AddAppID(v)
+	return _u
+}
+
 // SetUserID sets the "user_id" field.
 func (_u *TransactionUpdate) SetUserID(v int) *TransactionUpdate {
 	_u.mutation.ResetUserID()
@@ -188,6 +209,12 @@ func (_u *TransactionUpdate) sqlSave(ctx context.Context) (_node int, err error)
 	if value, ok := _u.mutation.UpdatedAt(); ok {
 		_spec.SetField(transaction.FieldUpdatedAt, field.TypeTime, value)
 	}
+	if value, ok := _u.mutation.AppID(); ok {
+		_spec.SetField(transaction.FieldAppID, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.AddedAppID(); ok {
+		_spec.AddField(transaction.FieldAppID, field.TypeInt, value)
+	}
 	if value, ok := _u.mutation.UserID(); ok {
 		_spec.SetField(transaction.FieldUserID, field.TypeInt, value)
 	}
@@ -255,6 +282,27 @@ type TransactionUpdateOne struct {
 // SetUpdatedAt sets the "updated_at" field.
 func (_u *TransactionUpdateOne) SetUpdatedAt(v time.Time) *TransactionUpdateOne {
 	_u.mutation.SetUpdatedAt(v)
+	return _u
+}
+
+// SetAppID sets the "app_id" field.
+func (_u *TransactionUpdateOne) SetAppID(v int) *TransactionUpdateOne {
+	_u.mutation.ResetAppID()
+	_u.mutation.SetAppID(v)
+	return _u
+}
+
+// SetNillableAppID sets the "app_id" field if the given value is not nil.
+func (_u *TransactionUpdateOne) SetNillableAppID(v *int) *TransactionUpdateOne {
+	if v != nil {
+		_u.SetAppID(*v)
+	}
+	return _u
+}
+
+// AddAppID adds value to the "app_id" field.
+func (_u *TransactionUpdateOne) AddAppID(v int) *TransactionUpdateOne {
+	_u.mutation.AddAppID(v)
 	return _u
 }
 
@@ -440,6 +488,12 @@ func (_u *TransactionUpdateOne) sqlSave(ctx context.Context) (_node *Transaction
 	}
 	if value, ok := _u.mutation.UpdatedAt(); ok {
 		_spec.SetField(transaction.FieldUpdatedAt, field.TypeTime, value)
+	}
+	if value, ok := _u.mutation.AppID(); ok {
+		_spec.SetField(transaction.FieldAppID, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.AddedAppID(); ok {
+		_spec.AddField(transaction.FieldAppID, field.TypeInt, value)
 	}
 	if value, ok := _u.mutation.UserID(); ok {
 		_spec.SetField(transaction.FieldUserID, field.TypeInt, value)

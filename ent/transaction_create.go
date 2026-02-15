@@ -49,6 +49,12 @@ func (_c *TransactionCreate) SetNillableUpdatedAt(v *time.Time) *TransactionCrea
 	return _c
 }
 
+// SetAppID sets the "app_id" field.
+func (_c *TransactionCreate) SetAppID(v int) *TransactionCreate {
+	_c.mutation.SetAppID(v)
+	return _c
+}
+
 // SetUserID sets the "user_id" field.
 func (_c *TransactionCreate) SetUserID(v int) *TransactionCreate {
 	_c.mutation.SetUserID(v)
@@ -139,6 +145,9 @@ func (_c *TransactionCreate) check() error {
 	if _, ok := _c.mutation.UpdatedAt(); !ok {
 		return &ValidationError{Name: "updated_at", err: errors.New(`ent: missing required field "Transaction.updated_at"`)}
 	}
+	if _, ok := _c.mutation.AppID(); !ok {
+		return &ValidationError{Name: "app_id", err: errors.New(`ent: missing required field "Transaction.app_id"`)}
+	}
 	if _, ok := _c.mutation.UserID(); !ok {
 		return &ValidationError{Name: "user_id", err: errors.New(`ent: missing required field "Transaction.user_id"`)}
 	}
@@ -186,6 +195,10 @@ func (_c *TransactionCreate) createSpec() (*Transaction, *sqlgraph.CreateSpec) {
 	if value, ok := _c.mutation.UpdatedAt(); ok {
 		_spec.SetField(transaction.FieldUpdatedAt, field.TypeTime, value)
 		_node.UpdatedAt = value
+	}
+	if value, ok := _c.mutation.AppID(); ok {
+		_spec.SetField(transaction.FieldAppID, field.TypeInt, value)
+		_node.AppID = value
 	}
 	if value, ok := _c.mutation.UserID(); ok {
 		_spec.SetField(transaction.FieldUserID, field.TypeInt, value)

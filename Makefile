@@ -1,4 +1,4 @@
-.PHONY: build up down restart logs ps test lint swag clean shell help tidy vet generate vendor coverage coverage-view build-local
+.PHONY: build up down restart logs ps test lint swag clean shell help tidy vet generate vendor coverage coverage-view build-local sql
 
 # Docker Compose commands
 build: vendor
@@ -56,10 +56,8 @@ vet:
 # Run go generate for code generation
 generate:
 	docker run --rm -v $(shell pwd)/..:/workspace -w /workspace/vyaya \
-		-e CGO_ENABLED=1 \
-		-e CGO_CFLAGS="-D_LARGEFILE64_SOURCE" \
 		golang:1.26-alpine \
-		sh -c "apk add --no-cache build-base && go generate -mod=vendor ./..."
+		go generate -mod=vendor ./...
 
 # Create vendor directory
 vendor:
@@ -110,6 +108,11 @@ migrate-apply:
 		--dir "file://ent/migrate/migrations" \
 		--allow-dirty
 
+# Run SQL query against the database
+sql:
+	@if [ -z "$(query)" ]; then echo "Usage: make sql query=\"SQL_QUERY\""; exit 1; fi
+	sqlite3 data/vyaya.db "$(query)"
+
 # Clean up containers, images, and volumes
 clean:
 	docker-compose down --rmi all --volumes --remove-orphans
@@ -138,5 +141,6 @@ help:
 	@echo "  coverage-view Open test coverage report"
 	@echo "  deps-upgrade  Upgrade Go dependencies"
 	@echo "  go-upgrade    Upgrade Go version (use version=1.x)"
+	@echo "  sql           Run SQL query (use query=...)"
 	@echo "  clean         Deep clean containers/images"
 	@echo "  help          Show this help message"

@@ -49,6 +49,12 @@ func (_c *CategoryCreate) SetNillableUpdatedAt(v *time.Time) *CategoryCreate {
 	return _c
 }
 
+// SetAppID sets the "app_id" field.
+func (_c *CategoryCreate) SetAppID(v int) *CategoryCreate {
+	_c.mutation.SetAppID(v)
+	return _c
+}
+
 // SetUserID sets the "user_id" field.
 func (_c *CategoryCreate) SetUserID(v int) *CategoryCreate {
 	_c.mutation.SetUserID(v)
@@ -147,6 +153,9 @@ func (_c *CategoryCreate) check() error {
 	if _, ok := _c.mutation.UpdatedAt(); !ok {
 		return &ValidationError{Name: "updated_at", err: errors.New(`ent: missing required field "Category.updated_at"`)}
 	}
+	if _, ok := _c.mutation.AppID(); !ok {
+		return &ValidationError{Name: "app_id", err: errors.New(`ent: missing required field "Category.app_id"`)}
+	}
 	if _, ok := _c.mutation.UserID(); !ok {
 		return &ValidationError{Name: "user_id", err: errors.New(`ent: missing required field "Category.user_id"`)}
 	}
@@ -194,6 +203,10 @@ func (_c *CategoryCreate) createSpec() (*Category, *sqlgraph.CreateSpec) {
 	if value, ok := _c.mutation.UpdatedAt(); ok {
 		_spec.SetField(category.FieldUpdatedAt, field.TypeTime, value)
 		_node.UpdatedAt = value
+	}
+	if value, ok := _c.mutation.AppID(); ok {
+		_spec.SetField(category.FieldAppID, field.TypeInt, value)
+		_node.AppID = value
 	}
 	if value, ok := _c.mutation.UserID(); ok {
 		_spec.SetField(category.FieldUserID, field.TypeInt, value)

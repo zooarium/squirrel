@@ -30,6 +30,7 @@ func (Transaction) Mixin() []ent.Mixin {
 // Fields of the Transaction.
 func (Transaction) Fields() []ent.Field {
 	return []ent.Field{
+		field.Int("app_id"),
 		field.Int("user_id"),
 		field.Float("amount"),
 		field.Enum("type").

@@ -80,6 +80,9 @@ The application uses `viper` for configuration management, supporting multiple e
 
 ## Development Workflow
 
+### Command Preference
+Always prefer using `make` commands defined in the `Makefile` over direct `docker` or `go` commands. The `Makefile` ensures a consistent environment (using specific Go versions and dependencies) by running tools inside Docker containers.
+
 ### Mandatory Workflow for Every Change
 To ensure codebase health and consistency, the following steps **must** be completed for every modification or new feature:
 1. **Follow Naming Conventions**: Adhere to the project's naming conventions for packages, files, variables, and API components as defined in this document.
@@ -112,11 +115,12 @@ To ensure codebase health and consistency, the following steps **must** be compl
 - `make swag`: Regenerate Swagger documentation.
 - `make migrate-gen name=NAME`: Generate a new database migration.
 - `make migrate-apply`: Apply pending migrations.
+- `make sql query=QUERY`: Run a SQL query against the SQLite database.
 
 ### Database Migrations
 1.  **Modify Schema**: Edit `ent/schema/category.go`.
 2.  **Singular Table Names**: All database table names **must** be in singular format. Use `entsql.Annotation{Table: "singular_name"}` in the schema definition's `Annotations()` method.
-3.  **Generate Code**: `docker run --rm -v $(pwd):/app -w /app golang:1.26-alpine go generate ./ent/...`
+3.  **Generate Code**: `make generate`
 4.  **Generate Migration**: `make migrate-gen name=change_description`.
 5.  **Apply**: `make migrate-apply` (or restart the app for auto-migration).
 

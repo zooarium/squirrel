@@ -198,7 +198,7 @@ Update the schema definitions in the `ent/schema/` directory (e.g., `ent/schema/
 ### 2. Generate Ent Code
 After modifying the schema, regenerate the Ent runtime code:
 ```bash
-docker run --rm -v $(pwd):/app -w /app golang:1.26-alpine go generate ./ent/...
+make generate
 ```
 
 ### 3. Generate Migration Files
@@ -225,7 +225,7 @@ The SQLite database is stored at `/app/data/vyaya.db` inside the container. This
 
 - **Host Path**: `./data/vyaya.db`
 - **Container Path**: `/app/data/vyaya.db`
-- **Environment Variables**: 
+- **Environment Variables**:
   - `GO_ENV`: Environment name (e.g., `development`).
   - `DB_PATH`: Overrides the database path (e.g., `/app/data/vyaya.db`).
 

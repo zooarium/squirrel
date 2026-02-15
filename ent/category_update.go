@@ -35,6 +35,27 @@ func (_u *CategoryUpdate) SetUpdatedAt(v time.Time) *CategoryUpdate {
 	return _u
 }
 
+// SetAppID sets the "app_id" field.
+func (_u *CategoryUpdate) SetAppID(v int) *CategoryUpdate {
+	_u.mutation.ResetAppID()
+	_u.mutation.SetAppID(v)
+	return _u
+}
+
+// SetNillableAppID sets the "app_id" field if the given value is not nil.
+func (_u *CategoryUpdate) SetNillableAppID(v *int) *CategoryUpdate {
+	if v != nil {
+		_u.SetAppID(*v)
+	}
+	return _u
+}
+
+// AddAppID adds value to the "app_id" field.
+func (_u *CategoryUpdate) AddAppID(v int) *CategoryUpdate {
+	_u.mutation.AddAppID(v)
+	return _u
+}
+
 // SetUserID sets the "user_id" field.
 func (_u *CategoryUpdate) SetUserID(v int) *CategoryUpdate {
 	_u.mutation.ResetUserID()
@@ -193,6 +214,12 @@ func (_u *CategoryUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	if value, ok := _u.mutation.UpdatedAt(); ok {
 		_spec.SetField(category.FieldUpdatedAt, field.TypeTime, value)
 	}
+	if value, ok := _u.mutation.AppID(); ok {
+		_spec.SetField(category.FieldAppID, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.AddedAppID(); ok {
+		_spec.AddField(category.FieldAppID, field.TypeInt, value)
+	}
 	if value, ok := _u.mutation.UserID(); ok {
 		_spec.SetField(category.FieldUserID, field.TypeInt, value)
 	}
@@ -276,6 +303,27 @@ type CategoryUpdateOne struct {
 // SetUpdatedAt sets the "updated_at" field.
 func (_u *CategoryUpdateOne) SetUpdatedAt(v time.Time) *CategoryUpdateOne {
 	_u.mutation.SetUpdatedAt(v)
+	return _u
+}
+
+// SetAppID sets the "app_id" field.
+func (_u *CategoryUpdateOne) SetAppID(v int) *CategoryUpdateOne {
+	_u.mutation.ResetAppID()
+	_u.mutation.SetAppID(v)
+	return _u
+}
+
+// SetNillableAppID sets the "app_id" field if the given value is not nil.
+func (_u *CategoryUpdateOne) SetNillableAppID(v *int) *CategoryUpdateOne {
+	if v != nil {
+		_u.SetAppID(*v)
+	}
+	return _u
+}
+
+// AddAppID adds value to the "app_id" field.
+func (_u *CategoryUpdateOne) AddAppID(v int) *CategoryUpdateOne {
+	_u.mutation.AddAppID(v)
 	return _u
 }
 
@@ -466,6 +514,12 @@ func (_u *CategoryUpdateOne) sqlSave(ctx context.Context) (_node *Category, err 
 	}
 	if value, ok := _u.mutation.UpdatedAt(); ok {
 		_spec.SetField(category.FieldUpdatedAt, field.TypeTime, value)
+	}
+	if value, ok := _u.mutation.AppID(); ok {
+		_spec.SetField(category.FieldAppID, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.AddedAppID(); ok {
+		_spec.AddField(category.FieldAppID, field.TypeInt, value)
 	}
 	if value, ok := _u.mutation.UserID(); ok {
 		_spec.SetField(category.FieldUserID, field.TypeInt, value)

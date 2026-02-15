@@ -22,6 +22,8 @@ type Transaction struct {
 	CreatedAt time.Time `json:"created_at,omitempty"`
 	// UpdatedAt holds the value of the "updated_at" field.
 	UpdatedAt time.Time `json:"updated_at,omitempty"`
+	// AppID holds the value of the "app_id" field.
+	AppID int `json:"app_id,omitempty"`
 	// UserID holds the value of the "user_id" field.
 	UserID int `json:"user_id,omitempty"`
 	// Amount holds the value of the "amount" field.
@@ -63,7 +65,7 @@ func (*Transaction) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case transaction.FieldAmount:
 			values[i] = new(sql.NullFloat64)
-		case transaction.FieldID, transaction.FieldUserID, transaction.FieldCategoryID:
+		case transaction.FieldID, transaction.FieldAppID, transaction.FieldUserID, transaction.FieldCategoryID:
 			values[i] = new(sql.NullInt64)
 		case transaction.FieldType:
 			values[i] = new(sql.NullString)
@@ -101,6 +103,12 @@ func (_m *Transaction) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field updated_at", values[i])
 			} else if value.Valid {
 				_m.UpdatedAt = value.Time
+			}
+		case transaction.FieldAppID:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field app_id", values[i])
+			} else if value.Valid {
+				_m.AppID = int(value.Int64)
 			}
 		case transaction.FieldUserID:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
@@ -173,6 +181,9 @@ func (_m *Transaction) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("updated_at=")
 	builder.WriteString(_m.UpdatedAt.Format(time.ANSIC))
+	builder.WriteString(", ")
+	builder.WriteString("app_id=")
+	builder.WriteString(fmt.Sprintf("%v", _m.AppID))
 	builder.WriteString(", ")
 	builder.WriteString("user_id=")
 	builder.WriteString(fmt.Sprintf("%v", _m.UserID))
