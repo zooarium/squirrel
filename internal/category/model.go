@@ -7,6 +7,7 @@ import (
 // Category represents a category in the system.
 type Category struct {
 	ID        int       `json:"id"`
+	AppID     int       `json:"app_id"`
 	UserID    int       `json:"user_id"`
 	Name      string    `json:"name" validate:"required"`
 	Status    int8      `json:"status"`

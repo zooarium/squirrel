@@ -236,7 +236,21 @@ The database initialization is fully aligned with the Ent migration setup. On ev
 ### category
 
 - ID - int - primary key - auto increment
+- AppID - int
+- UserID - int
 - Name - varchar
+- Status - int8
+- Created at
+- Updated at
+
+### transaction
+
+- ID - int - primary key - auto increment
+- AppID - int
+- UserID - int
+- Amount - float
+- Type - enum (income, expense)
+- CategoryID - int (foreign key)
 - Created at
 - Updated at
 

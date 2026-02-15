@@ -13,7 +13,7 @@ type Config struct {
 	Environment string `mapstructure:"ENVIRONMENT"`
 	Server      ServerConfig
 	Database    DatabaseConfig
-	Log         LogConfig `mapstructure:"LOG"`
+	Log         LogConfig  `mapstructure:"LOG"`
 	Auth        AuthConfig `mapstructure:"AUTH"`
 	CORS        CORSConfig
 }

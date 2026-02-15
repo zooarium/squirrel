@@ -43,12 +43,12 @@ func (h *Handler) Routes() chi.Router {
 	return r
 }
 
-func (h *Handler) getUserID(r *http.Request) (int, error) {
+func (h *Handler) getClaims(r *http.Request) (*auth.UserClaims, error) {
 	claims, ok := auth.GetClaimsFromContext(r.Context())
 	if !ok {
-		return 0, errors.New("user not authenticated")
+		return nil, errors.New("user not authenticated")
 	}
-	return claims.UserID, nil
+	return claims, nil
 }
 
 // Create handles transaction creation.
@@ -65,7 +65,7 @@ func (h *Handler) getUserID(r *http.Request) (int, error) {
 // @Security Bearer
 // @Router /transactions [post]
 func (h *Handler) Create(w http.ResponseWriter, r *http.Request) {
-	userID, err := h.getUserID(r)
+	claims, err := h.getClaims(r)
 	if err != nil {
 		render.Error(w, http.StatusUnauthorized, err.Error())
 		return
@@ -77,7 +77,7 @@ func (h *Handler) Create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	tx, err := h.svc.Create(r.Context(), userID, req)
+	tx, err := h.svc.Create(r.Context(), claims.AppID, claims.UserID, req)
 	if err != nil {
 		render.Error(w, http.StatusInternalServerError, err.Error())
 		return
@@ -97,13 +97,13 @@ func (h *Handler) Create(w http.ResponseWriter, r *http.Request) {
 // @Security Bearer
 // @Router /transactions [get]
 func (h *Handler) List(w http.ResponseWriter, r *http.Request) {
-	userID, err := h.getUserID(r)
+	claims, err := h.getClaims(r)
 	if err != nil {
 		render.Error(w, http.StatusUnauthorized, err.Error())
 		return
 	}
 
-	txs, err := h.svc.List(r.Context(), userID)
+	txs, err := h.svc.List(r.Context(), claims.AppID, claims.UserID)
 	if err != nil {
 		render.Error(w, http.StatusInternalServerError, err.Error())
 		return
@@ -126,7 +126,7 @@ func (h *Handler) List(w http.ResponseWriter, r *http.Request) {
 // @Security Bearer
 // @Router /transactions/{id} [get]
 func (h *Handler) GetByID(w http.ResponseWriter, r *http.Request) {
-	userID, err := h.getUserID(r)
+	claims, err := h.getClaims(r)
 	if err != nil {
 		render.Error(w, http.StatusUnauthorized, err.Error())
 		return
@@ -138,7 +138,7 @@ func (h *Handler) GetByID(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	tx, err := h.svc.GetByID(r.Context(), userID, id)
+	tx, err := h.svc.GetByID(r.Context(), claims.AppID, claims.UserID, id)
 	if err != nil {
 		if errors.Is(err, ErrTransactionNotFound) {
 			render.Error(w, http.StatusNotFound, "transaction not found")
@@ -167,7 +167,7 @@ func (h *Handler) GetByID(w http.ResponseWriter, r *http.Request) {
 // @Security Bearer
 // @Router /transactions/{id} [put]
 func (h *Handler) Update(w http.ResponseWriter, r *http.Request) {
-	userID, err := h.getUserID(r)
+	claims, err := h.getClaims(r)
 	if err != nil {
 		render.Error(w, http.StatusUnauthorized, err.Error())
 		return
@@ -185,7 +185,7 @@ func (h *Handler) Update(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	tx, err := h.svc.Update(r.Context(), userID, id, req)
+	tx, err := h.svc.Update(r.Context(), claims.AppID, claims.UserID, id, req)
 	if err != nil {
 		if errors.Is(err, ErrTransactionNotFound) {
 			render.Error(w, http.StatusNotFound, "transaction not found")
@@ -212,7 +212,7 @@ func (h *Handler) Update(w http.ResponseWriter, r *http.Request) {
 // @Security Bearer
 // @Router /transactions/{id} [delete]
 func (h *Handler) Delete(w http.ResponseWriter, r *http.Request) {
-	userID, err := h.getUserID(r)
+	claims, err := h.getClaims(r)
 	if err != nil {
 		render.Error(w, http.StatusUnauthorized, err.Error())
 		return
@@ -224,7 +224,7 @@ func (h *Handler) Delete(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = h.svc.Delete(r.Context(), userID, id)
+	err = h.svc.Delete(r.Context(), claims.AppID, claims.UserID, id)
 	if err != nil {
 		if errors.Is(err, ErrTransactionNotFound) {
 			render.Error(w, http.StatusNotFound, "transaction not found")

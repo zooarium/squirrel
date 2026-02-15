@@ -21,6 +21,7 @@ func NewRepository(client *ent.Client) *Repository {
 func (r *Repository) Create(ctx context.Context, c Category) (Category, error) {
 	entCat, err := r.client.Category.
 		Create().
+		SetAppID(c.AppID).
 		SetUserID(c.UserID).
 		SetName(c.Name).
 		SetStatus(c.Status).
@@ -33,10 +34,10 @@ func (r *Repository) Create(ctx context.Context, c Category) (Category, error) {
 }
 
 // List returns all categories for a user.
-func (r *Repository) List(ctx context.Context, userID int) ([]Category, error) {
+func (r *Repository) List(ctx context.Context, appID, userID int) ([]Category, error) {
 	entCats, err := r.client.Category.
 		Query().
-		Where(category.UserID(userID)).
+		Where(category.AppID(appID), category.UserID(userID)).
 		Order(ent.Asc(category.FieldName)).
 		All(ctx)
 	if err != nil {
@@ -51,10 +52,10 @@ func (r *Repository) List(ctx context.Context, userID int) ([]Category, error) {
 }
 
 // GetByID returns a category by its ID and user ID.
-func (r *Repository) GetByID(ctx context.Context, userID, id int) (Category, error) {
+func (r *Repository) GetByID(ctx context.Context, appID, userID, id int) (Category, error) {
 	entCat, err := r.client.Category.
 		Query().
-		Where(category.ID(id), category.UserID(userID)).
+		Where(category.ID(id), category.AppID(appID), category.UserID(userID)).
 		Only(ctx)
 	if err != nil {
 		if ent.IsNotFound(err) {
@@ -67,11 +68,11 @@ func (r *Repository) GetByID(ctx context.Context, userID, id int) (Category, err
 }
 
 // Update updates a category.
-func (r *Repository) Update(ctx context.Context, userID, id int, c Category) (Category, error) {
+func (r *Repository) Update(ctx context.Context, appID, userID, id int, c Category) (Category, error) {
 	// Use Update() with predicate to ensure ownership
 	count, err := r.client.Category.
 		Update().
-		Where(category.ID(id), category.UserID(userID)).
+		Where(category.ID(id), category.AppID(appID), category.UserID(userID)).
 		SetName(c.Name).
 		SetStatus(c.Status).
 		Save(ctx)
@@ -84,14 +85,14 @@ func (r *Repository) Update(ctx context.Context, userID, id int, c Category) (Ca
 	}
 
 	// Fetch updated entity to return
-	return r.GetByID(ctx, userID, id)
+	return r.GetByID(ctx, appID, userID, id)
 }
 
 // Delete deletes a category.
-func (r *Repository) Delete(ctx context.Context, userID, id int) error {
+func (r *Repository) Delete(ctx context.Context, appID, userID, id int) error {
 	count, err := r.client.Category.
 		Delete().
-		Where(category.ID(id), category.UserID(userID)).
+		Where(category.ID(id), category.AppID(appID), category.UserID(userID)).
 		Exec(ctx)
 	if err != nil {
 		return fmt.Errorf("delete category: %w", err)
@@ -105,6 +106,7 @@ func (r *Repository) Delete(ctx context.Context, userID, id int) error {
 func (r *Repository) mapToModel(entCat *ent.Category) Category {
 	return Category{
 		ID:        entCat.ID,
+		AppID:     entCat.AppID,
 		UserID:    entCat.UserID,
 		Name:      entCat.Name,
 		Status:    entCat.Status,

@@ -25,21 +25,22 @@ func TestCategoryService(t *testing.T) {
 			Name:   "Test Category",
 			Status: 1,
 		}
-		cat, err := svc.Create(ctx, 1, req)
+		cat, err := svc.Create(ctx, 1, 1, req)
 		assert.NoError(t, err)
 		assert.Equal(t, "Test Category", cat.Name)
+		assert.Equal(t, 1, cat.AppID)
 		assert.Equal(t, 1, cat.UserID)
 		assert.Equal(t, int8(1), cat.Status)
 	})
 
 	t.Run("List Categories", func(t *testing.T) {
-		cats, err := svc.List(ctx, 1)
+		cats, err := svc.List(ctx, 1, 1)
 		assert.NoError(t, err)
 		assert.Len(t, cats, 1)
 	})
 
 	t.Run("Get Category By ID", func(t *testing.T) {
-		cat, err := svc.GetByID(ctx, 1, 1)
+		cat, err := svc.GetByID(ctx, 1, 1, 1)
 		assert.NoError(t, err)
 		assert.Equal(t, "Test Category", cat.Name)
 	})
@@ -49,17 +50,17 @@ func TestCategoryService(t *testing.T) {
 			Name:   "Updated Category",
 			Status: 0,
 		}
-		cat, err := svc.Update(ctx, 1, 1, req)
+		cat, err := svc.Update(ctx, 1, 1, 1, req)
 		assert.NoError(t, err)
 		assert.Equal(t, "Updated Category", cat.Name)
 		assert.Equal(t, int8(0), cat.Status)
 	})
 
 	t.Run("Delete Category", func(t *testing.T) {
-		err := svc.Delete(ctx, 1, 1)
+		err := svc.Delete(ctx, 1, 1, 1)
 		assert.NoError(t, err)
 
-		_, err = svc.GetByID(ctx, 1, 1)
+		_, err = svc.GetByID(ctx, 1, 1, 1)
 		assert.ErrorIs(t, err, ErrCategoryNotFound)
 	})
 }

@@ -687,6 +687,9 @@ const docTemplate = `{
                 "name"
             ],
             "properties": {
+                "app_id": {
+                    "type": "integer"
+                },
                 "created_at": {
                     "type": "string"
                 },
@@ -770,6 +773,9 @@ const docTemplate = `{
             "properties": {
                 "amount": {
                     "type": "number"
+                },
+                "app_id": {
+                    "type": "integer"
                 },
                 "category_id": {
                     "type": "integer"

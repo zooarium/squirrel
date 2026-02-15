@@ -7,6 +7,7 @@ import (
 // Transaction represents a financial transaction.
 type Transaction struct {
 	ID         int       `json:"id"`
+	AppID      int       `json:"app_id"`
 	UserID     int       `json:"user_id"`
 	Amount     float64   `json:"amount"`
 	Type       string    `json:"type"` // income, expense

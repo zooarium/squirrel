@@ -130,6 +130,7 @@ To ensure codebase health and consistency, the following steps **must** be compl
 | Field      | Type      | Description                          |
 |------------|-----------|--------------------------------------|
 | ID         | int       | Primary Key (Auto-increment)         |
+| AppID      | int       | Application ID                       |
 | UserID     | int       | Owner user ID                        |
 | Name       | string    | Category name                        |
 | Status     | int8      | Status (1: Active, 0: Inactive)      |
@@ -140,6 +141,7 @@ To ensure codebase health and consistency, the following steps **must** be compl
 | Field      | Type      | Description                          |
 |------------|-----------|--------------------------------------|
 | ID         | int       | Primary Key (Auto-increment)         |
+| AppID      | int       | Application ID                       |
 | UserID     | int       | Owner user ID                        |
 | Amount     | float     | Transaction amount                   |
 | Type       | enum      | Type (income, expense)               |
