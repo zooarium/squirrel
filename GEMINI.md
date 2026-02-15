@@ -146,6 +146,7 @@ To ensure codebase health and consistency, the following steps **must** be compl
 | Amount     | float     | Transaction amount                   |
 | Type       | enum      | Type (income, expense)               |
 | CategoryID | int       | Foreign Key to Category (Optional)   |
+| Recurring  | int8      | Recurring status (1: Yes, 0: No)     |
 | CreatedAt  | datetime  | Creation timestamp                   |
 | UpdatedAt  | datetime  | Last update timestamp                |
 

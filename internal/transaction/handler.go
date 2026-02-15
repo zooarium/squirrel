@@ -5,6 +5,7 @@ import (
 	"errors"
 	"net/http"
 	"strconv"
+	"time"
 
 	"vyaya/internal/platform/render"
 
@@ -53,7 +54,7 @@ func (h *Handler) getClaims(r *http.Request) (*auth.UserClaims, error) {
 
 // Create handles transaction creation.
 // @Summary Create a new transaction
-// @Description Create a new transaction with the provided amount, type
+// @Description Create a new transaction with the provided amount, type, category, recurring status and dated
 // @Tags transactions
 // @Accept json
 // @Produce json
@@ -88,10 +89,15 @@ func (h *Handler) Create(w http.ResponseWriter, r *http.Request) {
 
 // List handles listing all transactions.
 // @Summary List all transactions
-// @Description Get a list of all transactions for the authenticated user
+// @Description Get a list of all transactions for the authenticated user with optional filtering
 // @Tags transactions
 // @Produce json
-// @Success 200 {object} render.Response{data=[]Transaction}
+// @Param category_id query int false "Filter by category ID"
+// @Param recurring query int false "Filter by recurring status (0 or 1, default 0)"
+// @Param dated query string false "Filter by predefined date ranges (today, yesterday, this month, last month, this year, last year)"
+// @Param from query string false "Filter from date (YYYY-MM-DD)"
+// @Param to query string false "Filter to date (YYYY-MM-DD)"
+// @Success 200 {object} render.Response{data=TransactionListResponse}
 // @Failure 401 {object} render.Response
 // @Failure 500 {object} render.Response
 // @Security Bearer
@@ -103,7 +109,36 @@ func (h *Handler) List(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	txs, err := h.svc.List(r.Context(), claims.AppID, claims.UserID)
+	filter := TransactionFilter{}
+
+	if val := r.URL.Query().Get("category_id"); val != "" {
+		if id, err := strconv.Atoi(val); err == nil {
+			filter.CategoryID = &id
+		}
+	}
+
+	if val := r.URL.Query().Get("recurring"); val != "" {
+		if i, err := strconv.ParseInt(val, 10, 8); err == nil {
+			i8 := int8(i)
+			filter.Recurring = &i8
+		}
+	}
+
+	filter.Dated = r.URL.Query().Get("dated")
+
+	if val := r.URL.Query().Get("from"); val != "" {
+		if t, err := time.Parse("2006-01-02", val); err == nil {
+			filter.From = &t
+		}
+	}
+
+	if val := r.URL.Query().Get("to"); val != "" {
+		if t, err := time.Parse("2006-01-02", val); err == nil {
+			filter.To = &t
+		}
+	}
+
+	txs, err := h.svc.List(r.Context(), claims.AppID, claims.UserID, filter)
 	if err != nil {
 		render.Error(w, http.StatusInternalServerError, err.Error())
 		return
@@ -153,7 +188,7 @@ func (h *Handler) GetByID(w http.ResponseWriter, r *http.Request) {
 
 // Update handles updating a transaction.
 // @Summary Update transaction by ID
-// @Description Update an existing transaction if it belongs to the user
+// @Description Update an existing transaction including amount, type, category, recurring status and dated if it belongs to the user
 // @Tags transactions
 // @Accept json
 // @Produce json

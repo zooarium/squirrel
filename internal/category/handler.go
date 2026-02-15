@@ -91,6 +91,7 @@ func (h *Handler) Create(w http.ResponseWriter, r *http.Request) {
 // @Description Get a list of all categories for the authenticated user
 // @Tags categories
 // @Produce json
+// @Param name query string false "Filter by category name (wildcard)"
 // @Success 200 {object} render.Response{data=[]Category}
 // @Failure 401 {object} render.Response
 // @Failure 500 {object} render.Response
@@ -103,7 +104,9 @@ func (h *Handler) List(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	cats, err := h.svc.List(r.Context(), claims.AppID, claims.UserID)
+	name := r.URL.Query().Get("name")
+
+	cats, err := h.svc.List(r.Context(), claims.AppID, claims.UserID, name)
 	if err != nil {
 		render.Error(w, http.StatusInternalServerError, err.Error())
 		return

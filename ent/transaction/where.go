@@ -85,6 +85,16 @@ func CategoryID(v int) predicate.Transaction {
 	return predicate.Transaction(sql.FieldEQ(FieldCategoryID, v))
 }
 
+// Recurring applies equality check predicate on the "recurring" field. It's identical to RecurringEQ.
+func Recurring(v int8) predicate.Transaction {
+	return predicate.Transaction(sql.FieldEQ(FieldRecurring, v))
+}
+
+// Dated applies equality check predicate on the "dated" field. It's identical to DatedEQ.
+func Dated(v time.Time) predicate.Transaction {
+	return predicate.Transaction(sql.FieldEQ(FieldDated, v))
+}
+
 // CreatedAtEQ applies the EQ predicate on the "created_at" field.
 func CreatedAtEQ(v time.Time) predicate.Transaction {
 	return predicate.Transaction(sql.FieldEQ(FieldCreatedAt, v))
@@ -333,6 +343,86 @@ func CategoryIDIsNil() predicate.Transaction {
 // CategoryIDNotNil applies the NotNil predicate on the "category_id" field.
 func CategoryIDNotNil() predicate.Transaction {
 	return predicate.Transaction(sql.FieldNotNull(FieldCategoryID))
+}
+
+// RecurringEQ applies the EQ predicate on the "recurring" field.
+func RecurringEQ(v int8) predicate.Transaction {
+	return predicate.Transaction(sql.FieldEQ(FieldRecurring, v))
+}
+
+// RecurringNEQ applies the NEQ predicate on the "recurring" field.
+func RecurringNEQ(v int8) predicate.Transaction {
+	return predicate.Transaction(sql.FieldNEQ(FieldRecurring, v))
+}
+
+// RecurringIn applies the In predicate on the "recurring" field.
+func RecurringIn(vs ...int8) predicate.Transaction {
+	return predicate.Transaction(sql.FieldIn(FieldRecurring, vs...))
+}
+
+// RecurringNotIn applies the NotIn predicate on the "recurring" field.
+func RecurringNotIn(vs ...int8) predicate.Transaction {
+	return predicate.Transaction(sql.FieldNotIn(FieldRecurring, vs...))
+}
+
+// RecurringGT applies the GT predicate on the "recurring" field.
+func RecurringGT(v int8) predicate.Transaction {
+	return predicate.Transaction(sql.FieldGT(FieldRecurring, v))
+}
+
+// RecurringGTE applies the GTE predicate on the "recurring" field.
+func RecurringGTE(v int8) predicate.Transaction {
+	return predicate.Transaction(sql.FieldGTE(FieldRecurring, v))
+}
+
+// RecurringLT applies the LT predicate on the "recurring" field.
+func RecurringLT(v int8) predicate.Transaction {
+	return predicate.Transaction(sql.FieldLT(FieldRecurring, v))
+}
+
+// RecurringLTE applies the LTE predicate on the "recurring" field.
+func RecurringLTE(v int8) predicate.Transaction {
+	return predicate.Transaction(sql.FieldLTE(FieldRecurring, v))
+}
+
+// DatedEQ applies the EQ predicate on the "dated" field.
+func DatedEQ(v time.Time) predicate.Transaction {
+	return predicate.Transaction(sql.FieldEQ(FieldDated, v))
+}
+
+// DatedNEQ applies the NEQ predicate on the "dated" field.
+func DatedNEQ(v time.Time) predicate.Transaction {
+	return predicate.Transaction(sql.FieldNEQ(FieldDated, v))
+}
+
+// DatedIn applies the In predicate on the "dated" field.
+func DatedIn(vs ...time.Time) predicate.Transaction {
+	return predicate.Transaction(sql.FieldIn(FieldDated, vs...))
+}
+
+// DatedNotIn applies the NotIn predicate on the "dated" field.
+func DatedNotIn(vs ...time.Time) predicate.Transaction {
+	return predicate.Transaction(sql.FieldNotIn(FieldDated, vs...))
+}
+
+// DatedGT applies the GT predicate on the "dated" field.
+func DatedGT(v time.Time) predicate.Transaction {
+	return predicate.Transaction(sql.FieldGT(FieldDated, v))
+}
+
+// DatedGTE applies the GTE predicate on the "dated" field.
+func DatedGTE(v time.Time) predicate.Transaction {
+	return predicate.Transaction(sql.FieldGTE(FieldDated, v))
+}
+
+// DatedLT applies the LT predicate on the "dated" field.
+func DatedLT(v time.Time) predicate.Transaction {
+	return predicate.Transaction(sql.FieldLT(FieldDated, v))
+}
+
+// DatedLTE applies the LTE predicate on the "dated" field.
+func DatedLTE(v time.Time) predicate.Transaction {
+	return predicate.Transaction(sql.FieldLTE(FieldDated, v))
 }
 
 // HasCategory applies the HasEdge predicate on the "category" edge.

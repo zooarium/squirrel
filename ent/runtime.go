@@ -51,4 +51,12 @@ func init() {
 	transaction.DefaultUpdatedAt = transactionDescUpdatedAt.Default.(func() time.Time)
 	// transaction.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
 	transaction.UpdateDefaultUpdatedAt = transactionDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// transactionDescRecurring is the schema descriptor for recurring field.
+	transactionDescRecurring := transactionFields[5].Descriptor()
+	// transaction.DefaultRecurring holds the default value on creation for the recurring field.
+	transaction.DefaultRecurring = transactionDescRecurring.Default.(int8)
+	// transactionDescDated is the schema descriptor for dated field.
+	transactionDescDated := transactionFields[6].Descriptor()
+	// transaction.DefaultDated holds the default value on creation for the dated field.
+	transaction.DefaultDated = transactionDescDated.Default.(func() time.Time)
 }

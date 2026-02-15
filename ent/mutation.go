@@ -835,6 +835,9 @@ type TransactionMutation struct {
 	amount          *float64
 	addamount       *float64
 	_type           *transaction.Type
+	recurring       *int8
+	addrecurring    *int8
+	dated           *time.Time
 	clearedFields   map[string]struct{}
 	category        *int
 	clearedcategory bool
@@ -1266,6 +1269,98 @@ func (m *TransactionMutation) ResetCategoryID() {
 	delete(m.clearedFields, transaction.FieldCategoryID)
 }
 
+// SetRecurring sets the "recurring" field.
+func (m *TransactionMutation) SetRecurring(i int8) {
+	m.recurring = &i
+	m.addrecurring = nil
+}
+
+// Recurring returns the value of the "recurring" field in the mutation.
+func (m *TransactionMutation) Recurring() (r int8, exists bool) {
+	v := m.recurring
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldRecurring returns the old "recurring" field's value of the Transaction entity.
+// If the Transaction object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *TransactionMutation) OldRecurring(ctx context.Context) (v int8, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldRecurring is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldRecurring requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldRecurring: %w", err)
+	}
+	return oldValue.Recurring, nil
+}
+
+// AddRecurring adds i to the "recurring" field.
+func (m *TransactionMutation) AddRecurring(i int8) {
+	if m.addrecurring != nil {
+		*m.addrecurring += i
+	} else {
+		m.addrecurring = &i
+	}
+}
+
+// AddedRecurring returns the value that was added to the "recurring" field in this mutation.
+func (m *TransactionMutation) AddedRecurring() (r int8, exists bool) {
+	v := m.addrecurring
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetRecurring resets all changes to the "recurring" field.
+func (m *TransactionMutation) ResetRecurring() {
+	m.recurring = nil
+	m.addrecurring = nil
+}
+
+// SetDated sets the "dated" field.
+func (m *TransactionMutation) SetDated(t time.Time) {
+	m.dated = &t
+}
+
+// Dated returns the value of the "dated" field in the mutation.
+func (m *TransactionMutation) Dated() (r time.Time, exists bool) {
+	v := m.dated
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldDated returns the old "dated" field's value of the Transaction entity.
+// If the Transaction object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *TransactionMutation) OldDated(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldDated is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldDated requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldDated: %w", err)
+	}
+	return oldValue.Dated, nil
+}
+
+// ResetDated resets all changes to the "dated" field.
+func (m *TransactionMutation) ResetDated() {
+	m.dated = nil
+}
+
 // ClearCategory clears the "category" edge to the Category entity.
 func (m *TransactionMutation) ClearCategory() {
 	m.clearedcategory = true
@@ -1327,7 +1422,7 @@ func (m *TransactionMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *TransactionMutation) Fields() []string {
-	fields := make([]string, 0, 7)
+	fields := make([]string, 0, 9)
 	if m.created_at != nil {
 		fields = append(fields, transaction.FieldCreatedAt)
 	}
@@ -1348,6 +1443,12 @@ func (m *TransactionMutation) Fields() []string {
 	}
 	if m.category != nil {
 		fields = append(fields, transaction.FieldCategoryID)
+	}
+	if m.recurring != nil {
+		fields = append(fields, transaction.FieldRecurring)
+	}
+	if m.dated != nil {
+		fields = append(fields, transaction.FieldDated)
 	}
 	return fields
 }
@@ -1371,6 +1472,10 @@ func (m *TransactionMutation) Field(name string) (ent.Value, bool) {
 		return m.GetType()
 	case transaction.FieldCategoryID:
 		return m.CategoryID()
+	case transaction.FieldRecurring:
+		return m.Recurring()
+	case transaction.FieldDated:
+		return m.Dated()
 	}
 	return nil, false
 }
@@ -1394,6 +1499,10 @@ func (m *TransactionMutation) OldField(ctx context.Context, name string) (ent.Va
 		return m.OldType(ctx)
 	case transaction.FieldCategoryID:
 		return m.OldCategoryID(ctx)
+	case transaction.FieldRecurring:
+		return m.OldRecurring(ctx)
+	case transaction.FieldDated:
+		return m.OldDated(ctx)
 	}
 	return nil, fmt.Errorf("unknown Transaction field %s", name)
 }
@@ -1452,6 +1561,20 @@ func (m *TransactionMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetCategoryID(v)
 		return nil
+	case transaction.FieldRecurring:
+		v, ok := value.(int8)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetRecurring(v)
+		return nil
+	case transaction.FieldDated:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetDated(v)
+		return nil
 	}
 	return fmt.Errorf("unknown Transaction field %s", name)
 }
@@ -1469,6 +1592,9 @@ func (m *TransactionMutation) AddedFields() []string {
 	if m.addamount != nil {
 		fields = append(fields, transaction.FieldAmount)
 	}
+	if m.addrecurring != nil {
+		fields = append(fields, transaction.FieldRecurring)
+	}
 	return fields
 }
 
@@ -1483,6 +1609,8 @@ func (m *TransactionMutation) AddedField(name string) (ent.Value, bool) {
 		return m.AddedUserID()
 	case transaction.FieldAmount:
 		return m.AddedAmount()
+	case transaction.FieldRecurring:
+		return m.AddedRecurring()
 	}
 	return nil, false
 }
@@ -1512,6 +1640,13 @@ func (m *TransactionMutation) AddField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.AddAmount(v)
+		return nil
+	case transaction.FieldRecurring:
+		v, ok := value.(int8)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddRecurring(v)
 		return nil
 	}
 	return fmt.Errorf("unknown Transaction numeric field %s", name)
@@ -1569,6 +1704,12 @@ func (m *TransactionMutation) ResetField(name string) error {
 		return nil
 	case transaction.FieldCategoryID:
 		m.ResetCategoryID()
+		return nil
+	case transaction.FieldRecurring:
+		m.ResetRecurring()
+		return nil
+	case transaction.FieldDated:
+		m.ResetDated()
 		return nil
 	}
 	return fmt.Errorf("unknown Transaction field %s", name)

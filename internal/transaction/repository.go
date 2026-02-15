@@ -3,6 +3,9 @@ package transaction
 import (
 	"context"
 	"fmt"
+	"sort"
+	"time"
+
 	"vyaya/ent"
 	"vyaya/ent/transaction"
 )
@@ -24,7 +27,9 @@ func (r *Repository) Create(ctx context.Context, t Transaction) (Transaction, er
 		SetAppID(t.AppID).
 		SetUserID(t.UserID).
 		SetAmount(t.Amount).
-		SetType(transaction.Type(t.Type))
+		SetType(transaction.Type(t.Type)).
+		SetRecurring(t.Recurring).
+		SetDated(t.Dated)
 
 	if t.CategoryID != nil {
 		builder.SetCategoryID(*t.CategoryID)
@@ -38,12 +43,12 @@ func (r *Repository) Create(ctx context.Context, t Transaction) (Transaction, er
 	return r.mapToModel(entTx), nil
 }
 
-// List returns all transactions for a user.
-func (r *Repository) List(ctx context.Context, appID, userID int) ([]Transaction, error) {
-	entTxs, err := r.client.Transaction.
-		Query().
-		Where(transaction.AppID(appID), transaction.UserID(userID)).
-		Order(ent.Desc(transaction.FieldCreatedAt)).
+// List returns all transactions for a user with optional filters.
+func (r *Repository) List(ctx context.Context, appID, userID int, filter TransactionFilter) ([]Transaction, error) {
+	query := r.buildFilteredQuery(appID, userID, filter)
+
+	entTxs, err := query.
+		Order(ent.Desc(transaction.FieldDated)).
 		All(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("list transactions: %w", err)
@@ -54,6 +59,116 @@ func (r *Repository) List(ctx context.Context, appID, userID int) ([]Transaction
 		txs[i] = r.mapToModel(entTx)
 	}
 	return txs, nil
+}
+
+// GetStats returns transaction statistics based on the provided filters.
+func (r *Repository) GetStats(ctx context.Context, appID, userID int, filter TransactionFilter) (TransactionStats, error) {
+	stats := TransactionStats{}
+
+	// CategoryWiseAmountSum
+	var v []struct {
+		CategoryID *int    `json:"category_id"`
+		Sum        float64 `json:"sum"`
+	}
+	err := r.buildFilteredQuery(appID, userID, filter).
+		GroupBy(transaction.FieldCategoryID).
+		Aggregate(ent.Sum(transaction.FieldAmount)).
+		Scan(ctx, &v)
+	if err != nil {
+		return stats, fmt.Errorf("category wise amount sum: %w", err)
+	}
+
+	stats.CategoryWiseAmountSum = make([]CategoryAmountSum, len(v))
+	for i, item := range v {
+		catID := 0
+		if item.CategoryID != nil {
+			catID = *item.CategoryID
+		}
+		stats.CategoryWiseAmountSum[i] = CategoryAmountSum{
+			CategoryID: catID,
+			TotalSum:   item.Sum,
+		}
+	}
+
+	// Top 10 by amount
+	entTopTxs, err := r.buildFilteredQuery(appID, userID, filter).
+		Order(ent.Desc(transaction.FieldAmount)).
+		Limit(10).
+		All(ctx)
+	if err != nil {
+		return stats, fmt.Errorf("top 10 by amount: %w", err)
+	}
+
+	stats.Top10ByAmount = make([]Transaction, len(entTopTxs))
+	for i, entTx := range entTopTxs {
+		stats.Top10ByAmount[i] = r.mapToModel(entTx)
+	}
+
+	// Sort CategoryWiseAmountSum for CategoryTop10ByAmountSum
+	top10 := make([]CategoryAmountSum, len(stats.CategoryWiseAmountSum))
+	copy(top10, stats.CategoryWiseAmountSum)
+
+	sort.Slice(top10, func(i, j int) bool {
+		return top10[i].TotalSum > top10[j].TotalSum
+	})
+
+	if len(top10) > 10 {
+		top10 = top10[:10]
+	}
+	stats.CategoryTop10ByAmountSum = top10
+
+	return stats, nil
+}
+
+func (r *Repository) buildFilteredQuery(appID, userID int, filter TransactionFilter) *ent.TransactionQuery {
+	query := r.client.Transaction.
+		Query().
+		Where(transaction.AppID(appID), transaction.UserID(userID))
+
+	if filter.CategoryID != nil {
+		query = query.Where(transaction.CategoryID(*filter.CategoryID))
+	}
+
+	if filter.Recurring != nil {
+		query = query.Where(transaction.Recurring(*filter.Recurring))
+	}
+
+	if filter.Dated != "" {
+		now := time.Now()
+		var start, end time.Time
+		switch filter.Dated {
+		case "today":
+			start = time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, now.Location())
+			end = start.AddDate(0, 0, 1)
+		case "yesterday":
+			end = time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, now.Location())
+			start = end.AddDate(0, 0, -1)
+		case "this month":
+			start = time.Date(now.Year(), now.Month(), 1, 0, 0, 0, 0, now.Location())
+			end = start.AddDate(0, 1, 0)
+		case "last month":
+			start = time.Date(now.Year(), now.Month()-1, 1, 0, 0, 0, 0, now.Location())
+			end = time.Date(now.Year(), now.Month(), 1, 0, 0, 0, 0, now.Location())
+		case "this year":
+			start = time.Date(now.Year(), 1, 1, 0, 0, 0, 0, now.Location())
+			end = start.AddDate(1, 0, 0)
+		case "last year":
+			start = time.Date(now.Year()-1, 1, 1, 0, 0, 0, 0, now.Location())
+			end = time.Date(now.Year(), 1, 1, 0, 0, 0, 0, now.Location())
+		}
+		if !start.IsZero() {
+			query = query.Where(transaction.DatedGTE(start), transaction.DatedLT(end))
+		}
+	}
+
+	if filter.From != nil {
+		query = query.Where(transaction.DatedGTE(*filter.From))
+	}
+	if filter.To != nil {
+		query = query.Where(transaction.DatedLTE(*filter.To))
+	}
+
+	return query
 }
 
 // GetByID returns a transaction by its ID and user ID.
@@ -78,7 +193,9 @@ func (r *Repository) Update(ctx context.Context, appID, userID, id int, t Transa
 		Update().
 		Where(transaction.ID(id), transaction.AppID(appID), transaction.UserID(userID)).
 		SetAmount(t.Amount).
-		SetType(transaction.Type(t.Type))
+		SetType(transaction.Type(t.Type)).
+		SetRecurring(t.Recurring).
+		SetDated(t.Dated)
 
 	if t.CategoryID != nil {
 		builder.SetCategoryID(*t.CategoryID)
@@ -120,6 +237,8 @@ func (r *Repository) mapToModel(entTx *ent.Transaction) Transaction {
 		Amount:     entTx.Amount,
 		Type:       string(entTx.Type),
 		CategoryID: entTx.CategoryID,
+		Recurring:  entTx.Recurring,
+		Dated:      entTx.Dated,
 		CreatedAt:  entTx.CreatedAt,
 		UpdatedAt:  entTx.UpdatedAt,
 	}

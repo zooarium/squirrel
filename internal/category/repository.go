@@ -33,11 +33,17 @@ func (r *Repository) Create(ctx context.Context, c Category) (Category, error) {
 	return r.mapToModel(entCat), nil
 }
 
-// List returns all categories for a user.
-func (r *Repository) List(ctx context.Context, appID, userID int) ([]Category, error) {
-	entCats, err := r.client.Category.
+// List returns all categories for a user with optional name filter.
+func (r *Repository) List(ctx context.Context, appID, userID int, name string) ([]Category, error) {
+	query := r.client.Category.
 		Query().
-		Where(category.AppID(appID), category.UserID(userID)).
+		Where(category.AppID(appID), category.UserID(userID))
+
+	if name != "" {
+		query = query.Where(category.NameContains(name))
+	}
+
+	entCats, err := query.
 		Order(ent.Asc(category.FieldName)).
 		All(ctx)
 	if err != nil {

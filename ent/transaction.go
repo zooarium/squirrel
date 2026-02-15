@@ -32,6 +32,10 @@ type Transaction struct {
 	Type transaction.Type `json:"type,omitempty"`
 	// CategoryID holds the value of the "category_id" field.
 	CategoryID *int `json:"category_id,omitempty"`
+	// Recurring holds the value of the "recurring" field.
+	Recurring int8 `json:"recurring,omitempty"`
+	// Dated holds the value of the "dated" field.
+	Dated time.Time `json:"dated,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the TransactionQuery when eager-loading is set.
 	Edges        TransactionEdges `json:"edges"`
@@ -65,11 +69,11 @@ func (*Transaction) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case transaction.FieldAmount:
 			values[i] = new(sql.NullFloat64)
-		case transaction.FieldID, transaction.FieldAppID, transaction.FieldUserID, transaction.FieldCategoryID:
+		case transaction.FieldID, transaction.FieldAppID, transaction.FieldUserID, transaction.FieldCategoryID, transaction.FieldRecurring:
 			values[i] = new(sql.NullInt64)
 		case transaction.FieldType:
 			values[i] = new(sql.NullString)
-		case transaction.FieldCreatedAt, transaction.FieldUpdatedAt:
+		case transaction.FieldCreatedAt, transaction.FieldUpdatedAt, transaction.FieldDated:
 			values[i] = new(sql.NullTime)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -135,6 +139,18 @@ func (_m *Transaction) assignValues(columns []string, values []any) error {
 				_m.CategoryID = new(int)
 				*_m.CategoryID = int(value.Int64)
 			}
+		case transaction.FieldRecurring:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field recurring", values[i])
+			} else if value.Valid {
+				_m.Recurring = int8(value.Int64)
+			}
+		case transaction.FieldDated:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field dated", values[i])
+			} else if value.Valid {
+				_m.Dated = value.Time
+			}
 		default:
 			_m.selectValues.Set(columns[i], values[i])
 		}
@@ -198,6 +214,12 @@ func (_m *Transaction) String() string {
 		builder.WriteString("category_id=")
 		builder.WriteString(fmt.Sprintf("%v", *v))
 	}
+	builder.WriteString(", ")
+	builder.WriteString("recurring=")
+	builder.WriteString(fmt.Sprintf("%v", _m.Recurring))
+	builder.WriteString(", ")
+	builder.WriteString("dated=")
+	builder.WriteString(_m.Dated.Format(time.ANSIC))
 	builder.WriteByte(')')
 	return builder.String()
 }

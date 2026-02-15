@@ -1,6 +1,8 @@
 package schema
 
 import (
+	"time"
+
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/entsql"
 	"entgo.io/ent/schema"
@@ -38,6 +40,10 @@ func (Transaction) Fields() []ent.Field {
 		field.Int("category_id").
 			Optional().
 			Nillable(),
+		field.Int8("recurring").
+			Default(0),
+		field.Time("dated").
+			Default(time.Now),
 	}
 }
 

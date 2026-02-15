@@ -132,6 +132,41 @@ func (_u *TransactionUpdate) ClearCategoryID() *TransactionUpdate {
 	return _u
 }
 
+// SetRecurring sets the "recurring" field.
+func (_u *TransactionUpdate) SetRecurring(v int8) *TransactionUpdate {
+	_u.mutation.ResetRecurring()
+	_u.mutation.SetRecurring(v)
+	return _u
+}
+
+// SetNillableRecurring sets the "recurring" field if the given value is not nil.
+func (_u *TransactionUpdate) SetNillableRecurring(v *int8) *TransactionUpdate {
+	if v != nil {
+		_u.SetRecurring(*v)
+	}
+	return _u
+}
+
+// AddRecurring adds value to the "recurring" field.
+func (_u *TransactionUpdate) AddRecurring(v int8) *TransactionUpdate {
+	_u.mutation.AddRecurring(v)
+	return _u
+}
+
+// SetDated sets the "dated" field.
+func (_u *TransactionUpdate) SetDated(v time.Time) *TransactionUpdate {
+	_u.mutation.SetDated(v)
+	return _u
+}
+
+// SetNillableDated sets the "dated" field if the given value is not nil.
+func (_u *TransactionUpdate) SetNillableDated(v *time.Time) *TransactionUpdate {
+	if v != nil {
+		_u.SetDated(*v)
+	}
+	return _u
+}
+
 // SetCategory sets the "category" edge to the Category entity.
 func (_u *TransactionUpdate) SetCategory(v *Category) *TransactionUpdate {
 	return _u.SetCategoryID(v.ID)
@@ -229,6 +264,15 @@ func (_u *TransactionUpdate) sqlSave(ctx context.Context) (_node int, err error)
 	}
 	if value, ok := _u.mutation.GetType(); ok {
 		_spec.SetField(transaction.FieldType, field.TypeEnum, value)
+	}
+	if value, ok := _u.mutation.Recurring(); ok {
+		_spec.SetField(transaction.FieldRecurring, field.TypeInt8, value)
+	}
+	if value, ok := _u.mutation.AddedRecurring(); ok {
+		_spec.AddField(transaction.FieldRecurring, field.TypeInt8, value)
+	}
+	if value, ok := _u.mutation.Dated(); ok {
+		_spec.SetField(transaction.FieldDated, field.TypeTime, value)
 	}
 	if _u.mutation.CategoryCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -382,6 +426,41 @@ func (_u *TransactionUpdateOne) ClearCategoryID() *TransactionUpdateOne {
 	return _u
 }
 
+// SetRecurring sets the "recurring" field.
+func (_u *TransactionUpdateOne) SetRecurring(v int8) *TransactionUpdateOne {
+	_u.mutation.ResetRecurring()
+	_u.mutation.SetRecurring(v)
+	return _u
+}
+
+// SetNillableRecurring sets the "recurring" field if the given value is not nil.
+func (_u *TransactionUpdateOne) SetNillableRecurring(v *int8) *TransactionUpdateOne {
+	if v != nil {
+		_u.SetRecurring(*v)
+	}
+	return _u
+}
+
+// AddRecurring adds value to the "recurring" field.
+func (_u *TransactionUpdateOne) AddRecurring(v int8) *TransactionUpdateOne {
+	_u.mutation.AddRecurring(v)
+	return _u
+}
+
+// SetDated sets the "dated" field.
+func (_u *TransactionUpdateOne) SetDated(v time.Time) *TransactionUpdateOne {
+	_u.mutation.SetDated(v)
+	return _u
+}
+
+// SetNillableDated sets the "dated" field if the given value is not nil.
+func (_u *TransactionUpdateOne) SetNillableDated(v *time.Time) *TransactionUpdateOne {
+	if v != nil {
+		_u.SetDated(*v)
+	}
+	return _u
+}
+
 // SetCategory sets the "category" edge to the Category entity.
 func (_u *TransactionUpdateOne) SetCategory(v *Category) *TransactionUpdateOne {
 	return _u.SetCategoryID(v.ID)
@@ -509,6 +588,15 @@ func (_u *TransactionUpdateOne) sqlSave(ctx context.Context) (_node *Transaction
 	}
 	if value, ok := _u.mutation.GetType(); ok {
 		_spec.SetField(transaction.FieldType, field.TypeEnum, value)
+	}
+	if value, ok := _u.mutation.Recurring(); ok {
+		_spec.SetField(transaction.FieldRecurring, field.TypeInt8, value)
+	}
+	if value, ok := _u.mutation.AddedRecurring(); ok {
+		_spec.AddField(transaction.FieldRecurring, field.TypeInt8, value)
+	}
+	if value, ok := _u.mutation.Dated(); ok {
+		_spec.SetField(transaction.FieldDated, field.TypeTime, value)
 	}
 	if _u.mutation.CategoryCleared() {
 		edge := &sqlgraph.EdgeSpec{

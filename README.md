@@ -1,4 +1,6 @@
-# Project overview
+# Vyaya (personal expense tracker)
+
+A microservice to manage personal expenses.
 
 # Architecture
 
@@ -251,6 +253,7 @@ The database initialization is fully aligned with the Ent migration setup. On ev
 - Amount - float
 - Type - enum (income, expense)
 - CategoryID - int (foreign key)
+- Recurring - int8 (0 or 1, default 0)
 - Created at
 - Updated at
 

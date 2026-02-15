@@ -34,7 +34,7 @@ func TestCategoryService(t *testing.T) {
 	})
 
 	t.Run("List Categories", func(t *testing.T) {
-		cats, err := svc.List(ctx, 1, 1)
+		cats, err := svc.List(ctx, 1, 1, "")
 		assert.NoError(t, err)
 		assert.Len(t, cats, 1)
 	})

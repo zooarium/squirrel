@@ -34,6 +34,8 @@ var (
 		{Name: "user_id", Type: field.TypeInt},
 		{Name: "amount", Type: field.TypeFloat64},
 		{Name: "type", Type: field.TypeEnum, Enums: []string{"income", "expense"}},
+		{Name: "recurring", Type: field.TypeInt8, Default: 0},
+		{Name: "dated", Type: field.TypeTime},
 		{Name: "category_id", Type: field.TypeInt, Nullable: true},
 	}
 	// TransactionTable holds the schema information for the "transaction" table.
@@ -44,7 +46,7 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "transaction_category_transactions",
-				Columns:    []*schema.Column{TransactionColumns[7]},
+				Columns:    []*schema.Column{TransactionColumns[9]},
 				RefColumns: []*schema.Column{CategoryColumns[0]},
 				OnDelete:   schema.SetNull,
 			},

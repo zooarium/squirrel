@@ -87,6 +87,34 @@ func (_c *TransactionCreate) SetNillableCategoryID(v *int) *TransactionCreate {
 	return _c
 }
 
+// SetRecurring sets the "recurring" field.
+func (_c *TransactionCreate) SetRecurring(v int8) *TransactionCreate {
+	_c.mutation.SetRecurring(v)
+	return _c
+}
+
+// SetNillableRecurring sets the "recurring" field if the given value is not nil.
+func (_c *TransactionCreate) SetNillableRecurring(v *int8) *TransactionCreate {
+	if v != nil {
+		_c.SetRecurring(*v)
+	}
+	return _c
+}
+
+// SetDated sets the "dated" field.
+func (_c *TransactionCreate) SetDated(v time.Time) *TransactionCreate {
+	_c.mutation.SetDated(v)
+	return _c
+}
+
+// SetNillableDated sets the "dated" field if the given value is not nil.
+func (_c *TransactionCreate) SetNillableDated(v *time.Time) *TransactionCreate {
+	if v != nil {
+		_c.SetDated(*v)
+	}
+	return _c
+}
+
 // SetCategory sets the "category" edge to the Category entity.
 func (_c *TransactionCreate) SetCategory(v *Category) *TransactionCreate {
 	return _c.SetCategoryID(v.ID)
@@ -135,6 +163,14 @@ func (_c *TransactionCreate) defaults() {
 		v := transaction.DefaultUpdatedAt()
 		_c.mutation.SetUpdatedAt(v)
 	}
+	if _, ok := _c.mutation.Recurring(); !ok {
+		v := transaction.DefaultRecurring
+		_c.mutation.SetRecurring(v)
+	}
+	if _, ok := _c.mutation.Dated(); !ok {
+		v := transaction.DefaultDated()
+		_c.mutation.SetDated(v)
+	}
 }
 
 // check runs all checks and user-defined validators on the builder.
@@ -161,6 +197,12 @@ func (_c *TransactionCreate) check() error {
 		if err := transaction.TypeValidator(v); err != nil {
 			return &ValidationError{Name: "type", err: fmt.Errorf(`ent: validator failed for field "Transaction.type": %w`, err)}
 		}
+	}
+	if _, ok := _c.mutation.Recurring(); !ok {
+		return &ValidationError{Name: "recurring", err: errors.New(`ent: missing required field "Transaction.recurring"`)}
+	}
+	if _, ok := _c.mutation.Dated(); !ok {
+		return &ValidationError{Name: "dated", err: errors.New(`ent: missing required field "Transaction.dated"`)}
 	}
 	return nil
 }
@@ -211,6 +253,14 @@ func (_c *TransactionCreate) createSpec() (*Transaction, *sqlgraph.CreateSpec) {
 	if value, ok := _c.mutation.GetType(); ok {
 		_spec.SetField(transaction.FieldType, field.TypeEnum, value)
 		_node.Type = value
+	}
+	if value, ok := _c.mutation.Recurring(); ok {
+		_spec.SetField(transaction.FieldRecurring, field.TypeInt8, value)
+		_node.Recurring = value
+	}
+	if value, ok := _c.mutation.Dated(); ok {
+		_spec.SetField(transaction.FieldDated, field.TypeTime, value)
+		_node.Dated = value
 	}
 	if nodes := _c.mutation.CategoryIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{

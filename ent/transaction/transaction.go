@@ -29,6 +29,10 @@ const (
 	FieldType = "type"
 	// FieldCategoryID holds the string denoting the category_id field in the database.
 	FieldCategoryID = "category_id"
+	// FieldRecurring holds the string denoting the recurring field in the database.
+	FieldRecurring = "recurring"
+	// FieldDated holds the string denoting the dated field in the database.
+	FieldDated = "dated"
 	// EdgeCategory holds the string denoting the category edge name in mutations.
 	EdgeCategory = "category"
 	// Table holds the table name of the transaction in the database.
@@ -52,6 +56,8 @@ var Columns = []string{
 	FieldAmount,
 	FieldType,
 	FieldCategoryID,
+	FieldRecurring,
+	FieldDated,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -71,6 +77,10 @@ var (
 	DefaultUpdatedAt func() time.Time
 	// UpdateDefaultUpdatedAt holds the default value on update for the "updated_at" field.
 	UpdateDefaultUpdatedAt func() time.Time
+	// DefaultRecurring holds the default value on creation for the "recurring" field.
+	DefaultRecurring int8
+	// DefaultDated holds the default value on creation for the "dated" field.
+	DefaultDated func() time.Time
 )
 
 // Type defines the type for the "type" enum field.
@@ -137,6 +147,16 @@ func ByType(opts ...sql.OrderTermOption) OrderOption {
 // ByCategoryID orders the results by the category_id field.
 func ByCategoryID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldCategoryID, opts...).ToFunc()
+}
+
+// ByRecurring orders the results by the recurring field.
+func ByRecurring(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldRecurring, opts...).ToFunc()
+}
+
+// ByDated orders the results by the dated field.
+func ByDated(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldDated, opts...).ToFunc()
 }
 
 // ByCategoryField orders the results by category field.

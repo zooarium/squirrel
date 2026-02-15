@@ -17,7 +17,7 @@ var (
 // Service defines the business logic for categories.
 type Service interface {
 	Create(ctx context.Context, appID, userID int, req CreateCategoryRequest) (Category, error)
-	List(ctx context.Context, appID, userID int) ([]Category, error)
+	List(ctx context.Context, appID, userID int, name string) ([]Category, error)
 	GetByID(ctx context.Context, appID, userID, id int) (Category, error)
 	Update(ctx context.Context, appID, userID, id int, req UpdateCategoryRequest) (Category, error)
 	Delete(ctx context.Context, appID, userID, id int) error
@@ -64,10 +64,10 @@ func (s *service) Create(ctx context.Context, appID, userID int, req CreateCateg
 }
 
 // List returns all categories for a user.
-func (s *service) List(ctx context.Context, appID, userID int) ([]Category, error) {
-	cats, err := s.repo.List(ctx, appID, userID)
+func (s *service) List(ctx context.Context, appID, userID int, name string) ([]Category, error) {
+	cats, err := s.repo.List(ctx, appID, userID, name)
 	if err != nil {
-		slog.Error("failed to list categories", "error", err, "app_id", appID, "user_id", userID)
+		slog.Error("failed to list categories", "error", err, "app_id", appID, "user_id", userID, "name", name)
 		return nil, err
 	}
 	return cats, nil

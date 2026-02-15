@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"log/slog"
+	"time"
 
 	"github.com/go-playground/validator/v10"
 )
@@ -17,7 +18,7 @@ var (
 // Service defines the business logic for transactions.
 type Service interface {
 	Create(ctx context.Context, appID, userID int, req CreateTransactionRequest) (Transaction, error)
-	List(ctx context.Context, appID, userID int) ([]Transaction, error)
+	List(ctx context.Context, appID, userID int, filter TransactionFilter) (TransactionListResponse, error)
 	GetByID(ctx context.Context, appID, userID, id int) (Transaction, error)
 	Update(ctx context.Context, appID, userID, id int, req UpdateTransactionRequest) (Transaction, error)
 	Delete(ctx context.Context, appID, userID, id int) error
@@ -50,6 +51,16 @@ func (s *service) Create(ctx context.Context, appID, userID int, req CreateTrans
 		CategoryID: req.CategoryID,
 	}
 
+	if req.Recurring != nil {
+		tx.Recurring = *req.Recurring
+	}
+
+	if req.Dated != nil {
+		tx.Dated = *req.Dated
+	} else {
+		tx.Dated = time.Now()
+	}
+
 	created, err := s.repo.Create(ctx, tx)
 	if err != nil {
 		slog.Error("failed to create transaction", "error", err, "app_id", appID, "user_id", userID)
@@ -61,13 +72,28 @@ func (s *service) Create(ctx context.Context, appID, userID int, req CreateTrans
 }
 
 // List returns all transactions for a user.
-func (s *service) List(ctx context.Context, appID, userID int) ([]Transaction, error) {
-	txs, err := s.repo.List(ctx, appID, userID)
+func (s *service) List(ctx context.Context, appID, userID int, filter TransactionFilter) (TransactionListResponse, error) {
+	if filter.Recurring == nil {
+		var zero int8 = 0
+		filter.Recurring = &zero
+	}
+
+	txs, err := s.repo.List(ctx, appID, userID, filter)
 	if err != nil {
 		slog.Error("failed to list transactions", "error", err, "app_id", appID, "user_id", userID)
-		return nil, err
+		return TransactionListResponse{}, err
 	}
-	return txs, nil
+
+	stats, err := s.repo.GetStats(ctx, appID, userID, filter)
+	if err != nil {
+		slog.Error("failed to get transaction stats", "error", err, "app_id", appID, "user_id", userID)
+		return TransactionListResponse{}, err
+	}
+
+	return TransactionListResponse{
+		Transactions: txs,
+		Stats:        stats,
+	}, nil
 }
 
 // GetByID returns a transaction by its ID.
@@ -92,6 +118,14 @@ func (s *service) Update(ctx context.Context, appID, userID, id int, req UpdateT
 		Amount:     req.Amount,
 		Type:       req.Type,
 		CategoryID: req.CategoryID,
+	}
+
+	if req.Recurring != nil {
+		tx.Recurring = *req.Recurring
+	}
+
+	if req.Dated != nil {
+		tx.Dated = *req.Dated
 	}
 
 	updated, err := s.repo.Update(ctx, appID, userID, id, tx)

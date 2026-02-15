@@ -1,3 +1,5 @@
-h1:XEGdh+b7ad2c8Q0juzcjOkovljtEtZukB22drmNFMH0=
+h1:QOOqkixKZr3+yNqUI/MzRDKCivTgeiqLQ74WLdIyr30=
 20260214111207_initial.sql h1:9hutzBYxLRh+zFf5Q85SWxIwmcKK5x0eTdU8QgKD2PY=
 20260215075019_add_new_field_app_id.sql h1:T54qxFBNn7ayL0MjW0vOziWDcz77KKjtYi1962iv/ss=
+20260215084423_add_recurring_to_transaction.sql h1:FBPpVTV/iu1MzlA85sc0cdbniMWKAk7D01/2M9X6qVo=
+20260215085822_add_dated_to_transaction.sql h1:DNmbo2o4IFnKyDCy/Qb4zw5xjGQRizXjbgFSR4fId/I=

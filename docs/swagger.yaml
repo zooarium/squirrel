@@ -43,11 +43,22 @@ definitions:
     required:
     - name
     type: object
+  internal_transaction.CategoryAmountSum:
+    properties:
+      category_id:
+        type: integer
+      total_sum:
+        type: number
+    type: object
   internal_transaction.CreateTransactionRequest:
     properties:
       amount:
         type: number
       category_id:
+        type: integer
+      dated:
+        type: string
+      recurring:
         type: integer
       type:
         enum:
@@ -68,7 +79,11 @@ definitions:
         type: integer
       created_at:
         type: string
+      dated:
+        type: string
       id:
+        type: integer
+      recurring:
         type: integer
       type:
         description: income, expense
@@ -78,11 +93,39 @@ definitions:
       user_id:
         type: integer
     type: object
+  internal_transaction.TransactionListResponse:
+    properties:
+      stats:
+        $ref: '#/definitions/internal_transaction.TransactionStats'
+      transactions:
+        items:
+          $ref: '#/definitions/internal_transaction.Transaction'
+        type: array
+    type: object
+  internal_transaction.TransactionStats:
+    properties:
+      category_top_10_by_amount_sum:
+        items:
+          $ref: '#/definitions/internal_transaction.CategoryAmountSum'
+        type: array
+      category_wise_amount_sum:
+        items:
+          $ref: '#/definitions/internal_transaction.CategoryAmountSum'
+        type: array
+      top_10_by_amount:
+        items:
+          $ref: '#/definitions/internal_transaction.Transaction'
+        type: array
+    type: object
   internal_transaction.UpdateTransactionRequest:
     properties:
       amount:
         type: number
       category_id:
+        type: integer
+      dated:
+        type: string
+      recurring:
         type: integer
       type:
         enum:
@@ -111,6 +154,11 @@ paths:
   /categories:
     get:
       description: Get a list of all categories for the authenticated user
+      parameters:
+      - description: Filter by category name (wildcard)
+        in: query
+        name: name
+        type: string
       produces:
       - application/json
       responses:
@@ -318,7 +366,30 @@ paths:
       - health
   /transactions:
     get:
-      description: Get a list of all transactions for the authenticated user
+      description: Get a list of all transactions for the authenticated user with
+        optional filtering
+      parameters:
+      - description: Filter by category ID
+        in: query
+        name: category_id
+        type: integer
+      - description: Filter by recurring status (0 or 1, default 0)
+        in: query
+        name: recurring
+        type: integer
+      - description: Filter by predefined date ranges (today, yesterday, this month,
+          last month, this year, last year)
+        in: query
+        name: dated
+        type: string
+      - description: Filter from date (YYYY-MM-DD)
+        in: query
+        name: from
+        type: string
+      - description: Filter to date (YYYY-MM-DD)
+        in: query
+        name: to
+        type: string
       produces:
       - application/json
       responses:
@@ -329,9 +400,7 @@ paths:
             - $ref: '#/definitions/vyaya_internal_platform_render.Response'
             - properties:
                 data:
-                  items:
-                    $ref: '#/definitions/internal_transaction.Transaction'
-                  type: array
+                  $ref: '#/definitions/internal_transaction.TransactionListResponse'
               type: object
         "401":
           description: Unauthorized
@@ -349,7 +418,8 @@ paths:
     post:
       consumes:
       - application/json
-      description: Create a new transaction with the provided amount, type
+      description: Create a new transaction with the provided amount, type, category,
+        recurring status and dated
       parameters:
       - description: Transaction object
         in: body
@@ -465,7 +535,8 @@ paths:
     put:
       consumes:
       - application/json
-      description: Update an existing transaction if it belongs to the user
+      description: Update an existing transaction including amount, type, category,
+        recurring status and dated if it belongs to the user
       parameters:
       - description: Transaction ID
         in: path

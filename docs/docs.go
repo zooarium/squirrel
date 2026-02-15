@@ -30,6 +30,14 @@ const docTemplate = `{
                     "categories"
                 ],
                 "summary": "List all categories",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Filter by category name (wildcard)",
+                        "name": "name",
+                        "in": "query"
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -364,7 +372,7 @@ const docTemplate = `{
                         "Bearer": []
                     }
                 ],
-                "description": "Get a list of all transactions for the authenticated user",
+                "description": "Get a list of all transactions for the authenticated user with optional filtering",
                 "produces": [
                     "application/json"
                 ],
@@ -372,6 +380,38 @@ const docTemplate = `{
                     "transactions"
                 ],
                 "summary": "List all transactions",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Filter by category ID",
+                        "name": "category_id",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Filter by recurring status (0 or 1, default 0)",
+                        "name": "recurring",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filter by predefined date ranges (today, yesterday, this month, last month, this year, last year)",
+                        "name": "dated",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filter from date (YYYY-MM-DD)",
+                        "name": "from",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filter to date (YYYY-MM-DD)",
+                        "name": "to",
+                        "in": "query"
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -384,10 +424,7 @@ const docTemplate = `{
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "type": "array",
-                                            "items": {
-                                                "$ref": "#/definitions/internal_transaction.Transaction"
-                                            }
+                                            "$ref": "#/definitions/internal_transaction.TransactionListResponse"
                                         }
                                     }
                                 }
@@ -414,7 +451,7 @@ const docTemplate = `{
                         "Bearer": []
                     }
                 ],
-                "description": "Create a new transaction with the provided amount, type",
+                "description": "Create a new transaction with the provided amount, type, category, recurring status and dated",
                 "consumes": [
                     "application/json"
                 ],
@@ -551,7 +588,7 @@ const docTemplate = `{
                         "Bearer": []
                     }
                 ],
-                "description": "Update an existing transaction if it belongs to the user",
+                "description": "Update an existing transaction including amount, type, category, recurring status and dated if it belongs to the user",
                 "consumes": [
                     "application/json"
                 ],
@@ -746,6 +783,17 @@ const docTemplate = `{
                 }
             }
         },
+        "internal_transaction.CategoryAmountSum": {
+            "type": "object",
+            "properties": {
+                "category_id": {
+                    "type": "integer"
+                },
+                "total_sum": {
+                    "type": "number"
+                }
+            }
+        },
         "internal_transaction.CreateTransactionRequest": {
             "type": "object",
             "required": [
@@ -757,6 +805,12 @@ const docTemplate = `{
                     "type": "number"
                 },
                 "category_id": {
+                    "type": "integer"
+                },
+                "dated": {
+                    "type": "string"
+                },
+                "recurring": {
                     "type": "integer"
                 },
                 "type": {
@@ -783,7 +837,13 @@ const docTemplate = `{
                 "created_at": {
                     "type": "string"
                 },
+                "dated": {
+                    "type": "string"
+                },
                 "id": {
+                    "type": "integer"
+                },
+                "recurring": {
                     "type": "integer"
                 },
                 "type": {
@@ -798,6 +858,43 @@ const docTemplate = `{
                 }
             }
         },
+        "internal_transaction.TransactionListResponse": {
+            "type": "object",
+            "properties": {
+                "stats": {
+                    "$ref": "#/definitions/internal_transaction.TransactionStats"
+                },
+                "transactions": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/internal_transaction.Transaction"
+                    }
+                }
+            }
+        },
+        "internal_transaction.TransactionStats": {
+            "type": "object",
+            "properties": {
+                "category_top_10_by_amount_sum": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/internal_transaction.CategoryAmountSum"
+                    }
+                },
+                "category_wise_amount_sum": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/internal_transaction.CategoryAmountSum"
+                    }
+                },
+                "top_10_by_amount": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/internal_transaction.Transaction"
+                    }
+                }
+            }
+        },
         "internal_transaction.UpdateTransactionRequest": {
             "type": "object",
             "required": [
@@ -809,6 +906,12 @@ const docTemplate = `{
                     "type": "number"
                 },
                 "category_id": {
+                    "type": "integer"
+                },
+                "dated": {
+                    "type": "string"
+                },
+                "recurring": {
                     "type": "integer"
                 },
                 "type": {
