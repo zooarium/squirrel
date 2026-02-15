@@ -22,7 +22,7 @@ const docTemplate = `{
                         "Bearer": []
                     }
                 ],
-                "description": "Get a list of all categories for the authenticated user",
+                "description": "Get a list of all categories for the authenticated app",
                 "produces": [
                     "application/json"
                 ],
@@ -149,7 +149,7 @@ const docTemplate = `{
                         "Bearer": []
                     }
                 ],
-                "description": "Get a single category by its ID if it belongs to the user",
+                "description": "Get a single category by its ID if it belongs to the app",
                 "produces": [
                     "application/json"
                 ],
@@ -217,7 +217,7 @@ const docTemplate = `{
                         "Bearer": []
                     }
                 ],
-                "description": "Update an existing category if it belongs to the user",
+                "description": "Update an existing category if it belongs to the app",
                 "consumes": [
                     "application/json"
                 ],
@@ -297,7 +297,7 @@ const docTemplate = `{
                         "Bearer": []
                     }
                 ],
-                "description": "Delete a category by its ID if it belongs to the user",
+                "description": "Delete a category by its ID if it belongs to the app",
                 "produces": [
                     "application/json"
                 ],
@@ -372,7 +372,7 @@ const docTemplate = `{
                         "Bearer": []
                     }
                 ],
-                "description": "Get a list of all transactions for the authenticated user with optional filtering",
+                "description": "Get a list of all transactions for the authenticated app with optional filtering",
                 "produces": [
                     "application/json"
                 ],
@@ -520,7 +520,7 @@ const docTemplate = `{
                         "Bearer": []
                     }
                 ],
-                "description": "Get a single transaction by its ID if it belongs to the user",
+                "description": "Get a single transaction by its ID if it belongs to the app",
                 "produces": [
                     "application/json"
                 ],
@@ -588,7 +588,7 @@ const docTemplate = `{
                         "Bearer": []
                     }
                 ],
-                "description": "Update an existing transaction including amount, type, category, recurring status and dated if it belongs to the user",
+                "description": "Update an existing transaction including amount, type, category, recurring status and dated if it belongs to the app",
                 "consumes": [
                     "application/json"
                 ],
@@ -668,7 +668,7 @@ const docTemplate = `{
                         "Bearer": []
                     }
                 ],
-                "description": "Delete a transaction by its ID if it belongs to the user",
+                "description": "Delete a transaction by its ID if it belongs to the app",
                 "produces": [
                     "application/json"
                 ],

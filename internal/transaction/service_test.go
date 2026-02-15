@@ -83,11 +83,43 @@ func TestTransactionService(t *testing.T) {
 		assert.Nil(t, tx.CategoryID)
 	})
 
-	t.Run("Delete Transaction", func(t *testing.T) {
-		err := svc.Delete(ctx, 1, 1, 1)
+	t.Run("Multi-user and Multi-app Isolation", func(t *testing.T) {
+		// App 1, User 1 creates a transaction
+		req1 := CreateTransactionRequest{Amount: 50.0, Type: "expense"}
+		tx1, err := svc.Create(ctx, 1, 1, req1)
 		assert.NoError(t, err)
 
-		_, err = svc.GetByID(ctx, 1, 1, 1)
+		// App 1, User 2 should be able to see App 1, User 1's transaction
+		resp, err := svc.List(ctx, 1, 2, TransactionFilter{})
+		assert.NoError(t, err)
+		found := false
+		for _, tx := range resp.Transactions {
+			if tx.ID == tx1.ID {
+				found = true
+				break
+			}
+		}
+		assert.True(t, found, "App 1 User 2 should see transaction created by User 1")
+
+		// App 2, User 3 should NOT be able to see App 1's transaction
+		respApp2, err := svc.List(ctx, 2, 3, TransactionFilter{})
+		assert.NoError(t, err)
+		for _, tx := range respApp2.Transactions {
+			assert.NotEqual(t, tx1.ID, tx.ID)
+		}
+
+		// App 2, User 3 should NOT be able to get App 1's transaction by ID
+		_, err = svc.GetByID(ctx, 2, 3, tx1.ID)
 		assert.ErrorIs(t, err, ErrTransactionNotFound)
+
+		// App 1, User 2 should be able to update App 1, User 1's transaction
+		updateReq := UpdateTransactionRequest{Amount: 75.0, Type: "expense"}
+		updated, err := svc.Update(ctx, 1, 2, tx1.ID, updateReq)
+		assert.NoError(t, err)
+		assert.Equal(t, 75.0, updated.Amount)
+
+		// App 1, User 2 should be able to delete App 1, User 1's transaction
+		err = svc.Delete(ctx, 1, 2, tx1.ID)
+		assert.NoError(t, err)
 	})
 }

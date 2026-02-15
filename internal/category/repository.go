@@ -33,11 +33,11 @@ func (r *Repository) Create(ctx context.Context, c Category) (Category, error) {
 	return r.mapToModel(entCat), nil
 }
 
-// List returns all categories for a user with optional name filter.
+// List returns all categories for an app with optional name filter.
 func (r *Repository) List(ctx context.Context, appID, userID int, name string) ([]Category, error) {
 	query := r.client.Category.
 		Query().
-		Where(category.AppID(appID), category.UserID(userID))
+		Where(category.AppID(appID))
 
 	if name != "" {
 		query = query.Where(category.NameContains(name))
@@ -57,11 +57,11 @@ func (r *Repository) List(ctx context.Context, appID, userID int, name string) (
 	return cats, nil
 }
 
-// GetByID returns a category by its ID and user ID.
+// GetByID returns a category by its ID and app ID.
 func (r *Repository) GetByID(ctx context.Context, appID, userID, id int) (Category, error) {
 	entCat, err := r.client.Category.
 		Query().
-		Where(category.ID(id), category.AppID(appID), category.UserID(userID)).
+		Where(category.ID(id), category.AppID(appID)).
 		Only(ctx)
 	if err != nil {
 		if ent.IsNotFound(err) {
@@ -75,10 +75,10 @@ func (r *Repository) GetByID(ctx context.Context, appID, userID, id int) (Catego
 
 // Update updates a category.
 func (r *Repository) Update(ctx context.Context, appID, userID, id int, c Category) (Category, error) {
-	// Use Update() with predicate to ensure ownership
+	// Use Update() with predicate to ensure app ownership
 	count, err := r.client.Category.
 		Update().
-		Where(category.ID(id), category.AppID(appID), category.UserID(userID)).
+		Where(category.ID(id), category.AppID(appID)).
 		SetName(c.Name).
 		SetStatus(c.Status).
 		Save(ctx)
@@ -98,7 +98,7 @@ func (r *Repository) Update(ctx context.Context, appID, userID, id int, c Catego
 func (r *Repository) Delete(ctx context.Context, appID, userID, id int) error {
 	count, err := r.client.Category.
 		Delete().
-		Where(category.ID(id), category.AppID(appID), category.UserID(userID)).
+		Where(category.ID(id), category.AppID(appID)).
 		Exec(ctx)
 	if err != nil {
 		return fmt.Errorf("delete category: %w", err)

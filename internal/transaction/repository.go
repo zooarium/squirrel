@@ -123,7 +123,7 @@ func (r *Repository) GetStats(ctx context.Context, appID, userID int, filter Tra
 func (r *Repository) buildFilteredQuery(appID, userID int, filter TransactionFilter) *ent.TransactionQuery {
 	query := r.client.Transaction.
 		Query().
-		Where(transaction.AppID(appID), transaction.UserID(userID))
+		Where(transaction.AppID(appID))
 
 	if filter.CategoryID != nil {
 		query = query.Where(transaction.CategoryID(*filter.CategoryID))
@@ -171,11 +171,11 @@ func (r *Repository) buildFilteredQuery(appID, userID int, filter TransactionFil
 	return query
 }
 
-// GetByID returns a transaction by its ID and user ID.
+// GetByID returns a transaction by its ID and app ID.
 func (r *Repository) GetByID(ctx context.Context, appID, userID, id int) (Transaction, error) {
 	entTx, err := r.client.Transaction.
 		Query().
-		Where(transaction.ID(id), transaction.AppID(appID), transaction.UserID(userID)).
+		Where(transaction.ID(id), transaction.AppID(appID)).
 		Only(ctx)
 	if err != nil {
 		if ent.IsNotFound(err) {
@@ -191,7 +191,7 @@ func (r *Repository) GetByID(ctx context.Context, appID, userID, id int) (Transa
 func (r *Repository) Update(ctx context.Context, appID, userID, id int, t Transaction) (Transaction, error) {
 	builder := r.client.Transaction.
 		Update().
-		Where(transaction.ID(id), transaction.AppID(appID), transaction.UserID(userID)).
+		Where(transaction.ID(id), transaction.AppID(appID)).
 		SetAmount(t.Amount).
 		SetType(transaction.Type(t.Type)).
 		SetRecurring(t.Recurring).
@@ -218,7 +218,7 @@ func (r *Repository) Update(ctx context.Context, appID, userID, id int, t Transa
 func (r *Repository) Delete(ctx context.Context, appID, userID, id int) error {
 	count, err := r.client.Transaction.
 		Delete().
-		Where(transaction.ID(id), transaction.AppID(appID), transaction.UserID(userID)).
+		Where(transaction.ID(id), transaction.AppID(appID)).
 		Exec(ctx)
 	if err != nil {
 		return fmt.Errorf("delete transaction: %w", err)

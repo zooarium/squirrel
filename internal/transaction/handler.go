@@ -89,7 +89,7 @@ func (h *Handler) Create(w http.ResponseWriter, r *http.Request) {
 
 // List handles listing all transactions.
 // @Summary List all transactions
-// @Description Get a list of all transactions for the authenticated user with optional filtering
+// @Description Get a list of all transactions for the authenticated app with optional filtering
 // @Tags transactions
 // @Produce json
 // @Param category_id query int false "Filter by category ID"
@@ -149,7 +149,7 @@ func (h *Handler) List(w http.ResponseWriter, r *http.Request) {
 
 // GetByID handles getting a transaction by ID.
 // @Summary Get transaction by ID
-// @Description Get a single transaction by its ID if it belongs to the user
+// @Description Get a single transaction by its ID if it belongs to the app
 // @Tags transactions
 // @Produce json
 // @Param id path int true "Transaction ID"
@@ -188,7 +188,7 @@ func (h *Handler) GetByID(w http.ResponseWriter, r *http.Request) {
 
 // Update handles updating a transaction.
 // @Summary Update transaction by ID
-// @Description Update an existing transaction including amount, type, category, recurring status and dated if it belongs to the user
+// @Description Update an existing transaction including amount, type, category, recurring status and dated if it belongs to the app
 // @Tags transactions
 // @Accept json
 // @Produce json
@@ -235,7 +235,7 @@ func (h *Handler) Update(w http.ResponseWriter, r *http.Request) {
 
 // Delete handles deleting a transaction.
 // @Summary Delete transaction by ID
-// @Description Delete a transaction by its ID if it belongs to the user
+// @Description Delete a transaction by its ID if it belongs to the app
 // @Tags transactions
 // @Produce json
 // @Param id path int true "Transaction ID"

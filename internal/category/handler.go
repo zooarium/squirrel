@@ -88,7 +88,7 @@ func (h *Handler) Create(w http.ResponseWriter, r *http.Request) {
 
 // List handles listing all categories.
 // @Summary List all categories
-// @Description Get a list of all categories for the authenticated user
+// @Description Get a list of all categories for the authenticated app
 // @Tags categories
 // @Produce json
 // @Param name query string false "Filter by category name (wildcard)"
@@ -117,7 +117,7 @@ func (h *Handler) List(w http.ResponseWriter, r *http.Request) {
 
 // GetByID handles getting a category by ID.
 // @Summary Get category by ID
-// @Description Get a single category by its ID if it belongs to the user
+// @Description Get a single category by its ID if it belongs to the app
 // @Tags categories
 // @Produce json
 // @Param id path int true "Category ID"
@@ -156,7 +156,7 @@ func (h *Handler) GetByID(w http.ResponseWriter, r *http.Request) {
 
 // Update handles updating a category.
 // @Summary Update category by ID
-// @Description Update an existing category if it belongs to the user
+// @Description Update an existing category if it belongs to the app
 // @Tags categories
 // @Accept json
 // @Produce json
@@ -203,7 +203,7 @@ func (h *Handler) Update(w http.ResponseWriter, r *http.Request) {
 
 // Delete handles deleting a category.
 // @Summary Delete category by ID
-// @Description Delete a category by its ID if it belongs to the user
+// @Description Delete a category by its ID if it belongs to the app
 // @Tags categories
 // @Produce json
 // @Param id path int true "Category ID"
