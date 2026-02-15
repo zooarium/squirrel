@@ -367,12 +367,16 @@ paths:
   /transactions:
     get:
       description: Get a list of all transactions for the authenticated app with optional
-        filtering
+        filtering. Stats in response only include expenses.
       parameters:
       - description: Filter by category ID
         in: query
         name: category_id
         type: integer
+      - description: Filter by type (income, expense)
+        in: query
+        name: type
+        type: string
       - description: Filter by recurring status (0 or 1, default 0)
         in: query
         name: recurring
@@ -580,6 +584,57 @@ paths:
       security:
       - Bearer: []
       summary: Update transaction by ID
+      tags:
+      - transactions
+  /transactions/stats:
+    get:
+      description: Get statistics for transactions for the authenticated app with
+        optional filtering. Only expenses are included.
+      parameters:
+      - description: Filter by category ID
+        in: query
+        name: category_id
+        type: integer
+      - description: Filter by recurring status (0 or 1, default 0)
+        in: query
+        name: recurring
+        type: integer
+      - description: Filter by predefined date ranges (today, yesterday, this month,
+          last month, this year, last year)
+        in: query
+        name: dated
+        type: string
+      - description: Filter from date (YYYY-MM-DD)
+        in: query
+        name: from
+        type: string
+      - description: Filter to date (YYYY-MM-DD)
+        in: query
+        name: to
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/vyaya_internal_platform_render.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/internal_transaction.TransactionStats'
+              type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/vyaya_internal_platform_render.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/vyaya_internal_platform_render.Response'
+      security:
+      - Bearer: []
+      summary: Get transaction statistics
       tags:
       - transactions
 securityDefinitions:

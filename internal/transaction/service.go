@@ -19,6 +19,7 @@ var (
 type Service interface {
 	Create(ctx context.Context, appID, userID int, req CreateTransactionRequest) (Transaction, error)
 	List(ctx context.Context, appID, userID int, filter TransactionFilter) (TransactionListResponse, error)
+	Stats(ctx context.Context, appID, userID int, filter TransactionFilter) (TransactionStats, error)
 	GetByID(ctx context.Context, appID, userID, id int) (Transaction, error)
 	Update(ctx context.Context, appID, userID, id int, req UpdateTransactionRequest) (Transaction, error)
 	Delete(ctx context.Context, appID, userID, id int) error
@@ -36,6 +37,10 @@ func NewService(repo *Repository) Service {
 		validate: validator.New(),
 	}
 }
+
+// Create creates a new transaction.
+// ... (omitting Create implementation for brevity in the search/replace if possible, but I'll include it to be safe or just use multiple replaces)
+// Actually I'll just replace the interface first.
 
 // Create creates a new transaction.
 func (s *service) Create(ctx context.Context, appID, userID int, req CreateTransactionRequest) (Transaction, error) {
@@ -84,7 +89,9 @@ func (s *service) List(ctx context.Context, appID, userID int, filter Transactio
 		return TransactionListResponse{}, err
 	}
 
-	stats, err := s.repo.GetStats(ctx, appID, userID, filter)
+	statsFilter := filter
+	statsFilter.Type = "expense"
+	stats, err := s.repo.GetStats(ctx, appID, userID, statsFilter)
 	if err != nil {
 		slog.Error("failed to get transaction stats", "error", err, "app_id", appID, "user_id", userID)
 		return TransactionListResponse{}, err
@@ -94,6 +101,17 @@ func (s *service) List(ctx context.Context, appID, userID int, filter Transactio
 		Transactions: txs,
 		Stats:        stats,
 	}, nil
+}
+
+// Stats returns transaction statistics.
+func (s *service) Stats(ctx context.Context, appID, userID int, filter TransactionFilter) (TransactionStats, error) {
+	filter.Type = "expense"
+	stats, err := s.repo.GetStats(ctx, appID, userID, filter)
+	if err != nil {
+		slog.Error("failed to get transaction stats", "error", err, "app_id", appID, "user_id", userID)
+		return TransactionStats{}, err
+	}
+	return stats, nil
 }
 
 // GetByID returns a transaction by its ID.

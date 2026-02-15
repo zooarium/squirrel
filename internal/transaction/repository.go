@@ -129,6 +129,10 @@ func (r *Repository) buildFilteredQuery(appID, userID int, filter TransactionFil
 		query = query.Where(transaction.CategoryID(*filter.CategoryID))
 	}
 
+	if filter.Type != "" {
+		query = query.Where(transaction.TypeEQ(transaction.Type(filter.Type)))
+	}
+
 	if filter.Recurring != nil {
 		query = query.Where(transaction.Recurring(*filter.Recurring))
 	}

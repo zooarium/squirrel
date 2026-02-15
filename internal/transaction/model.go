@@ -39,6 +39,7 @@ type UpdateTransactionRequest struct {
 // TransactionFilter defines the filters for listing transactions.
 type TransactionFilter struct {
 	CategoryID *int       `json:"category_id"`
+	Type       string     `json:"type"`
 	Recurring  *int8      `json:"recurring"`
 	Dated      string     `json:"dated"`
 	From       *time.Time `json:"from"`

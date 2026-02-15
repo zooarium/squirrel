@@ -83,6 +83,29 @@ func TestTransactionService(t *testing.T) {
 		assert.Nil(t, tx.CategoryID)
 	})
 
+	t.Run("Stats Only Expense", func(t *testing.T) {
+		// Currently we have one transaction with ID 1 which is "income" (200.75)
+		// Let's create an expense
+		req := CreateTransactionRequest{
+			Amount: 50.0,
+			Type:   "expense",
+		}
+		_, err := svc.Create(ctx, 1, 1, req)
+		assert.NoError(t, err)
+
+		// Stats should only show the expense (50.0), not the income (200.75)
+		stats, err := svc.Stats(ctx, 1, 1, TransactionFilter{})
+		assert.NoError(t, err)
+
+		totalSum := 0.0
+		for _, s := range stats.CategoryWiseAmountSum {
+			totalSum += s.TotalSum
+		}
+		assert.Equal(t, 50.0, totalSum)
+		assert.Len(t, stats.Top10ByAmount, 1)
+		assert.Equal(t, 50.0, stats.Top10ByAmount[0].Amount)
+	})
+
 	t.Run("Multi-user and Multi-app Isolation", func(t *testing.T) {
 		// App 1, User 1 creates a transaction
 		req1 := CreateTransactionRequest{Amount: 50.0, Type: "expense"}

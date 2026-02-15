@@ -372,7 +372,7 @@ const docTemplate = `{
                         "Bearer": []
                     }
                 ],
-                "description": "Get a list of all transactions for the authenticated app with optional filtering",
+                "description": "Get a list of all transactions for the authenticated app with optional filtering. Stats in response only include expenses.",
                 "produces": [
                     "application/json"
                 ],
@@ -385,6 +385,12 @@ const docTemplate = `{
                         "type": "integer",
                         "description": "Filter by category ID",
                         "name": "category_id",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filter by type (income, expense)",
+                        "name": "type",
                         "in": "query"
                     },
                     {
@@ -496,6 +502,87 @@ const docTemplate = `{
                         "description": "Bad Request",
                         "schema": {
                             "$ref": "#/definitions/vyaya_internal_platform_render.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/vyaya_internal_platform_render.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/vyaya_internal_platform_render.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/transactions/stats": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Get statistics for transactions for the authenticated app with optional filtering. Only expenses are included.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "transactions"
+                ],
+                "summary": "Get transaction statistics",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Filter by category ID",
+                        "name": "category_id",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Filter by recurring status (0 or 1, default 0)",
+                        "name": "recurring",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filter by predefined date ranges (today, yesterday, this month, last month, this year, last year)",
+                        "name": "dated",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filter from date (YYYY-MM-DD)",
+                        "name": "from",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filter to date (YYYY-MM-DD)",
+                        "name": "to",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/vyaya_internal_platform_render.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/internal_transaction.TransactionStats"
+                                        }
+                                    }
+                                }
+                            ]
                         }
                     },
                     "401": {

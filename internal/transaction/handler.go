@@ -35,6 +35,7 @@ func (h *Handler) Routes() chi.Router {
 
 	r.Post("/", h.Create)
 	r.Get("/", h.List)
+	r.Get("/stats", h.Stats)
 	r.Route("/{id}", func(r chi.Router) {
 		r.Get("/", h.GetByID)
 		r.Put("/", h.Update)
@@ -89,10 +90,11 @@ func (h *Handler) Create(w http.ResponseWriter, r *http.Request) {
 
 // List handles listing all transactions.
 // @Summary List all transactions
-// @Description Get a list of all transactions for the authenticated app with optional filtering
+// @Description Get a list of all transactions for the authenticated app with optional filtering. Stats in response only include expenses.
 // @Tags transactions
 // @Produce json
 // @Param category_id query int false "Filter by category ID"
+// @Param type query string false "Filter by type (income, expense)"
 // @Param recurring query int false "Filter by recurring status (0 or 1, default 0)"
 // @Param dated query string false "Filter by predefined date ranges (today, yesterday, this month, last month, this year, last year)"
 // @Param from query string false "Filter from date (YYYY-MM-DD)"
@@ -109,6 +111,51 @@ func (h *Handler) List(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	filter := h.parseFilter(r)
+
+	txs, err := h.svc.List(r.Context(), claims.AppID, claims.UserID, filter)
+	if err != nil {
+		render.Error(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	render.JSON(w, http.StatusOK, txs)
+}
+
+// Stats handles transaction statistics.
+// @Summary Get transaction statistics
+// @Description Get statistics for transactions for the authenticated app with optional filtering. Only expenses are included.
+// @Tags transactions
+// @Produce json
+// @Param category_id query int false "Filter by category ID"
+// @Param recurring query int false "Filter by recurring status (0 or 1, default 0)"
+// @Param dated query string false "Filter by predefined date ranges (today, yesterday, this month, last month, this year, last year)"
+// @Param from query string false "Filter from date (YYYY-MM-DD)"
+// @Param to query string false "Filter to date (YYYY-MM-DD)"
+// @Success 200 {object} render.Response{data=TransactionStats}
+// @Failure 401 {object} render.Response
+// @Failure 500 {object} render.Response
+// @Security Bearer
+// @Router /transactions/stats [get]
+func (h *Handler) Stats(w http.ResponseWriter, r *http.Request) {
+	claims, err := h.getClaims(r)
+	if err != nil {
+		render.Error(w, http.StatusUnauthorized, err.Error())
+		return
+	}
+
+	filter := h.parseFilter(r)
+
+	stats, err := h.svc.Stats(r.Context(), claims.AppID, claims.UserID, filter)
+	if err != nil {
+		render.Error(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	render.JSON(w, http.StatusOK, stats)
+}
+
+func (h *Handler) parseFilter(r *http.Request) TransactionFilter {
 	filter := TransactionFilter{}
 
 	if val := r.URL.Query().Get("category_id"); val != "" {
@@ -116,6 +163,8 @@ func (h *Handler) List(w http.ResponseWriter, r *http.Request) {
 			filter.CategoryID = &id
 		}
 	}
+
+	filter.Type = r.URL.Query().Get("type")
 
 	if val := r.URL.Query().Get("recurring"); val != "" {
 		if i, err := strconv.ParseInt(val, 10, 8); err == nil {
@@ -138,13 +187,7 @@ func (h *Handler) List(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	txs, err := h.svc.List(r.Context(), claims.AppID, claims.UserID, filter)
-	if err != nil {
-		render.Error(w, http.StatusInternalServerError, err.Error())
-		return
-	}
-
-	render.JSON(w, http.StatusOK, txs)
+	return filter
 }
 
 // GetByID handles getting a transaction by ID.
