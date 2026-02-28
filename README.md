@@ -295,3 +295,9 @@ Logs are written to both **stdout** and to a file named `api.log` located in the
 The project uses Docker volumes to persist data and logs outside the container:
 - **Database**: Stored in `./data/vyaya.db`.
 - **Logs**: Stored in `./log/api.log`.
+
+## TODO
+
+- Pagination
+- Show total sum of expense and incode with its difference either in red/green
+- A new bar chart type wise in transaction
