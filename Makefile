@@ -1,6 +1,6 @@
 CUR_DIR := $(notdir $(shell pwd))
 
-.PHONY: build up down restart logs ps test fmt lint swag clean shell help tidy vet generate vendor coverage coverage-view build-local build-prod sql
+.PHONY: build up down restart logs ps test benchmark fmt lint swag clean shell help tidy vet generate vendor coverage coverage-view build-local build-prod sql
 
 # Docker Compose commands
 build: vendor
@@ -30,6 +30,14 @@ test: fmt
 		-e CGO_CFLAGS="-D_LARGEFILE64_SOURCE" \
 		golang:1.26-alpine \
 		sh -c "apk add --no-cache build-base && go test -mod=vendor -v ./..."
+
+# Run benchmarks inside the container
+benchmark:
+	docker run --rm -v $(shell pwd)/..:/workspace -w /workspace/$(CUR_DIR) \
+		-e CGO_ENABLED=1 \
+		-e CGO_CFLAGS="-D_LARGEFILE64_SOURCE" \
+		golang:1.26-alpine \
+		sh -c "apk add --no-cache build-base && go test -mod=vendor -bench=. -run=^# -benchmem ./..."
 
 # Format code and manage imports
 fmt:
@@ -141,6 +149,7 @@ help:
 	@echo "  logs          Follow container logs"
 	@echo "  ps            List running containers"
 	@echo "  test          Run unit tests"
+	@echo "  benchmark     Run benchmarks"
 	@echo "  fmt           Format code (goimports)"
 	@echo "  lint          Run linter"
 	@echo "  swag          Generate Swagger docs"

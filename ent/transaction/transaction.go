@@ -36,12 +36,12 @@ const (
 	// EdgeCategory holds the string denoting the category edge name in mutations.
 	EdgeCategory = "category"
 	// Table holds the table name of the transaction in the database.
-	Table = "transaction"
+	Table = "sqrl_transaction"
 	// CategoryTable is the table that holds the category relation/edge.
-	CategoryTable = "transaction"
+	CategoryTable = "sqrl_transaction"
 	// CategoryInverseTable is the table name for the Category entity.
 	// It exists in this package in order to avoid circular dependency with the "category" package.
-	CategoryInverseTable = "category"
+	CategoryInverseTable = "sqrl_category"
 	// CategoryColumn is the table column denoting the category relation/edge.
 	CategoryColumn = "category_id"
 )

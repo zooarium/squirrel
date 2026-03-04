@@ -9,8 +9,8 @@ import (
 )
 
 var (
-	// CategoryColumns holds the columns for the "category" table.
-	CategoryColumns = []*schema.Column{
+	// SqrlCategoryColumns holds the columns for the "sqrl_category" table.
+	SqrlCategoryColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
 		{Name: "created_at", Type: field.TypeTime},
 		{Name: "updated_at", Type: field.TypeTime},
@@ -19,14 +19,14 @@ var (
 		{Name: "name", Type: field.TypeString},
 		{Name: "status", Type: field.TypeInt8, Default: 1},
 	}
-	// CategoryTable holds the schema information for the "category" table.
-	CategoryTable = &schema.Table{
-		Name:       "category",
-		Columns:    CategoryColumns,
-		PrimaryKey: []*schema.Column{CategoryColumns[0]},
+	// SqrlCategoryTable holds the schema information for the "sqrl_category" table.
+	SqrlCategoryTable = &schema.Table{
+		Name:       "sqrl_category",
+		Columns:    SqrlCategoryColumns,
+		PrimaryKey: []*schema.Column{SqrlCategoryColumns[0]},
 	}
-	// TransactionColumns holds the columns for the "transaction" table.
-	TransactionColumns = []*schema.Column{
+	// SqrlTransactionColumns holds the columns for the "sqrl_transaction" table.
+	SqrlTransactionColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
 		{Name: "created_at", Type: field.TypeTime},
 		{Name: "updated_at", Type: field.TypeTime},
@@ -38,33 +38,33 @@ var (
 		{Name: "dated", Type: field.TypeTime},
 		{Name: "category_id", Type: field.TypeInt, Nullable: true},
 	}
-	// TransactionTable holds the schema information for the "transaction" table.
-	TransactionTable = &schema.Table{
-		Name:       "transaction",
-		Columns:    TransactionColumns,
-		PrimaryKey: []*schema.Column{TransactionColumns[0]},
+	// SqrlTransactionTable holds the schema information for the "sqrl_transaction" table.
+	SqrlTransactionTable = &schema.Table{
+		Name:       "sqrl_transaction",
+		Columns:    SqrlTransactionColumns,
+		PrimaryKey: []*schema.Column{SqrlTransactionColumns[0]},
 		ForeignKeys: []*schema.ForeignKey{
 			{
-				Symbol:     "transaction_category_transactions",
-				Columns:    []*schema.Column{TransactionColumns[9]},
-				RefColumns: []*schema.Column{CategoryColumns[0]},
+				Symbol:     "sqrl_transaction_sqrl_category_transactions",
+				Columns:    []*schema.Column{SqrlTransactionColumns[9]},
+				RefColumns: []*schema.Column{SqrlCategoryColumns[0]},
 				OnDelete:   schema.SetNull,
 			},
 		},
 	}
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
-		CategoryTable,
-		TransactionTable,
+		SqrlCategoryTable,
+		SqrlTransactionTable,
 	}
 )
 
 func init() {
-	CategoryTable.Annotation = &entsql.Annotation{
-		Table: "category",
+	SqrlCategoryTable.Annotation = &entsql.Annotation{
+		Table: "sqrl_category",
 	}
-	TransactionTable.ForeignKeys[0].RefTable = CategoryTable
-	TransactionTable.Annotation = &entsql.Annotation{
-		Table: "transaction",
+	SqrlTransactionTable.ForeignKeys[0].RefTable = SqrlCategoryTable
+	SqrlTransactionTable.Annotation = &entsql.Annotation{
+		Table: "sqrl_transaction",
 	}
 }

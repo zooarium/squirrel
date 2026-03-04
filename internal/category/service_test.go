@@ -101,3 +101,27 @@ func TestCategoryService(t *testing.T) {
 		assert.NoError(t, err)
 	})
 }
+
+func BenchmarkListCategories(b *testing.B) {
+	client := enttest.Open(b, "sqlite3", "file:ent?mode=memory&cache=shared&_fk=1")
+	defer func() {
+		_ = client.Close()
+	}()
+
+	repo := NewRepository(client)
+	svc := NewService(repo)
+	ctx := context.Background()
+
+	// Seed some data
+	for i := 0; i < 10; i++ {
+		_, _ = svc.Create(ctx, 1, 1, CreateCategoryRequest{
+			Name:   "Category",
+			Status: 1,
+		})
+	}
+
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		_, _ = svc.List(ctx, 1, 1, "")
+	}
+}

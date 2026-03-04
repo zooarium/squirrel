@@ -76,7 +76,7 @@ The application uses `viper` for configuration management, supporting multiple e
     - **Services**: `Service` (e.g., `category.Service`).
     - **Repositories**: `Repository` (e.g., `category.Repository`).
     - **Models**: Use generic names in packages and `[Action][Entity]Request/Response` for DTOs.
-- **Database**: Table names and Ent schemas **must** be singular (e.g., `category`).
+- **Database**: Table names and Ent schemas **must** be singular and prefixed with `sqrl_` (e.g., `sqrl_category`). Use `entsql.Annotation{Table: "sqrl_singular_name"}` in the schema definition's `Annotations()` method.
 
 ## Development Workflow
 
@@ -111,6 +111,7 @@ To ensure codebase health and consistency, the following steps **must** be compl
 - `make build-local`: Build the API binary on the host machine.
 - `make help`: Display all available Makefile commands.
 - `make test`: Run unit tests in a fresh Go container.
+- `make benchmark`: Run benchmarks in a fresh Go container.
 - `make logs`: Follow container logs.
 - `make swag`: Regenerate Swagger documentation.
 - `make migrate-gen name=NAME`: Generate a new database migration.
@@ -126,7 +127,7 @@ To ensure codebase health and consistency, the following steps **must** be compl
 
 ## Database Schema
 
-### Category Table
+### sqrl_category Table
 | Field      | Type      | Description                          |
 |------------|-----------|--------------------------------------|
 | ID         | int       | Primary Key (Auto-increment)         |
@@ -137,7 +138,7 @@ To ensure codebase health and consistency, the following steps **must** be compl
 | CreatedAt  | datetime  | Creation timestamp                   |
 | UpdatedAt  | datetime  | Last update timestamp                |
 
-### Transaction Table
+### sqrl_transaction Table
 | Field      | Type      | Description                          |
 |------------|-----------|--------------------------------------|
 | ID         | int       | Primary Key (Auto-increment)         |

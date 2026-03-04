@@ -29,12 +29,12 @@ const (
 	// EdgeTransactions holds the string denoting the transactions edge name in mutations.
 	EdgeTransactions = "transactions"
 	// Table holds the table name of the category in the database.
-	Table = "category"
+	Table = "sqrl_category"
 	// TransactionsTable is the table that holds the transactions relation/edge.
-	TransactionsTable = "transaction"
+	TransactionsTable = "sqrl_transaction"
 	// TransactionsInverseTable is the table name for the Transaction entity.
 	// It exists in this package in order to avoid circular dependency with the "transaction" package.
-	TransactionsInverseTable = "transaction"
+	TransactionsInverseTable = "sqrl_transaction"
 	// TransactionsColumn is the table column denoting the transactions relation/edge.
 	TransactionsColumn = "category_id"
 )

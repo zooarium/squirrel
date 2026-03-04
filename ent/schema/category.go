@@ -35,7 +35,7 @@ type Category struct {
 // Annotations of the Category.
 func (Category) Annotations() []schema.Annotation {
 	return []schema.Annotation{
-		entsql.Annotation{Table: "category"},
+		entsql.Annotation{Table: "sqrl_category"},
 	}
 }
 

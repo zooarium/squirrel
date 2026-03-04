@@ -160,6 +160,7 @@ The project uses Docker and a Makefile for development.
 - `make build-local`: Build the API binary on the host machine.
 - `make help`: Display all available Makefile commands.
 - `make test`: Run all Go tests inside the container.
+- `make benchmark`: Run all Go benchmarks inside the container.
 - `make lint`: Run `golangci-lint` using a dedicated Docker image.
 - `make swag`: Generate Swagger documentation.
 - `make shell`: Open an interactive shell inside the API container.

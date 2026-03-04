@@ -18,7 +18,7 @@ type Transaction struct {
 // Annotations of the Transaction.
 func (Transaction) Annotations() []schema.Annotation {
 	return []schema.Annotation{
-		entsql.Annotation{Table: "transaction"},
+		entsql.Annotation{Table: "sqrl_transaction"},
 	}
 }
 
