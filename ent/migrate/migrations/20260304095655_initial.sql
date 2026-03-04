@@ -1,0 +1,4 @@
+-- Create "sqrl_category" table
+CREATE TABLE `sqrl_category` (`id` integer NOT NULL PRIMARY KEY AUTOINCREMENT, `created_at` datetime NOT NULL, `updated_at` datetime NOT NULL, `app_id` integer NOT NULL, `user_id` integer NOT NULL, `name` text NOT NULL, `status` integer NOT NULL DEFAULT (1));
+-- Create "sqrl_transaction" table
+CREATE TABLE `sqrl_transaction` (`id` integer NOT NULL PRIMARY KEY AUTOINCREMENT, `created_at` datetime NOT NULL, `updated_at` datetime NOT NULL, `app_id` integer NOT NULL, `user_id` integer NOT NULL, `amount` real NOT NULL, `type` text NOT NULL, `recurring` integer NOT NULL DEFAULT (0), `dated` datetime NOT NULL, `category_id` integer NULL, CONSTRAINT `sqrl_transaction_sqrl_category_transactions` FOREIGN KEY (`category_id`) REFERENCES `sqrl_category` (`id`) ON DELETE SET NULL);
