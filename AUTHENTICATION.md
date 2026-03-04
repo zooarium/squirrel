@@ -48,7 +48,7 @@ AUTH:
   JWT_EXPIRY: 24h
 ```
 
-> **Security Note**: In production, `JWT_SECRET` should be a long, random string injected via environment variables (e.g., `AUTH_JWT_SECRET`).
+> **Security Note**: In production, `JWT_SECRET` should be a long, random string injected via environment variables (e.g., `SQUIRREL_AUTH_JWT_SECRET`).
 
 ## Testing Flow (CURL)
 

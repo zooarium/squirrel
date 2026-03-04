@@ -1,6 +1,6 @@
 CUR_DIR := $(notdir $(shell pwd))
 
-.PHONY: build up down restart logs ps test lint swag clean shell help tidy vet generate vendor coverage coverage-view build-local sql
+.PHONY: build up down restart logs ps test fmt lint swag clean shell help tidy vet generate vendor coverage coverage-view build-local build-prod sql
 
 # Docker Compose commands
 build: vendor
@@ -81,6 +81,14 @@ coverage-view:
 build-local:
 	go build -o bin/api ./cmd/api/main.go
 
+# Build the final binary for production (statically linked, stripped symbols)
+build-prod: vendor
+	docker run --rm -v $(shell pwd)/..:/workspace -w /workspace/$(CUR_DIR) \
+		-e CGO_ENABLED=1 \
+		-e CGO_CFLAGS="-D_LARGEFILE64_SOURCE" \
+		golang:1.26-alpine \
+		sh -c "apk add --no-cache build-base && go build -mod=vendor -ldflags='-s -w -extldflags \"-static\"' -o bin/squirrel ./cmd/api/main.go"
+
 # Update Go dependencies
 deps-upgrade:
 	docker run --rm -v $(shell pwd)/..:/workspace -w /workspace/$(CUR_DIR) \
@@ -142,6 +150,8 @@ help:
 	@echo "  vendor        Create vendor directory"
 	@echo "  coverage      Generate test coverage report"
 	@echo "  coverage-view Open test coverage report"
+	@echo "  build-local   Build binary locally (requires Go)"
+	@echo "  build-prod    Build final production binary (static)"
 	@echo "  deps-upgrade  Upgrade Go dependencies"
 	@echo "  go-upgrade    Upgrade Go version (use version=1.x)"
 	@echo "  sql           Run SQL query (use query=...)"

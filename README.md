@@ -46,9 +46,9 @@ A microservice to manage personal expenses.
 
 ## Configuration
 
-The application uses `viper` for configuration management. It supports multiple environments via the `GO_ENV` environment variable.
+The application uses `viper` for configuration management. It supports multiple environments via the `SQUIRREL_ENVIRONMENT` environment variable.
 
-### Environment Variable: `GO_ENV`
+### Environment Variable: `SQUIRREL_ENVIRONMENT`
 - `development` (default): Uses `config/config.development.yaml`
 - `test`: Uses `config/config.test.yaml`
 - `cat`: Uses `config/config.cat.yaml`
@@ -57,20 +57,20 @@ The application uses `viper` for configuration management. It supports multiple 
 ### Configuration Loading Order
 1. **Defaults**: Hardcoded in `pkg/config/config.go`.
 2. **Base Config**: `config/config.yaml`.
-3. **Environment Overrides**: `config/config.{GO_ENV}.yaml`.
-4. **Environment Variables**: Overrides any of the above using `SERVER_ADDR` for `server.addr`, `SERVER_HOST` for `server.host`, etc.
+3. **Environment Overrides**: `config/config.{SQUIRREL_ENVIRONMENT}.yaml`.
+4. **Environment Variables**: Overrides any of the above using `SQUIRREL_SERVER_ADDR` for `server.addr`, `SQUIRREL_SERVER_HOST` for `server.host`, etc.
 
 | Variable | Description | Default |
 |----------|-------------|---------|
-| `ENVIRONMENT` | Deployment environment (`dev`, `production`) | `production` |
-| `SERVER_ADDR` | Internal network address the server binds to | `:8081` |
-| `SERVER_HOST` | Public-facing host/port for Swagger documentation | `localhost:8081` |
-| `DATABASE_PATH` | Path to the SQLite database file | `data/squirrel.db` |
-| `LOG_DIR` | Directory where log files are stored | `log` |
+| `SQUIRREL_ENVIRONMENT` | Deployment environment (`dev`, `production`) | `production` |
+| `SQUIRREL_SERVER_ADDR` | Internal network address the server binds to | `:8081` |
+| `SQUIRREL_SERVER_HOST` | Public-facing host/port for Swagger documentation | `localhost:8081` |
+| `SQUIRREL_DATABASE_PATH` | Path to the SQLite database file | `data/squirrel.db` |
+| `SQUIRREL_LOG_DIR` | Directory where log files are stored | `log` |
 
 ### Running on a different Port/Host
-- To change the port the server listens on: set `SERVER_ADDR=:9090`.
-- To change the address used in Swagger documentation: set `SERVER_HOST=api.example.com`.
+- To change the port the server listens on: set `SQUIRREL_SERVER_ADDR=:9090`.
+- To change the address used in Swagger documentation: set `SQUIRREL_SERVER_HOST=api.example.com`.
 
 ## Code architecture
 
@@ -228,8 +228,8 @@ The SQLite database is stored at `/app/data/squirrel.db` inside the container. T
 - **Host Path**: `./data/squirrel.db`
 - **Container Path**: `/app/data/squirrel.db`
 - **Environment Variables**:
-  - `GO_ENV`: Environment name (e.g., `development`).
-  - `DB_PATH`: Overrides the database path (e.g., `/app/data/squirrel.db`).
+  - `SQUIRREL_ENVIRONMENT`: Environment name (e.g., `development`).
+  - `SQUIRREL_DATABASE_PATH`: Overrides the database path (e.g., `/app/data/squirrel.db`).
 
 The database initialization is fully aligned with the Ent migration setup. On every startup, the application verifies the schema against the generated Ent code and applies any necessary changes to the SQLite file, ensuring the physical database always matches your versioned migration files.
 
@@ -295,6 +295,37 @@ Logs are written to both **stdout** and to a file named `api.log` located in the
 The project uses Docker volumes to persist data and logs outside the container:
 - **Database**: Stored in `./data/squirrel.db`.
 - **Logs**: Stored in `./log/api.log`.
+
+## Deployment
+
+To ensure the Squirrel binary works correctly upon deployment, follow this checklist:
+
+### 1. Shared Authentication Secret
+Squirrel depends on the **Keeper** project for authentication. Both services **must** share the exact same JWT secret.
+*   **Action**: Set the `SQUIRREL_AUTH_JWT_SECRET` environment variable on the server.
+*   **Requirement**: This value must match the one used by the Keeper service. If they differ, Squirrel will reject all tokens issued by Keeper.
+
+### 2. File System Permissions
+The binary requires write access to its local directories for data and logs.
+*   **Data Directory**: The binary needs write access to the `data/` directory to manage the SQLite database.
+*   **Log Directory**: The binary will attempt to create a `log/` directory to write `api.log`.
+*   **Persistence**: Ensure the `data/` directory is mounted to persistent storage (e.g., a Docker volume) to prevent data loss on restarts.
+
+### 3. Runtime Configuration
+Provide configuration via environment variables for production environments:
+*   `SQUIRREL_ENVIRONMENT=production`: Loads production settings.
+*   `SQUIRREL_SERVER_ADDR=:8081`: The port Squirrel listens on.
+*   `SQUIRREL_AUTH_JWT_SECRET`: The shared secret key for JWT validation.
+*   `SQUIRREL_DATABASE_PATH=data/squirrel.db`: Path to the SQLite file.
+
+### 4. System Dependencies (CGO/SQLite)
+Squirrel uses `go-sqlite3`, which requires **CGO**.
+*   **Libraries**: The server must have `libc` and `sqlite` libraries installed (e.g., `apk add sqlite-libs` on Alpine).
+*   **Build**: Ensure the binary was compiled with `CGO_ENABLED=1`.
+
+### 5. Network Connectivity
+*   **Port 8081**: Ensure the server firewall allows incoming traffic on the configured port.
+*   **Keeper Service**: While Squirrel validates tokens locally, clients must be able to reach the Keeper service to obtain tokens.
 
 ## TODO
 

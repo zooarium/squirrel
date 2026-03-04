@@ -3,10 +3,10 @@
 package ent
 
 import (
-	"time"
 	"squirrel/ent/category"
 	"squirrel/ent/schema"
 	"squirrel/ent/transaction"
+	"time"
 )
 
 // The init function reads all schema descriptors with runtime code

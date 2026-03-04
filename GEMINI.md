@@ -53,9 +53,9 @@ Squirrel is a microservice for expense management, providing RESTful APIs for ca
 ```
 
 ## Configuration
-The application uses `viper` for configuration management, supporting multiple environments via the `ENVIRONMENT` key in config files or the `ENVIRONMENT` environment variable.
+The application uses `viper` for configuration management, supporting multiple environments via the `SQUIRREL_ENVIRONMENT` environment variable or the `ENVIRONMENT` key in config files.
 - Configuration is loaded from `config/config.yaml` and merged with environment-specific overrides (e.g., `config.development.yaml`).
-- Environment variables can override configuration values using the prefix-less, underscore-separated format (e.g., `SERVER_ADDR` for `server.addr`).
+- Environment variables can override configuration values using the `SQUIRREL_` prefix and underscore-separated format (e.g., `SQUIRREL_SERVER_ADDR` for `server.addr`).
 
 ## Architecture & Design Patterns
 - **Directional Dependencies**: HTTP (Handler) → Service → Repository.

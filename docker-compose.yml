@@ -7,9 +7,9 @@ services:
       - ./data:/app/data
       - ./log:/app/log
     environment:
-      - GO_ENV=development
-      - DB_PATH=/app/data/squirrel.db
-      - LOG_DIR=/app/log
+      - SQUIRREL_ENVIRONMENT=development
+      - SQUIRREL_DATABASE_PATH=/app/data/squirrel.db
+      - SQUIRREL_LOG_DIR=/app/log
     restart: always
 
   atlas:

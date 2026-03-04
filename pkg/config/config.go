@@ -68,6 +68,7 @@ func Load() (*Config, error) {
 	v.SetDefault("CORS.ALLOWED_ORIGINS", []string{"*"})
 
 	// Environment variables
+	v.SetEnvPrefix("SQUIRREL")
 	v.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
 	v.AutomaticEnv()
 

@@ -3,8 +3,8 @@
 package category
 
 import (
-	"time"
 	"squirrel/ent/predicate"
+	"time"
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"

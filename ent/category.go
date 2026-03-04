@@ -4,9 +4,9 @@ package ent
 
 import (
 	"fmt"
+	"squirrel/ent/category"
 	"strings"
 	"time"
-	"squirrel/ent/category"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
