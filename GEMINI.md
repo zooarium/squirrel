@@ -2,6 +2,9 @@
 
 This document provides a comprehensive overview of the Squirrel project, its architecture, development workflows, and technical details to assist Gemini CLI in understanding and maintaining the codebase.
 
+## Core Mandates
+- **MUST: Run Formatter**: You **MUST** run `make fmt` after every code change to ensure consistent code style and import organization.
+
 ## Project Overview
 Squirrel is a microservice for expense management, providing RESTful APIs for category creation and management. It is built with Go, uses SQLite for persistence, and is containerized with Docker.
 
@@ -89,7 +92,7 @@ To ensure codebase health and consistency, the following steps **must** be compl
 2.  **Structured Logging**: Add or update structured logging (using `slog`) to capture important events, business logic milestones, and error conditions.
 3.  **Write Unit Tests**: Every new feature or bug fix must include corresponding unit tests (e.g., `*_test.go`).
 4.  **Update Makefile**: If new development commands are required, add them to the `Makefile` and update the documentation accordingly.
-5.  **Run Formatter**: Ensure code style and imports are consistent by running `make fmt`.
+5.  **Run Formatter**: You **MUST** ensure code style and imports are consistent by running `make fmt` after every code change.
 6.  **Run Linter**: Ensure code quality by running `make lint` after code and test changes.
 7.  **Update Swagger Documentation**: If any API endpoints are added or modified, regenerate documentation using `make swag`.
 8.  **Update README.md**: Ensure any new features, endpoints, or configuration changes are documented in `README.md`.
