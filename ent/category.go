@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"strings"
 	"time"
-	"vyaya/ent/category"
+	"squirrel/ent/category"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"

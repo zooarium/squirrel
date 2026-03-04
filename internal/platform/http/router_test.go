@@ -5,9 +5,9 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"vyaya/internal/category"
-	"vyaya/internal/transaction"
-	"vyaya/pkg/config"
+	"squirrel/internal/category"
+	"squirrel/internal/transaction"
+	"squirrel/pkg/config"
 
 	"github.com/stretchr/testify/assert"
 )

@@ -8,9 +8,9 @@ import (
 	"fmt"
 	"sync"
 	"time"
-	"vyaya/ent/category"
-	"vyaya/ent/predicate"
-	"vyaya/ent/transaction"
+	"squirrel/ent/category"
+	"squirrel/ent/predicate"
+	"squirrel/ent/transaction"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"

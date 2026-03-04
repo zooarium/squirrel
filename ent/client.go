@@ -9,10 +9,10 @@ import (
 	"log"
 	"reflect"
 
-	"vyaya/ent/migrate"
+	"squirrel/ent/migrate"
 
-	"vyaya/ent/category"
-	"vyaya/ent/transaction"
+	"squirrel/ent/category"
+	"squirrel/ent/transaction"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect"

@@ -44,7 +44,7 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/vyaya_internal_platform_render.Response"
+                                    "$ref": "#/definitions/squirrel_internal_platform_render.Response"
                                 },
                                 {
                                     "type": "object",
@@ -63,13 +63,13 @@ const docTemplate = `{
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/vyaya_internal_platform_render.Response"
+                            "$ref": "#/definitions/squirrel_internal_platform_render.Response"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/vyaya_internal_platform_render.Response"
+                            "$ref": "#/definitions/squirrel_internal_platform_render.Response"
                         }
                     }
                 }
@@ -108,7 +108,7 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/vyaya_internal_platform_render.Response"
+                                    "$ref": "#/definitions/squirrel_internal_platform_render.Response"
                                 },
                                 {
                                     "type": "object",
@@ -124,19 +124,19 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/vyaya_internal_platform_render.Response"
+                            "$ref": "#/definitions/squirrel_internal_platform_render.Response"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/vyaya_internal_platform_render.Response"
+                            "$ref": "#/definitions/squirrel_internal_platform_render.Response"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/vyaya_internal_platform_render.Response"
+                            "$ref": "#/definitions/squirrel_internal_platform_render.Response"
                         }
                     }
                 }
@@ -172,7 +172,7 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/vyaya_internal_platform_render.Response"
+                                    "$ref": "#/definitions/squirrel_internal_platform_render.Response"
                                 },
                                 {
                                     "type": "object",
@@ -188,25 +188,25 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/vyaya_internal_platform_render.Response"
+                            "$ref": "#/definitions/squirrel_internal_platform_render.Response"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/vyaya_internal_platform_render.Response"
+                            "$ref": "#/definitions/squirrel_internal_platform_render.Response"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/vyaya_internal_platform_render.Response"
+                            "$ref": "#/definitions/squirrel_internal_platform_render.Response"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/vyaya_internal_platform_render.Response"
+                            "$ref": "#/definitions/squirrel_internal_platform_render.Response"
                         }
                     }
                 }
@@ -252,7 +252,7 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/vyaya_internal_platform_render.Response"
+                                    "$ref": "#/definitions/squirrel_internal_platform_render.Response"
                                 },
                                 {
                                     "type": "object",
@@ -268,25 +268,25 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/vyaya_internal_platform_render.Response"
+                            "$ref": "#/definitions/squirrel_internal_platform_render.Response"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/vyaya_internal_platform_render.Response"
+                            "$ref": "#/definitions/squirrel_internal_platform_render.Response"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/vyaya_internal_platform_render.Response"
+                            "$ref": "#/definitions/squirrel_internal_platform_render.Response"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/vyaya_internal_platform_render.Response"
+                            "$ref": "#/definitions/squirrel_internal_platform_render.Response"
                         }
                     }
                 }
@@ -321,25 +321,25 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/vyaya_internal_platform_render.Response"
+                            "$ref": "#/definitions/squirrel_internal_platform_render.Response"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/vyaya_internal_platform_render.Response"
+                            "$ref": "#/definitions/squirrel_internal_platform_render.Response"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/vyaya_internal_platform_render.Response"
+                            "$ref": "#/definitions/squirrel_internal_platform_render.Response"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/vyaya_internal_platform_render.Response"
+                            "$ref": "#/definitions/squirrel_internal_platform_render.Response"
                         }
                     }
                 }
@@ -359,7 +359,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/vyaya_internal_platform_render.Response"
+                            "$ref": "#/definitions/squirrel_internal_platform_render.Response"
                         }
                     }
                 }
@@ -424,7 +424,7 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/vyaya_internal_platform_render.Response"
+                                    "$ref": "#/definitions/squirrel_internal_platform_render.Response"
                                 },
                                 {
                                     "type": "object",
@@ -440,13 +440,13 @@ const docTemplate = `{
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/vyaya_internal_platform_render.Response"
+                            "$ref": "#/definitions/squirrel_internal_platform_render.Response"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/vyaya_internal_platform_render.Response"
+                            "$ref": "#/definitions/squirrel_internal_platform_render.Response"
                         }
                     }
                 }
@@ -485,7 +485,7 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/vyaya_internal_platform_render.Response"
+                                    "$ref": "#/definitions/squirrel_internal_platform_render.Response"
                                 },
                                 {
                                     "type": "object",
@@ -501,19 +501,19 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/vyaya_internal_platform_render.Response"
+                            "$ref": "#/definitions/squirrel_internal_platform_render.Response"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/vyaya_internal_platform_render.Response"
+                            "$ref": "#/definitions/squirrel_internal_platform_render.Response"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/vyaya_internal_platform_render.Response"
+                            "$ref": "#/definitions/squirrel_internal_platform_render.Response"
                         }
                     }
                 }
@@ -572,7 +572,7 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/vyaya_internal_platform_render.Response"
+                                    "$ref": "#/definitions/squirrel_internal_platform_render.Response"
                                 },
                                 {
                                     "type": "object",
@@ -588,13 +588,13 @@ const docTemplate = `{
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/vyaya_internal_platform_render.Response"
+                            "$ref": "#/definitions/squirrel_internal_platform_render.Response"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/vyaya_internal_platform_render.Response"
+                            "$ref": "#/definitions/squirrel_internal_platform_render.Response"
                         }
                     }
                 }
@@ -630,7 +630,7 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/vyaya_internal_platform_render.Response"
+                                    "$ref": "#/definitions/squirrel_internal_platform_render.Response"
                                 },
                                 {
                                     "type": "object",
@@ -646,25 +646,25 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/vyaya_internal_platform_render.Response"
+                            "$ref": "#/definitions/squirrel_internal_platform_render.Response"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/vyaya_internal_platform_render.Response"
+                            "$ref": "#/definitions/squirrel_internal_platform_render.Response"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/vyaya_internal_platform_render.Response"
+                            "$ref": "#/definitions/squirrel_internal_platform_render.Response"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/vyaya_internal_platform_render.Response"
+                            "$ref": "#/definitions/squirrel_internal_platform_render.Response"
                         }
                     }
                 }
@@ -710,7 +710,7 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/vyaya_internal_platform_render.Response"
+                                    "$ref": "#/definitions/squirrel_internal_platform_render.Response"
                                 },
                                 {
                                     "type": "object",
@@ -726,25 +726,25 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/vyaya_internal_platform_render.Response"
+                            "$ref": "#/definitions/squirrel_internal_platform_render.Response"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/vyaya_internal_platform_render.Response"
+                            "$ref": "#/definitions/squirrel_internal_platform_render.Response"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/vyaya_internal_platform_render.Response"
+                            "$ref": "#/definitions/squirrel_internal_platform_render.Response"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/vyaya_internal_platform_render.Response"
+                            "$ref": "#/definitions/squirrel_internal_platform_render.Response"
                         }
                     }
                 }
@@ -779,25 +779,25 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/vyaya_internal_platform_render.Response"
+                            "$ref": "#/definitions/squirrel_internal_platform_render.Response"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/vyaya_internal_platform_render.Response"
+                            "$ref": "#/definitions/squirrel_internal_platform_render.Response"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/vyaya_internal_platform_render.Response"
+                            "$ref": "#/definitions/squirrel_internal_platform_render.Response"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/vyaya_internal_platform_render.Response"
+                            "$ref": "#/definitions/squirrel_internal_platform_render.Response"
                         }
                     }
                 }
@@ -1010,7 +1010,7 @@ const docTemplate = `{
                 }
             }
         },
-        "vyaya_internal_platform_render.Response": {
+        "squirrel_internal_platform_render.Response": {
             "type": "object",
             "properties": {
                 "data": {},
@@ -1039,7 +1039,7 @@ var SwaggerInfo = &swag.Spec{
 	Host:             "localhost:8081",
 	BasePath:         "/",
 	Schemes:          []string{},
-	Title:            "Vyaya API",
+	Title:            "Squirrel API",
 	Description:      "This is a microservice for expense management.",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,

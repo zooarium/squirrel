@@ -1,9 +1,8 @@
-module vyaya
+module squirrel
 
 go 1.26
 
 require (
-	dvarapala v0.0.0
 	entgo.io/ent v0.14.5
 	github.com/go-chi/chi/v5 v5.2.5
 	github.com/go-chi/cors v1.2.2
@@ -14,9 +13,10 @@ require (
 	github.com/stretchr/testify v1.11.1
 	github.com/swaggo/http-swagger/v2 v2.0.2
 	github.com/swaggo/swag v1.16.6
+	keeper v0.0.0
 )
 
-replace dvarapala => ../dvarapala
+replace keeper => ../keeper
 
 require (
 	ariga.io/atlas v1.1.0 // indirect

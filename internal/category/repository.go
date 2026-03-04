@@ -3,8 +3,8 @@ package category
 import (
 	"context"
 	"fmt"
-	"vyaya/ent"
-	"vyaya/ent/category"
+	"squirrel/ent"
+	"squirrel/ent/category"
 )
 
 // Repository handles database operations for categories.

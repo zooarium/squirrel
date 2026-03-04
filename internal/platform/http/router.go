@@ -3,12 +3,12 @@ package http
 import (
 	"time"
 
-	_ "vyaya/docs" // Import generated docs
-	"vyaya/internal/category"
-	"vyaya/internal/transaction"
-	"vyaya/pkg/config"
+	_ "squirrel/docs" // Import generated docs
+	"squirrel/internal/category"
+	"squirrel/internal/transaction"
+	"squirrel/pkg/config"
 
-	"dvarapala/pkg/auth"
+	"keeper/pkg/auth"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"

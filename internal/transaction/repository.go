@@ -6,8 +6,8 @@ import (
 	"sort"
 	"time"
 
-	"vyaya/ent"
-	"vyaya/ent/transaction"
+	"squirrel/ent"
+	"squirrel/ent/transaction"
 )
 
 // Repository handles database operations for transactions.

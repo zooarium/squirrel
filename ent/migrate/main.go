@@ -7,7 +7,7 @@ import (
 	"log"
 	"os"
 
-	"vyaya/ent/migrate"
+	"squirrel/ent/migrate"
 
 	atlasmigrate "ariga.io/atlas/sql/migrate"
 	"entgo.io/ent/dialect"

@@ -1,9 +1,9 @@
-# Vyaya Project Guide for Gemini CLI
+# Squirrel Project Guide for Gemini CLI
 
-This document provides a comprehensive overview of the Vyaya project, its architecture, development workflows, and technical details to assist Gemini CLI in understanding and maintaining the codebase.
+This document provides a comprehensive overview of the Squirrel project, its architecture, development workflows, and technical details to assist Gemini CLI in understanding and maintaining the codebase.
 
 ## Project Overview
-Vyaya is a microservice for expense management, providing RESTful APIs for category creation and management. It is built with Go, uses SQLite for persistence, and is containerized with Docker.
+Squirrel is a microservice for expense management, providing RESTful APIs for category creation and management. It is built with Go, uses SQLite for persistence, and is containerized with Docker.
 
 ## Technical Stack
 - **Language**: Go v1.26
@@ -170,10 +170,10 @@ To ensure codebase health and consistency, the following steps **must** be compl
 - Levels: `INFO` for normal operations, `WARN` for client errors/auth failures, `ERROR` for system failures.
 
 ## Persistence & Volumes
-- **Database**: `./data/vyaya.db` mapped to `/app/data/vyaya.db`.
+- **Database**: `./data/squirrel.db` mapped to `/app/data/squirrel.db`.
 - **Logs**: `./log/` mapped to `/app/log/`.
 - **Environment**:
   - `GO_ENV`: Controls which configuration file is loaded (e.g., `development`, `production`).
   - `SERVER_ADDR`: Overrides the server address (defaults to `:8081`).
-  - `DB_PATH`: Overrides the database path (defaults to `data/vyaya.db`).
+  - `DB_PATH`: Overrides the database path (defaults to `data/squirrel.db`).
   - `LOG_DIR`: Overrides the log directory (defaults to `log`).

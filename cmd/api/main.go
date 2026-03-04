@@ -12,17 +12,17 @@ import (
 	"syscall"
 	"time"
 
-	"vyaya/docs"
-	"vyaya/internal/category"
-	"vyaya/internal/db"
-	platformhttp "vyaya/internal/platform/http"
-	"vyaya/internal/transaction"
-	"vyaya/pkg/config"
+	"squirrel/docs"
+	"squirrel/internal/category"
+	"squirrel/internal/db"
+	platformhttp "squirrel/internal/platform/http"
+	"squirrel/internal/transaction"
+	"squirrel/pkg/config"
 
-	"dvarapala/pkg/auth"
+	"keeper/pkg/auth"
 )
 
-// @title Vyaya API
+// @title Squirrel API
 // @version 1.0
 // @description This is a microservice for expense management.
 // @host localhost:8081

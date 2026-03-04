@@ -1,6 +1,6 @@
 ENVIRONMENT: dev
 DATABASE:
-  PATH: "data/vyaya_dev.db"
+  PATH: "data/squirrel_dev.db"
 LOG:
   DIR: "log_dev"
   LEVEL: "debug"

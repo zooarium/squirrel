@@ -6,7 +6,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"vyaya/internal/platform/render"
+	"squirrel/internal/platform/render"
 
 	"github.com/stretchr/testify/assert"
 )

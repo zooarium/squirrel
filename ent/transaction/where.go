@@ -4,7 +4,7 @@ package transaction
 
 import (
 	"time"
-	"vyaya/ent/predicate"
+	"squirrel/ent/predicate"
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"

@@ -4,8 +4,8 @@ package ent
 
 import (
 	"context"
-	"vyaya/ent/predicate"
-	"vyaya/ent/transaction"
+	"squirrel/ent/predicate"
+	"squirrel/ent/transaction"
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"

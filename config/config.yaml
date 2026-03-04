@@ -6,7 +6,7 @@ SERVER:
   WRITE_TIMEOUT: 10s
   IDLE_TIMEOUT: 120s
 DATABASE:
-  PATH: "data/vyaya.db"
+  PATH: "data/squirrel.db"
 LOG:
   DIR: "log"
   LEVEL: "info"

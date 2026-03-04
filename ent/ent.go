@@ -8,8 +8,8 @@ import (
 	"fmt"
 	"reflect"
 	"sync"
-	"vyaya/ent/category"
-	"vyaya/ent/transaction"
+	"squirrel/ent/category"
+	"squirrel/ent/transaction"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"

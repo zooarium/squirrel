@@ -5,7 +5,7 @@ package hook
 import (
 	"context"
 	"fmt"
-	"vyaya/ent"
+	"squirrel/ent"
 )
 
 // The CategoryFunc type is an adapter to allow the use of ordinary

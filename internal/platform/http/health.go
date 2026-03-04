@@ -4,7 +4,7 @@ import (
 	"log/slog"
 	"net/http"
 
-	"vyaya/internal/platform/render"
+	"squirrel/internal/platform/render"
 )
 
 // HealthHandler returns a simple 200 OK status.

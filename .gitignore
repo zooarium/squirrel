@@ -28,6 +28,6 @@ data/
 log/
 *.db
 *.db-journal
-dvarapala
+keeper
 coverage.html
 \n# Vendor directory\nvendor/

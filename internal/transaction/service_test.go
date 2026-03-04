@@ -4,8 +4,8 @@ import (
 	"context"
 	"testing"
 
-	"vyaya/ent/enttest"
-	"vyaya/internal/category"
+	"squirrel/ent/enttest"
+	"squirrel/internal/category"
 
 	_ "github.com/mattn/go-sqlite3"
 	"github.com/stretchr/testify/assert"

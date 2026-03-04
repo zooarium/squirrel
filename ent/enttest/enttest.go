@@ -5,11 +5,11 @@ package enttest
 import (
 	"context"
 
-	"vyaya/ent"
+	"squirrel/ent"
 	// required by schema hooks.
-	_ "vyaya/ent/runtime"
+	_ "squirrel/ent/runtime"
 
-	"vyaya/ent/migrate"
+	"squirrel/ent/migrate"
 
 	"entgo.io/ent/dialect/sql/schema"
 )

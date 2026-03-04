@@ -4,7 +4,7 @@ import (
 	"context"
 	"testing"
 
-	"vyaya/ent/enttest"
+	"squirrel/ent/enttest"
 
 	_ "github.com/mattn/go-sqlite3"
 	"github.com/stretchr/testify/assert"

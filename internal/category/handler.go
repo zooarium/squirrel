@@ -6,9 +6,9 @@ import (
 	"net/http"
 	"strconv"
 
-	"vyaya/internal/platform/render"
+	"squirrel/internal/platform/render"
 
-	"dvarapala/pkg/auth"
+	"keeper/pkg/auth"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-playground/validator/v10"

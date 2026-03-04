@@ -18,7 +18,7 @@ COPY . .
 
 # Build the application
 # CGO_ENABLED=1 is required for the standard SQLite driver
-RUN CGO_ENABLED=1 CGO_CFLAGS="-D_LARGEFILE64_SOURCE" GOOS=linux go build -mod=vendor -a -installsuffix cgo -o vyaya ./cmd/api/main.go
+RUN CGO_ENABLED=1 CGO_CFLAGS="-D_LARGEFILE64_SOURCE" GOOS=linux go build -mod=vendor -a -installsuffix cgo -o squirrel ./cmd/api/main.go
 
 # Final stage
 FROM alpine:latest
@@ -28,10 +28,10 @@ RUN apk --no-cache add ca-certificates sqlite-libs
 WORKDIR /app
 
 # Copy the binary from the builder stage
-COPY --from=builder /app/vyaya .
+COPY --from=builder /app/squirrel .
 
 # Expose port 8081
 EXPOSE 8081
 
 # Command to run the executable
-CMD ["./vyaya"]
+CMD ["./squirrel"]

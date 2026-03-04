@@ -4,9 +4,9 @@ package ent
 
 import (
 	"time"
-	"vyaya/ent/category"
-	"vyaya/ent/schema"
-	"vyaya/ent/transaction"
+	"squirrel/ent/category"
+	"squirrel/ent/schema"
+	"squirrel/ent/transaction"
 )
 
 // The init function reads all schema descriptors with runtime code

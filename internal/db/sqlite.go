@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"log/slog"
 
-	"vyaya/ent"
-	"vyaya/ent/migrate"
+	"squirrel/ent"
+	"squirrel/ent/migrate"
 
 	_ "github.com/mattn/go-sqlite3"
 )

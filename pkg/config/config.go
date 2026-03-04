@@ -60,7 +60,7 @@ func Load() (*Config, error) {
 	v.SetDefault("SERVER.READ_TIMEOUT", 5*time.Second)
 	v.SetDefault("SERVER.WRITE_TIMEOUT", 10*time.Second)
 	v.SetDefault("SERVER.IDLE_TIMEOUT", 120*time.Second)
-	v.SetDefault("DATABASE.PATH", "data/vyaya.db")
+	v.SetDefault("DATABASE.PATH", "data/squirrel.db")
 	v.SetDefault("LOG.DIR", "log")
 	v.SetDefault("LOG.LEVEL", "info")
 	v.SetDefault("AUTH.JWT_SECRET", "a-very-secure-and-shared-secret-key")

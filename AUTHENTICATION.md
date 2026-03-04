@@ -1,28 +1,28 @@
 # Authentication & SSO Guide
 
-This guide details the authentication architecture, shared library usage, and integration steps for the **Dvarapala** (Identity Provider) and **Vyaya** (Resource Service) microservices.
+This guide details the authentication architecture, shared library usage, and integration steps for the **Keeper** (Identity Provider) and **Squirrel** (Resource Service) microservices.
 
 ## Architecture
 
 The system uses a **Centralized JWT Authentication** model.
 
-1.  **Dvarapala (Identity Provider)**:
+1.  **Keeper (Identity Provider)**:
     *   Manages user registration and login.
     *   Issues JWT (JSON Web Tokens) signed with a `JWT_SECRET`.
     *   Port: `:8080`
 
-2.  **Vyaya (Resource Service)**:
+2.  **Squirrel (Resource Service)**:
     *   Manages expense categories and transactions.
     *   **Does not** manage users.
-    *   Validates the JWT issued by Dvarapala using the same shared `JWT_SECRET`.
+    *   Validates the JWT issued by Keeper using the same shared `JWT_SECRET`.
     *   Extracts the `user_id` from the token context to enforce data isolation (Multi-tenancy).
     *   Port: `:8081`
 
 ## Shared Library (`pkg/auth`)
 
-Dvarapala exposes its authentication logic as a public Go package: `dvarapala/pkg/auth`.
+Keeper exposes its authentication logic as a public Go package: `keeper/pkg/auth`.
 
-*   **`JWTManager`**: Handles token generation (Dvarapala) and validation (Vyaya).
+*   **`JWTManager`**: Handles token generation (Keeper) and validation (Squirrel).
 *   **`Middleware`**: HTTP middleware that intercepts requests, validates the Bearer token, and injects `UserClaims` into the request context.
 *   **`GetClaimsFromContext`**: Helper function to retrieve the authenticated `user_id` inside handlers.
 
@@ -30,7 +30,7 @@ Dvarapala exposes its authentication logic as a public Go package: `dvarapala/pk
 
 Both services must share the **exact same** `JWT_SECRET` and `JWT_EXPIRY` configuration.
 
-### Dvarapala (`dvarapala/config/config.yaml`)
+### Keeper (`keeper/config/config.yaml`)
 ```yaml
 SERVER:
   ADDR: ":8080"
@@ -39,7 +39,7 @@ AUTH:
   JWT_EXPIRY: 24h
 ```
 
-### Vyaya (`vyaya/config/config.yaml`)
+### Squirrel (`squirrel/config/config.yaml`)
 ```yaml
 SERVER:
   ADDR: ":8081"
@@ -58,13 +58,13 @@ Follow these steps to test the entire authentication flow.
 Ensure both services are running:
 ```bash
 # Terminal 1
-cd dvarapala && make up
+cd keeper && make up
 
 # Terminal 2
-cd vyaya && make up
+cd squirrel && make up
 ```
 
-### 1. Register a User (Dvarapala)
+### 1. Register a User (Keeper)
 Create a new user account.
 
 ```bash
@@ -78,7 +78,7 @@ curl -X POST http://localhost:8080/users
   }'
 ```
 
-### 2. Login (Dvarapala) -> Get Token
+### 2. Login (Keeper) -> Get Token
 Authenticate to receive a JWT access token.
 
 ```bash
@@ -93,8 +93,8 @@ TOKEN=$(curl -s -X POST http://localhost:8080/users/auth
 echo "Token: $TOKEN"
 ```
 
-### 3. Access Protected Resource (Vyaya)
-Use the token to create a category in Vyaya. The `user_id` is automatically extracted from the token.
+### 3. Access Protected Resource (Squirrel)
+Use the token to create a category in Squirrel. The `user_id` is automatically extracted from the token.
 
 ```bash
 curl -X POST http://localhost:8081/categories 
@@ -106,7 +106,7 @@ curl -X POST http://localhost:8081/categories
   }'
 ```
 
-### 4. Verify Data Isolation (Vyaya)
+### 4. Verify Data Isolation (Squirrel)
 List categories. You should only see the ones created by your user.
 
 ```bash
@@ -115,7 +115,7 @@ curl -X GET http://localhost:8081/categories
 ```
 
 ### 5. Test Unauthorized Access
-Try to access Vyaya without a token or with an invalid one.
+Try to access Squirrel without a token or with an invalid one.
 
 ```bash
 # No Token
@@ -130,12 +130,12 @@ curl -v -H "Authorization: Bearer invalid-token" http://localhost:8081/categorie
 ### Adding a New Go Service
 1.  **Update `go.mod`**:
     ```go
-    require dvarapala v0.0.0
-    replace dvarapala => ../dvarapala
+    require keeper v0.0.0
+    replace keeper => ../keeper
     ```
 2.  **Import Package**:
     ```go
-    import "dvarapala/pkg/auth"
+    import "keeper/pkg/auth"
     ```
 3.  **Initialize & Middleware**:
     ```go
@@ -153,7 +153,7 @@ curl -v -H "Authorization: Bearer invalid-token" http://localhost:8081/categorie
 
 ### Adding a Non-Go Service (e.g., Node.js)
 1.  **Install JWT Library**: `npm install jsonwebtoken`
-2.  **Configure Secret**: Set `JWT_SECRET` to match Dvarapala's secret.
+2.  **Configure Secret**: Set `JWT_SECRET` to match Keeper's secret.
 3.  **Middleware Example**:
     ```javascript
     const jwt = require('jsonwebtoken');

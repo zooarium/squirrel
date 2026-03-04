@@ -7,8 +7,8 @@ import (
 	"errors"
 	"fmt"
 	"time"
-	"vyaya/ent/category"
-	"vyaya/ent/transaction"
+	"squirrel/ent/category"
+	"squirrel/ent/transaction"
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"

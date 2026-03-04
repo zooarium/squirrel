@@ -1,4 +1,4 @@
-# Vyaya (personal expense tracker)
+# Squirrel (personal expense tracker)
 
 A microservice to manage personal expenses.
 
@@ -65,7 +65,7 @@ The application uses `viper` for configuration management. It supports multiple 
 | `ENVIRONMENT` | Deployment environment (`dev`, `production`) | `production` |
 | `SERVER_ADDR` | Internal network address the server binds to | `:8081` |
 | `SERVER_HOST` | Public-facing host/port for Swagger documentation | `localhost:8081` |
-| `DATABASE_PATH` | Path to the SQLite database file | `data/vyaya.db` |
+| `DATABASE_PATH` | Path to the SQLite database file | `data/squirrel.db` |
 | `LOG_DIR` | Directory where log files are stored | `log` |
 
 ### Running on a different Port/Host
@@ -223,13 +223,13 @@ make restart
 
 ## Database Persistence
 
-The SQLite database is stored at `/app/data/vyaya.db` inside the container. This path is persisted using a bind mount to the local `./data` directory in the project root.
+The SQLite database is stored at `/app/data/squirrel.db` inside the container. This path is persisted using a bind mount to the local `./data` directory in the project root.
 
-- **Host Path**: `./data/vyaya.db`
-- **Container Path**: `/app/data/vyaya.db`
+- **Host Path**: `./data/squirrel.db`
+- **Container Path**: `/app/data/squirrel.db`
 - **Environment Variables**:
   - `GO_ENV`: Environment name (e.g., `development`).
-  - `DB_PATH`: Overrides the database path (e.g., `/app/data/vyaya.db`).
+  - `DB_PATH`: Overrides the database path (e.g., `/app/data/squirrel.db`).
 
 The database initialization is fully aligned with the Ent migration setup. On every startup, the application verifies the schema against the generated Ent code and applies any necessary changes to the SQLite file, ensuring the physical database always matches your versioned migration files.
 
@@ -293,7 +293,7 @@ Logs are written to both **stdout** and to a file named `api.log` located in the
 ## Persistence
 
 The project uses Docker volumes to persist data and logs outside the container:
-- **Database**: Stored in `./data/vyaya.db`.
+- **Database**: Stored in `./data/squirrel.db`.
 - **Logs**: Stored in `./log/api.log`.
 
 ## TODO
