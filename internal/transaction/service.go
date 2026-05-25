@@ -15,6 +15,16 @@ var (
 	ErrTransactionNotFound = errors.New("transaction not found")
 )
 
+// Repository defines the data access contract for transactions.
+type Repository interface {
+	Create(ctx context.Context, t Transaction) (Transaction, error)
+	List(ctx context.Context, appID, userID int, filter TransactionFilter) ([]Transaction, error)
+	GetStats(ctx context.Context, appID, userID int, filter TransactionFilter) (TransactionStats, error)
+	GetByID(ctx context.Context, appID, userID, id int) (Transaction, error)
+	Update(ctx context.Context, appID, userID, id int, t Transaction) (Transaction, error)
+	Delete(ctx context.Context, appID, userID, id int) error
+}
+
 // Service defines the business logic for transactions.
 type Service interface {
 	Create(ctx context.Context, appID, userID int, req CreateTransactionRequest) (Transaction, error)
@@ -26,12 +36,12 @@ type Service interface {
 }
 
 type service struct {
-	repo     *Repository
+	repo     Repository
 	validate *validator.Validate
 }
 
 // NewService creates a new transaction service.
-func NewService(repo *Repository) Service {
+func NewService(repo Repository) Service {
 	return &service{
 		repo:     repo,
 		validate: validator.New(),

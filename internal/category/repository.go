@@ -7,18 +7,16 @@ import (
 	"squirrel/ent/category"
 )
 
-// Repository handles database operations for categories.
-type Repository struct {
+type categoryRepository struct {
 	client *ent.Client
 }
 
 // NewRepository creates a new category repository.
-func NewRepository(client *ent.Client) *Repository {
-	return &Repository{client: client}
+func NewRepository(client *ent.Client) *categoryRepository {
+	return &categoryRepository{client: client}
 }
 
-// Create creates a new category.
-func (r *Repository) Create(ctx context.Context, c Category) (Category, error) {
+func (r *categoryRepository) Create(ctx context.Context, c Category) (Category, error) {
 	entCat, err := r.client.Category.
 		Create().
 		SetAppID(c.AppID).
@@ -33,8 +31,7 @@ func (r *Repository) Create(ctx context.Context, c Category) (Category, error) {
 	return r.mapToModel(entCat), nil
 }
 
-// List returns all categories for an app with optional name filter.
-func (r *Repository) List(ctx context.Context, appID, userID int, name string) ([]Category, error) {
+func (r *categoryRepository) List(ctx context.Context, appID, userID int, name string) ([]Category, error) {
 	query := r.client.Category.
 		Query().
 		Where(category.AppID(appID))
@@ -57,8 +54,7 @@ func (r *Repository) List(ctx context.Context, appID, userID int, name string) (
 	return cats, nil
 }
 
-// GetByID returns a category by its ID and app ID.
-func (r *Repository) GetByID(ctx context.Context, appID, userID, id int) (Category, error) {
+func (r *categoryRepository) GetByID(ctx context.Context, appID, userID, id int) (Category, error) {
 	entCat, err := r.client.Category.
 		Query().
 		Where(category.ID(id), category.AppID(appID)).
@@ -73,9 +69,7 @@ func (r *Repository) GetByID(ctx context.Context, appID, userID, id int) (Catego
 	return r.mapToModel(entCat), nil
 }
 
-// Update updates a category.
-func (r *Repository) Update(ctx context.Context, appID, userID, id int, c Category) (Category, error) {
-	// Use Update() with predicate to ensure app ownership
+func (r *categoryRepository) Update(ctx context.Context, appID, userID, id int, c Category) (Category, error) {
 	count, err := r.client.Category.
 		Update().
 		Where(category.ID(id), category.AppID(appID)).
@@ -90,12 +84,10 @@ func (r *Repository) Update(ctx context.Context, appID, userID, id int, c Catego
 		return Category{}, ErrCategoryNotFound
 	}
 
-	// Fetch updated entity to return
 	return r.GetByID(ctx, appID, userID, id)
 }
 
-// Delete deletes a category.
-func (r *Repository) Delete(ctx context.Context, appID, userID, id int) error {
+func (r *categoryRepository) Delete(ctx context.Context, appID, userID, id int) error {
 	count, err := r.client.Category.
 		Delete().
 		Where(category.ID(id), category.AppID(appID)).
@@ -109,7 +101,7 @@ func (r *Repository) Delete(ctx context.Context, appID, userID, id int) error {
 	return nil
 }
 
-func (r *Repository) mapToModel(entCat *ent.Category) Category {
+func (r *categoryRepository) mapToModel(entCat *ent.Category) Category {
 	return Category{
 		ID:        entCat.ID,
 		AppID:     entCat.AppID,

@@ -10,18 +10,16 @@ import (
 	"squirrel/ent/transaction"
 )
 
-// Repository handles database operations for transactions.
-type Repository struct {
+type transactionRepository struct {
 	client *ent.Client
 }
 
 // NewRepository creates a new transaction repository.
-func NewRepository(client *ent.Client) *Repository {
-	return &Repository{client: client}
+func NewRepository(client *ent.Client) *transactionRepository {
+	return &transactionRepository{client: client}
 }
 
-// Create creates a new transaction.
-func (r *Repository) Create(ctx context.Context, t Transaction) (Transaction, error) {
+func (r *transactionRepository) Create(ctx context.Context, t Transaction) (Transaction, error) {
 	builder := r.client.Transaction.
 		Create().
 		SetAppID(t.AppID).
@@ -43,8 +41,7 @@ func (r *Repository) Create(ctx context.Context, t Transaction) (Transaction, er
 	return r.mapToModel(entTx), nil
 }
 
-// List returns all transactions for a user with optional filters.
-func (r *Repository) List(ctx context.Context, appID, userID int, filter TransactionFilter) ([]Transaction, error) {
+func (r *transactionRepository) List(ctx context.Context, appID, userID int, filter TransactionFilter) ([]Transaction, error) {
 	query := r.buildFilteredQuery(appID, userID, filter)
 
 	entTxs, err := query.
@@ -61,11 +58,9 @@ func (r *Repository) List(ctx context.Context, appID, userID int, filter Transac
 	return txs, nil
 }
 
-// GetStats returns transaction statistics based on the provided filters.
-func (r *Repository) GetStats(ctx context.Context, appID, userID int, filter TransactionFilter) (TransactionStats, error) {
+func (r *transactionRepository) GetStats(ctx context.Context, appID, userID int, filter TransactionFilter) (TransactionStats, error) {
 	stats := TransactionStats{}
 
-	// CategoryWiseAmountSum
 	var v []struct {
 		CategoryID *int    `json:"category_id"`
 		Sum        float64 `json:"sum"`
@@ -90,7 +85,6 @@ func (r *Repository) GetStats(ctx context.Context, appID, userID int, filter Tra
 		}
 	}
 
-	// Top 10 by amount
 	entTopTxs, err := r.buildFilteredQuery(appID, userID, filter).
 		Order(ent.Desc(transaction.FieldAmount)).
 		Limit(10).
@@ -104,7 +98,6 @@ func (r *Repository) GetStats(ctx context.Context, appID, userID int, filter Tra
 		stats.Top10ByAmount[i] = r.mapToModel(entTx)
 	}
 
-	// Sort CategoryWiseAmountSum for CategoryTop10ByAmountSum
 	top10 := make([]CategoryAmountSum, len(stats.CategoryWiseAmountSum))
 	copy(top10, stats.CategoryWiseAmountSum)
 
@@ -120,7 +113,7 @@ func (r *Repository) GetStats(ctx context.Context, appID, userID int, filter Tra
 	return stats, nil
 }
 
-func (r *Repository) buildFilteredQuery(appID, userID int, filter TransactionFilter) *ent.TransactionQuery {
+func (r *transactionRepository) buildFilteredQuery(appID, userID int, filter TransactionFilter) *ent.TransactionQuery {
 	query := r.client.Transaction.
 		Query().
 		Where(transaction.AppID(appID))
@@ -175,8 +168,7 @@ func (r *Repository) buildFilteredQuery(appID, userID int, filter TransactionFil
 	return query
 }
 
-// GetByID returns a transaction by its ID and app ID.
-func (r *Repository) GetByID(ctx context.Context, appID, userID, id int) (Transaction, error) {
+func (r *transactionRepository) GetByID(ctx context.Context, appID, userID, id int) (Transaction, error) {
 	entTx, err := r.client.Transaction.
 		Query().
 		Where(transaction.ID(id), transaction.AppID(appID)).
@@ -191,8 +183,7 @@ func (r *Repository) GetByID(ctx context.Context, appID, userID, id int) (Transa
 	return r.mapToModel(entTx), nil
 }
 
-// Update updates a transaction.
-func (r *Repository) Update(ctx context.Context, appID, userID, id int, t Transaction) (Transaction, error) {
+func (r *transactionRepository) Update(ctx context.Context, appID, userID, id int, t Transaction) (Transaction, error) {
 	builder := r.client.Transaction.
 		Update().
 		Where(transaction.ID(id), transaction.AppID(appID)).
@@ -218,8 +209,7 @@ func (r *Repository) Update(ctx context.Context, appID, userID, id int, t Transa
 	return r.GetByID(ctx, appID, userID, id)
 }
 
-// Delete deletes a transaction.
-func (r *Repository) Delete(ctx context.Context, appID, userID, id int) error {
+func (r *transactionRepository) Delete(ctx context.Context, appID, userID, id int) error {
 	count, err := r.client.Transaction.
 		Delete().
 		Where(transaction.ID(id), transaction.AppID(appID)).
@@ -233,7 +223,7 @@ func (r *Repository) Delete(ctx context.Context, appID, userID, id int) error {
 	return nil
 }
 
-func (r *Repository) mapToModel(entTx *ent.Transaction) Transaction {
+func (r *transactionRepository) mapToModel(entTx *ent.Transaction) Transaction {
 	return Transaction{
 		ID:         entTx.ID,
 		AppID:      entTx.AppID,

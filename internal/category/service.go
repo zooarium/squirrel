@@ -14,6 +14,15 @@ var (
 	ErrCategoryNotFound = errors.New("category not found")
 )
 
+// Repository defines the data access contract for categories.
+type Repository interface {
+	Create(ctx context.Context, c Category) (Category, error)
+	List(ctx context.Context, appID, userID int, name string) ([]Category, error)
+	GetByID(ctx context.Context, appID, userID, id int) (Category, error)
+	Update(ctx context.Context, appID, userID, id int, c Category) (Category, error)
+	Delete(ctx context.Context, appID, userID, id int) error
+}
+
 // Service defines the business logic for categories.
 type Service interface {
 	Create(ctx context.Context, appID, userID int, req CreateCategoryRequest) (Category, error)
@@ -24,12 +33,12 @@ type Service interface {
 }
 
 type service struct {
-	repo     *Repository
+	repo     Repository
 	validate *validator.Validate
 }
 
 // NewService creates a new category service.
-func NewService(repo *Repository) Service {
+func NewService(repo Repository) Service {
 	return &service{
 		repo:     repo,
 		validate: validator.New(),
