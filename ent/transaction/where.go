@@ -75,6 +75,11 @@ func UserID(v int) predicate.Transaction {
 	return predicate.Transaction(sql.FieldEQ(FieldUserID, v))
 }
 
+// DivisionID applies equality check predicate on the "division_id" field. It's identical to DivisionIDEQ.
+func DivisionID(v int) predicate.Transaction {
+	return predicate.Transaction(sql.FieldEQ(FieldDivisionID, v))
+}
+
 // Amount applies equality check predicate on the "amount" field. It's identical to AmountEQ.
 func Amount(v float64) predicate.Transaction {
 	return predicate.Transaction(sql.FieldEQ(FieldAmount, v))
@@ -253,6 +258,56 @@ func UserIDLT(v int) predicate.Transaction {
 // UserIDLTE applies the LTE predicate on the "user_id" field.
 func UserIDLTE(v int) predicate.Transaction {
 	return predicate.Transaction(sql.FieldLTE(FieldUserID, v))
+}
+
+// DivisionIDEQ applies the EQ predicate on the "division_id" field.
+func DivisionIDEQ(v int) predicate.Transaction {
+	return predicate.Transaction(sql.FieldEQ(FieldDivisionID, v))
+}
+
+// DivisionIDNEQ applies the NEQ predicate on the "division_id" field.
+func DivisionIDNEQ(v int) predicate.Transaction {
+	return predicate.Transaction(sql.FieldNEQ(FieldDivisionID, v))
+}
+
+// DivisionIDIn applies the In predicate on the "division_id" field.
+func DivisionIDIn(vs ...int) predicate.Transaction {
+	return predicate.Transaction(sql.FieldIn(FieldDivisionID, vs...))
+}
+
+// DivisionIDNotIn applies the NotIn predicate on the "division_id" field.
+func DivisionIDNotIn(vs ...int) predicate.Transaction {
+	return predicate.Transaction(sql.FieldNotIn(FieldDivisionID, vs...))
+}
+
+// DivisionIDGT applies the GT predicate on the "division_id" field.
+func DivisionIDGT(v int) predicate.Transaction {
+	return predicate.Transaction(sql.FieldGT(FieldDivisionID, v))
+}
+
+// DivisionIDGTE applies the GTE predicate on the "division_id" field.
+func DivisionIDGTE(v int) predicate.Transaction {
+	return predicate.Transaction(sql.FieldGTE(FieldDivisionID, v))
+}
+
+// DivisionIDLT applies the LT predicate on the "division_id" field.
+func DivisionIDLT(v int) predicate.Transaction {
+	return predicate.Transaction(sql.FieldLT(FieldDivisionID, v))
+}
+
+// DivisionIDLTE applies the LTE predicate on the "division_id" field.
+func DivisionIDLTE(v int) predicate.Transaction {
+	return predicate.Transaction(sql.FieldLTE(FieldDivisionID, v))
+}
+
+// DivisionIDIsNil applies the IsNil predicate on the "division_id" field.
+func DivisionIDIsNil() predicate.Transaction {
+	return predicate.Transaction(sql.FieldIsNull(FieldDivisionID))
+}
+
+// DivisionIDNotNil applies the NotNil predicate on the "division_id" field.
+func DivisionIDNotNil() predicate.Transaction {
+	return predicate.Transaction(sql.FieldNotNull(FieldDivisionID))
 }
 
 // AmountEQ applies the EQ predicate on the "amount" field.

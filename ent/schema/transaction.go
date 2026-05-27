@@ -34,6 +34,7 @@ func (Transaction) Fields() []ent.Field {
 	return []ent.Field{
 		field.Int("app_id"),
 		field.Int("user_id"),
+		field.Int("division_id").Optional().Nillable(),
 		field.Float("amount"),
 		field.Enum("type").
 			Values("income", "expense"),

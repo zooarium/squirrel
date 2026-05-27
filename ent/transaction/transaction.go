@@ -23,6 +23,8 @@ const (
 	FieldAppID = "app_id"
 	// FieldUserID holds the string denoting the user_id field in the database.
 	FieldUserID = "user_id"
+	// FieldDivisionID holds the string denoting the division_id field in the database.
+	FieldDivisionID = "division_id"
 	// FieldAmount holds the string denoting the amount field in the database.
 	FieldAmount = "amount"
 	// FieldType holds the string denoting the type field in the database.
@@ -53,6 +55,7 @@ var Columns = []string{
 	FieldUpdatedAt,
 	FieldAppID,
 	FieldUserID,
+	FieldDivisionID,
 	FieldAmount,
 	FieldType,
 	FieldCategoryID,
@@ -132,6 +135,11 @@ func ByAppID(opts ...sql.OrderTermOption) OrderOption {
 // ByUserID orders the results by the user_id field.
 func ByUserID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldUserID, opts...).ToFunc()
+}
+
+// ByDivisionID orders the results by the division_id field.
+func ByDivisionID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldDivisionID, opts...).ToFunc()
 }
 
 // ByAmount orders the results by the amount field.

@@ -77,6 +77,33 @@ func (_u *TransactionUpdate) AddUserID(v int) *TransactionUpdate {
 	return _u
 }
 
+// SetDivisionID sets the "division_id" field.
+func (_u *TransactionUpdate) SetDivisionID(v int) *TransactionUpdate {
+	_u.mutation.ResetDivisionID()
+	_u.mutation.SetDivisionID(v)
+	return _u
+}
+
+// SetNillableDivisionID sets the "division_id" field if the given value is not nil.
+func (_u *TransactionUpdate) SetNillableDivisionID(v *int) *TransactionUpdate {
+	if v != nil {
+		_u.SetDivisionID(*v)
+	}
+	return _u
+}
+
+// AddDivisionID adds value to the "division_id" field.
+func (_u *TransactionUpdate) AddDivisionID(v int) *TransactionUpdate {
+	_u.mutation.AddDivisionID(v)
+	return _u
+}
+
+// ClearDivisionID clears the value of the "division_id" field.
+func (_u *TransactionUpdate) ClearDivisionID() *TransactionUpdate {
+	_u.mutation.ClearDivisionID()
+	return _u
+}
+
 // SetAmount sets the "amount" field.
 func (_u *TransactionUpdate) SetAmount(v float64) *TransactionUpdate {
 	_u.mutation.ResetAmount()
@@ -256,6 +283,15 @@ func (_u *TransactionUpdate) sqlSave(ctx context.Context) (_node int, err error)
 	if value, ok := _u.mutation.AddedUserID(); ok {
 		_spec.AddField(transaction.FieldUserID, field.TypeInt, value)
 	}
+	if value, ok := _u.mutation.DivisionID(); ok {
+		_spec.SetField(transaction.FieldDivisionID, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.AddedDivisionID(); ok {
+		_spec.AddField(transaction.FieldDivisionID, field.TypeInt, value)
+	}
+	if _u.mutation.DivisionIDCleared() {
+		_spec.ClearField(transaction.FieldDivisionID, field.TypeInt)
+	}
 	if value, ok := _u.mutation.Amount(); ok {
 		_spec.SetField(transaction.FieldAmount, field.TypeFloat64, value)
 	}
@@ -368,6 +404,33 @@ func (_u *TransactionUpdateOne) SetNillableUserID(v *int) *TransactionUpdateOne 
 // AddUserID adds value to the "user_id" field.
 func (_u *TransactionUpdateOne) AddUserID(v int) *TransactionUpdateOne {
 	_u.mutation.AddUserID(v)
+	return _u
+}
+
+// SetDivisionID sets the "division_id" field.
+func (_u *TransactionUpdateOne) SetDivisionID(v int) *TransactionUpdateOne {
+	_u.mutation.ResetDivisionID()
+	_u.mutation.SetDivisionID(v)
+	return _u
+}
+
+// SetNillableDivisionID sets the "division_id" field if the given value is not nil.
+func (_u *TransactionUpdateOne) SetNillableDivisionID(v *int) *TransactionUpdateOne {
+	if v != nil {
+		_u.SetDivisionID(*v)
+	}
+	return _u
+}
+
+// AddDivisionID adds value to the "division_id" field.
+func (_u *TransactionUpdateOne) AddDivisionID(v int) *TransactionUpdateOne {
+	_u.mutation.AddDivisionID(v)
+	return _u
+}
+
+// ClearDivisionID clears the value of the "division_id" field.
+func (_u *TransactionUpdateOne) ClearDivisionID() *TransactionUpdateOne {
+	_u.mutation.ClearDivisionID()
 	return _u
 }
 
@@ -579,6 +642,15 @@ func (_u *TransactionUpdateOne) sqlSave(ctx context.Context) (_node *Transaction
 	}
 	if value, ok := _u.mutation.AddedUserID(); ok {
 		_spec.AddField(transaction.FieldUserID, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.DivisionID(); ok {
+		_spec.SetField(transaction.FieldDivisionID, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.AddedDivisionID(); ok {
+		_spec.AddField(transaction.FieldDivisionID, field.TypeInt, value)
+	}
+	if _u.mutation.DivisionIDCleared() {
+		_spec.ClearField(transaction.FieldDivisionID, field.TypeInt)
 	}
 	if value, ok := _u.mutation.Amount(); ok {
 		_spec.SetField(transaction.FieldAmount, field.TypeFloat64, value)

@@ -61,6 +61,20 @@ func (_c *CategoryCreate) SetUserID(v int) *CategoryCreate {
 	return _c
 }
 
+// SetDivisionID sets the "division_id" field.
+func (_c *CategoryCreate) SetDivisionID(v int) *CategoryCreate {
+	_c.mutation.SetDivisionID(v)
+	return _c
+}
+
+// SetNillableDivisionID sets the "division_id" field if the given value is not nil.
+func (_c *CategoryCreate) SetNillableDivisionID(v *int) *CategoryCreate {
+	if v != nil {
+		_c.SetDivisionID(*v)
+	}
+	return _c
+}
+
 // SetName sets the "name" field.
 func (_c *CategoryCreate) SetName(v string) *CategoryCreate {
 	_c.mutation.SetName(v)
@@ -211,6 +225,10 @@ func (_c *CategoryCreate) createSpec() (*Category, *sqlgraph.CreateSpec) {
 	if value, ok := _c.mutation.UserID(); ok {
 		_spec.SetField(category.FieldUserID, field.TypeInt, value)
 		_node.UserID = value
+	}
+	if value, ok := _c.mutation.DivisionID(); ok {
+		_spec.SetField(category.FieldDivisionID, field.TypeInt, value)
+		_node.DivisionID = &value
 	}
 	if value, ok := _c.mutation.Name(); ok {
 		_spec.SetField(category.FieldName, field.TypeString, value)

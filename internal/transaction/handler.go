@@ -79,7 +79,7 @@ func (h *Handler) Create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	tx, err := h.svc.Create(r.Context(), claims.AppID, claims.UserID, req)
+	tx, err := h.svc.Create(r.Context(), claims.AppID, claims.UserID, claims.DivisionID, req)
 	if err != nil {
 		render.Error(w, http.StatusInternalServerError, err.Error())
 		return

@@ -27,7 +27,7 @@ type Repository interface {
 
 // Service defines the business logic for transactions.
 type Service interface {
-	Create(ctx context.Context, appID, userID int, req CreateTransactionRequest) (Transaction, error)
+	Create(ctx context.Context, appID, userID, divisionID int, req CreateTransactionRequest) (Transaction, error)
 	List(ctx context.Context, appID, userID int, filter TransactionFilter) (TransactionListResponse, error)
 	Stats(ctx context.Context, appID, userID int, filter TransactionFilter) (TransactionStats, error)
 	GetByID(ctx context.Context, appID, userID, id int) (Transaction, error)
@@ -49,11 +49,7 @@ func NewService(repo Repository) Service {
 }
 
 // Create creates a new transaction.
-// ... (omitting Create implementation for brevity in the search/replace if possible, but I'll include it to be safe or just use multiple replaces)
-// Actually I'll just replace the interface first.
-
-// Create creates a new transaction.
-func (s *service) Create(ctx context.Context, appID, userID int, req CreateTransactionRequest) (Transaction, error) {
+func (s *service) Create(ctx context.Context, appID, userID, divisionID int, req CreateTransactionRequest) (Transaction, error) {
 	if err := s.validate.Struct(req); err != nil {
 		return Transaction{}, fmt.Errorf("validate request: %w", err)
 	}
@@ -61,6 +57,7 @@ func (s *service) Create(ctx context.Context, appID, userID int, req CreateTrans
 	tx := Transaction{
 		AppID:      appID,
 		UserID:     userID,
+		DivisionID: &divisionID,
 		Amount:     req.Amount,
 		Type:       req.Type,
 		CategoryID: req.CategoryID,
@@ -78,11 +75,11 @@ func (s *service) Create(ctx context.Context, appID, userID int, req CreateTrans
 
 	created, err := s.repo.Create(ctx, tx)
 	if err != nil {
-		slog.Error("failed to create transaction", "error", err, "app_id", appID, "user_id", userID)
+		slog.Error("failed to create transaction", "error", err, "app_id", appID, "user_id", userID, "division_id", divisionID)
 		return Transaction{}, err
 	}
 
-	slog.Info("transaction created", "id", created.ID, "app_id", appID, "user_id", created.UserID)
+	slog.Info("transaction created", "id", created.ID, "app_id", appID, "user_id", created.UserID, "division_id", divisionID)
 	return created, nil
 }
 

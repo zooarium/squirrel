@@ -41,6 +41,8 @@ type CategoryMutation struct {
 	addapp_id           *int
 	user_id             *int
 	adduser_id          *int
+	division_id         *int
+	adddivision_id      *int
 	name                *string
 	status              *int8
 	addstatus           *int8
@@ -335,6 +337,76 @@ func (m *CategoryMutation) ResetUserID() {
 	m.adduser_id = nil
 }
 
+// SetDivisionID sets the "division_id" field.
+func (m *CategoryMutation) SetDivisionID(i int) {
+	m.division_id = &i
+	m.adddivision_id = nil
+}
+
+// DivisionID returns the value of the "division_id" field in the mutation.
+func (m *CategoryMutation) DivisionID() (r int, exists bool) {
+	v := m.division_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldDivisionID returns the old "division_id" field's value of the Category entity.
+// If the Category object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *CategoryMutation) OldDivisionID(ctx context.Context) (v *int, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldDivisionID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldDivisionID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldDivisionID: %w", err)
+	}
+	return oldValue.DivisionID, nil
+}
+
+// AddDivisionID adds i to the "division_id" field.
+func (m *CategoryMutation) AddDivisionID(i int) {
+	if m.adddivision_id != nil {
+		*m.adddivision_id += i
+	} else {
+		m.adddivision_id = &i
+	}
+}
+
+// AddedDivisionID returns the value that was added to the "division_id" field in this mutation.
+func (m *CategoryMutation) AddedDivisionID() (r int, exists bool) {
+	v := m.adddivision_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ClearDivisionID clears the value of the "division_id" field.
+func (m *CategoryMutation) ClearDivisionID() {
+	m.division_id = nil
+	m.adddivision_id = nil
+	m.clearedFields[category.FieldDivisionID] = struct{}{}
+}
+
+// DivisionIDCleared returns if the "division_id" field was cleared in this mutation.
+func (m *CategoryMutation) DivisionIDCleared() bool {
+	_, ok := m.clearedFields[category.FieldDivisionID]
+	return ok
+}
+
+// ResetDivisionID resets all changes to the "division_id" field.
+func (m *CategoryMutation) ResetDivisionID() {
+	m.division_id = nil
+	m.adddivision_id = nil
+	delete(m.clearedFields, category.FieldDivisionID)
+}
+
 // SetName sets the "name" field.
 func (m *CategoryMutation) SetName(s string) {
 	m.name = &s
@@ -515,7 +587,7 @@ func (m *CategoryMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *CategoryMutation) Fields() []string {
-	fields := make([]string, 0, 6)
+	fields := make([]string, 0, 7)
 	if m.created_at != nil {
 		fields = append(fields, category.FieldCreatedAt)
 	}
@@ -527,6 +599,9 @@ func (m *CategoryMutation) Fields() []string {
 	}
 	if m.user_id != nil {
 		fields = append(fields, category.FieldUserID)
+	}
+	if m.division_id != nil {
+		fields = append(fields, category.FieldDivisionID)
 	}
 	if m.name != nil {
 		fields = append(fields, category.FieldName)
@@ -550,6 +625,8 @@ func (m *CategoryMutation) Field(name string) (ent.Value, bool) {
 		return m.AppID()
 	case category.FieldUserID:
 		return m.UserID()
+	case category.FieldDivisionID:
+		return m.DivisionID()
 	case category.FieldName:
 		return m.Name()
 	case category.FieldStatus:
@@ -571,6 +648,8 @@ func (m *CategoryMutation) OldField(ctx context.Context, name string) (ent.Value
 		return m.OldAppID(ctx)
 	case category.FieldUserID:
 		return m.OldUserID(ctx)
+	case category.FieldDivisionID:
+		return m.OldDivisionID(ctx)
 	case category.FieldName:
 		return m.OldName(ctx)
 	case category.FieldStatus:
@@ -612,6 +691,13 @@ func (m *CategoryMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetUserID(v)
 		return nil
+	case category.FieldDivisionID:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetDivisionID(v)
+		return nil
 	case category.FieldName:
 		v, ok := value.(string)
 		if !ok {
@@ -640,6 +726,9 @@ func (m *CategoryMutation) AddedFields() []string {
 	if m.adduser_id != nil {
 		fields = append(fields, category.FieldUserID)
 	}
+	if m.adddivision_id != nil {
+		fields = append(fields, category.FieldDivisionID)
+	}
 	if m.addstatus != nil {
 		fields = append(fields, category.FieldStatus)
 	}
@@ -655,6 +744,8 @@ func (m *CategoryMutation) AddedField(name string) (ent.Value, bool) {
 		return m.AddedAppID()
 	case category.FieldUserID:
 		return m.AddedUserID()
+	case category.FieldDivisionID:
+		return m.AddedDivisionID()
 	case category.FieldStatus:
 		return m.AddedStatus()
 	}
@@ -680,6 +771,13 @@ func (m *CategoryMutation) AddField(name string, value ent.Value) error {
 		}
 		m.AddUserID(v)
 		return nil
+	case category.FieldDivisionID:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddDivisionID(v)
+		return nil
 	case category.FieldStatus:
 		v, ok := value.(int8)
 		if !ok {
@@ -694,7 +792,11 @@ func (m *CategoryMutation) AddField(name string, value ent.Value) error {
 // ClearedFields returns all nullable fields that were cleared during this
 // mutation.
 func (m *CategoryMutation) ClearedFields() []string {
-	return nil
+	var fields []string
+	if m.FieldCleared(category.FieldDivisionID) {
+		fields = append(fields, category.FieldDivisionID)
+	}
+	return fields
 }
 
 // FieldCleared returns a boolean indicating if a field with the given name was
@@ -707,6 +809,11 @@ func (m *CategoryMutation) FieldCleared(name string) bool {
 // ClearField clears the value of the field with the given name. It returns an
 // error if the field is not defined in the schema.
 func (m *CategoryMutation) ClearField(name string) error {
+	switch name {
+	case category.FieldDivisionID:
+		m.ClearDivisionID()
+		return nil
+	}
 	return fmt.Errorf("unknown Category nullable field %s", name)
 }
 
@@ -725,6 +832,9 @@ func (m *CategoryMutation) ResetField(name string) error {
 		return nil
 	case category.FieldUserID:
 		m.ResetUserID()
+		return nil
+	case category.FieldDivisionID:
+		m.ResetDivisionID()
 		return nil
 	case category.FieldName:
 		m.ResetName()
@@ -832,6 +942,8 @@ type TransactionMutation struct {
 	addapp_id       *int
 	user_id         *int
 	adduser_id      *int
+	division_id     *int
+	adddivision_id  *int
 	amount          *float64
 	addamount       *float64
 	_type           *transaction.Type
@@ -1128,6 +1240,76 @@ func (m *TransactionMutation) ResetUserID() {
 	m.adduser_id = nil
 }
 
+// SetDivisionID sets the "division_id" field.
+func (m *TransactionMutation) SetDivisionID(i int) {
+	m.division_id = &i
+	m.adddivision_id = nil
+}
+
+// DivisionID returns the value of the "division_id" field in the mutation.
+func (m *TransactionMutation) DivisionID() (r int, exists bool) {
+	v := m.division_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldDivisionID returns the old "division_id" field's value of the Transaction entity.
+// If the Transaction object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *TransactionMutation) OldDivisionID(ctx context.Context) (v *int, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldDivisionID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldDivisionID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldDivisionID: %w", err)
+	}
+	return oldValue.DivisionID, nil
+}
+
+// AddDivisionID adds i to the "division_id" field.
+func (m *TransactionMutation) AddDivisionID(i int) {
+	if m.adddivision_id != nil {
+		*m.adddivision_id += i
+	} else {
+		m.adddivision_id = &i
+	}
+}
+
+// AddedDivisionID returns the value that was added to the "division_id" field in this mutation.
+func (m *TransactionMutation) AddedDivisionID() (r int, exists bool) {
+	v := m.adddivision_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ClearDivisionID clears the value of the "division_id" field.
+func (m *TransactionMutation) ClearDivisionID() {
+	m.division_id = nil
+	m.adddivision_id = nil
+	m.clearedFields[transaction.FieldDivisionID] = struct{}{}
+}
+
+// DivisionIDCleared returns if the "division_id" field was cleared in this mutation.
+func (m *TransactionMutation) DivisionIDCleared() bool {
+	_, ok := m.clearedFields[transaction.FieldDivisionID]
+	return ok
+}
+
+// ResetDivisionID resets all changes to the "division_id" field.
+func (m *TransactionMutation) ResetDivisionID() {
+	m.division_id = nil
+	m.adddivision_id = nil
+	delete(m.clearedFields, transaction.FieldDivisionID)
+}
+
 // SetAmount sets the "amount" field.
 func (m *TransactionMutation) SetAmount(f float64) {
 	m.amount = &f
@@ -1422,7 +1604,7 @@ func (m *TransactionMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *TransactionMutation) Fields() []string {
-	fields := make([]string, 0, 9)
+	fields := make([]string, 0, 10)
 	if m.created_at != nil {
 		fields = append(fields, transaction.FieldCreatedAt)
 	}
@@ -1434,6 +1616,9 @@ func (m *TransactionMutation) Fields() []string {
 	}
 	if m.user_id != nil {
 		fields = append(fields, transaction.FieldUserID)
+	}
+	if m.division_id != nil {
+		fields = append(fields, transaction.FieldDivisionID)
 	}
 	if m.amount != nil {
 		fields = append(fields, transaction.FieldAmount)
@@ -1466,6 +1651,8 @@ func (m *TransactionMutation) Field(name string) (ent.Value, bool) {
 		return m.AppID()
 	case transaction.FieldUserID:
 		return m.UserID()
+	case transaction.FieldDivisionID:
+		return m.DivisionID()
 	case transaction.FieldAmount:
 		return m.Amount()
 	case transaction.FieldType:
@@ -1493,6 +1680,8 @@ func (m *TransactionMutation) OldField(ctx context.Context, name string) (ent.Va
 		return m.OldAppID(ctx)
 	case transaction.FieldUserID:
 		return m.OldUserID(ctx)
+	case transaction.FieldDivisionID:
+		return m.OldDivisionID(ctx)
 	case transaction.FieldAmount:
 		return m.OldAmount(ctx)
 	case transaction.FieldType:
@@ -1539,6 +1728,13 @@ func (m *TransactionMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetUserID(v)
+		return nil
+	case transaction.FieldDivisionID:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetDivisionID(v)
 		return nil
 	case transaction.FieldAmount:
 		v, ok := value.(float64)
@@ -1589,6 +1785,9 @@ func (m *TransactionMutation) AddedFields() []string {
 	if m.adduser_id != nil {
 		fields = append(fields, transaction.FieldUserID)
 	}
+	if m.adddivision_id != nil {
+		fields = append(fields, transaction.FieldDivisionID)
+	}
 	if m.addamount != nil {
 		fields = append(fields, transaction.FieldAmount)
 	}
@@ -1607,6 +1806,8 @@ func (m *TransactionMutation) AddedField(name string) (ent.Value, bool) {
 		return m.AddedAppID()
 	case transaction.FieldUserID:
 		return m.AddedUserID()
+	case transaction.FieldDivisionID:
+		return m.AddedDivisionID()
 	case transaction.FieldAmount:
 		return m.AddedAmount()
 	case transaction.FieldRecurring:
@@ -1634,6 +1835,13 @@ func (m *TransactionMutation) AddField(name string, value ent.Value) error {
 		}
 		m.AddUserID(v)
 		return nil
+	case transaction.FieldDivisionID:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddDivisionID(v)
+		return nil
 	case transaction.FieldAmount:
 		v, ok := value.(float64)
 		if !ok {
@@ -1656,6 +1864,9 @@ func (m *TransactionMutation) AddField(name string, value ent.Value) error {
 // mutation.
 func (m *TransactionMutation) ClearedFields() []string {
 	var fields []string
+	if m.FieldCleared(transaction.FieldDivisionID) {
+		fields = append(fields, transaction.FieldDivisionID)
+	}
 	if m.FieldCleared(transaction.FieldCategoryID) {
 		fields = append(fields, transaction.FieldCategoryID)
 	}
@@ -1673,6 +1884,9 @@ func (m *TransactionMutation) FieldCleared(name string) bool {
 // error if the field is not defined in the schema.
 func (m *TransactionMutation) ClearField(name string) error {
 	switch name {
+	case transaction.FieldDivisionID:
+		m.ClearDivisionID()
+		return nil
 	case transaction.FieldCategoryID:
 		m.ClearCategoryID()
 		return nil
@@ -1695,6 +1909,9 @@ func (m *TransactionMutation) ResetField(name string) error {
 		return nil
 	case transaction.FieldUserID:
 		m.ResetUserID()
+		return nil
+	case transaction.FieldDivisionID:
+		m.ResetDivisionID()
 		return nil
 	case transaction.FieldAmount:
 		m.ResetAmount()

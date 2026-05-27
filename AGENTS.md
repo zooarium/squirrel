@@ -44,7 +44,8 @@ Squirrel is a microservice for expense management, providing RESTful APIs for ca
 │       └── sqlite.go       # SQLite client initialization
 ├── ent/                    # Ent ORM generated code & schema
 │   └── schema/
-│       └── category.go     # Category database schema definition
+│       ├── category.go     # Category database schema definition
+│       └── division.go     # Division database schema definition
 ├── pkg/                    # Shared packages
 │   └── config/             # Configuration loader (viper)
 ├── data/                   # SQLite database file (persisted via volume)
@@ -131,40 +132,46 @@ To ensure codebase health and consistency, the following steps **must** be compl
 ## Database Schema
 
 ### sqrl_category Table
-| Field      | Type      | Description                          |
-|------------|-----------|--------------------------------------|
-| ID         | int       | Primary Key (Auto-increment)         |
-| AppID      | int       | Application ID                       |
-| UserID     | int       | Owner user ID                        |
-| Name       | string    | Category name                        |
-| Status     | int8      | Status (1: Active, 0: Inactive)      |
-| CreatedAt  | datetime  | Creation timestamp                   |
-| UpdatedAt  | datetime  | Last update timestamp                |
+
+`division_id` is sourced automatically from JWT claims (same pattern as `app_id`). No division entity exists in squirrel — division management is owned by keeper.
+
+| Field      | Type      | Description                                       |
+|------------|-----------|---------------------------------------------------|
+| ID         | int       | Primary Key (Auto-increment)                      |
+| AppID      | int       | Application ID (from JWT claims)                  |
+| UserID     | int       | Owner user ID (from JWT claims)                   |
+| DivisionID | int       | Division ID (from JWT claims, nullable)            |
+| Name       | string    | Category name                                     |
+| Status     | int8      | Status (1: Active, 0: Inactive)                   |
+| CreatedAt  | datetime  | Creation timestamp                                |
+| UpdatedAt  | datetime  | Last update timestamp                             |
 
 ### sqrl_transaction Table
-| Field      | Type      | Description                          |
-|------------|-----------|--------------------------------------|
-| ID         | int       | Primary Key (Auto-increment)         |
-| AppID      | int       | Application ID                       |
-| UserID     | int       | Owner user ID                        |
-| Amount     | float     | Transaction amount                   |
-| Type       | enum      | Type (income, expense)               |
-| CategoryID | int       | Foreign Key to Category (Optional)   |
-| Recurring  | int8      | Recurring status (1: Yes, 0: No)     |
-| CreatedAt  | datetime  | Creation timestamp                   |
-| UpdatedAt  | datetime  | Last update timestamp                |
+| Field      | Type      | Description                                     |
+|------------|-----------|-------------------------------------------------|
+| ID         | int       | Primary Key (Auto-increment)                    |
+| AppID      | int       | Application ID (from JWT claims)                |
+| UserID     | int       | Owner user ID (from JWT claims)                 |
+| DivisionID | int       | Division ID (from JWT claims, nullable)          |
+| Amount     | float     | Transaction amount                              |
+| Type       | enum      | Type (income, expense)                          |
+| CategoryID | int       | Foreign Key to Category (Optional)              |
+| Recurring  | int8      | Recurring status (1: Yes, 0: No)                |
+| Dated      | datetime  | Transaction date                                |
+| CreatedAt  | datetime  | Creation timestamp                              |
+| UpdatedAt  | datetime  | Last update timestamp                           |
 
 ## API Endpoints
 - `GET /health`: Check service health.
-- `POST /categories`: Create a new category.
-- `GET /categories`: List all categories.
+- `POST /categories`: Create a new category (division_id auto-set from JWT claims).
+- `GET /categories`: List all categories (query: `name`, `division_id`).
 - `GET /categories/{id}`: Get category by ID.
-- `POST /categories/{id}`: Update category by ID.
+- `PUT /categories/{id}`: Update category by ID.
 - `DELETE /categories/{id}`: Delete category by ID.
 - `POST /transactions`: Create a new transaction.
 - `GET /transactions`: List all transactions.
 - `GET /transactions/{id}`: Get transaction by ID.
-- `POST /transactions/{id}`: Update transaction by ID.
+- `PUT /transactions/{id}`: Update transaction by ID.
 - `DELETE /transactions/{id}`: Delete transaction by ID.
 - `GET /swagger/*`: Swagger UI.
 

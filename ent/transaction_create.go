@@ -61,6 +61,20 @@ func (_c *TransactionCreate) SetUserID(v int) *TransactionCreate {
 	return _c
 }
 
+// SetDivisionID sets the "division_id" field.
+func (_c *TransactionCreate) SetDivisionID(v int) *TransactionCreate {
+	_c.mutation.SetDivisionID(v)
+	return _c
+}
+
+// SetNillableDivisionID sets the "division_id" field if the given value is not nil.
+func (_c *TransactionCreate) SetNillableDivisionID(v *int) *TransactionCreate {
+	if v != nil {
+		_c.SetDivisionID(*v)
+	}
+	return _c
+}
+
 // SetAmount sets the "amount" field.
 func (_c *TransactionCreate) SetAmount(v float64) *TransactionCreate {
 	_c.mutation.SetAmount(v)
@@ -245,6 +259,10 @@ func (_c *TransactionCreate) createSpec() (*Transaction, *sqlgraph.CreateSpec) {
 	if value, ok := _c.mutation.UserID(); ok {
 		_spec.SetField(transaction.FieldUserID, field.TypeInt, value)
 		_node.UserID = value
+	}
+	if value, ok := _c.mutation.DivisionID(); ok {
+		_spec.SetField(transaction.FieldDivisionID, field.TypeInt, value)
+		_node.DivisionID = &value
 	}
 	if value, ok := _c.mutation.Amount(); ok {
 		_spec.SetField(transaction.FieldAmount, field.TypeFloat64, value)

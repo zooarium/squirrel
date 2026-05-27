@@ -6,6 +6,8 @@ definitions:
         type: integer
       created_at:
         type: string
+      division_id:
+        type: integer
       id:
         type: integer
       name:
@@ -81,6 +83,8 @@ definitions:
         type: string
       dated:
         type: string
+      division_id:
+        type: integer
       id:
         type: integer
       recurring:
@@ -159,6 +163,10 @@ paths:
         in: query
         name: name
         type: string
+      - description: Filter by division ID
+        in: query
+        name: division_id
+        type: integer
       produces:
       - application/json
       responses:

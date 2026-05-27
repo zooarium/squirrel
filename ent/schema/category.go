@@ -51,6 +51,7 @@ func (Category) Fields() []ent.Field {
 	return []ent.Field{
 		field.Int("app_id"),
 		field.Int("user_id"),
+		field.Int("division_id").Optional().Nillable(),
 		field.String("name").
 			NotEmpty(),
 		field.Int8("status").

@@ -29,11 +29,11 @@ func init() {
 	// category.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
 	category.UpdateDefaultUpdatedAt = categoryDescUpdatedAt.UpdateDefault.(func() time.Time)
 	// categoryDescName is the schema descriptor for name field.
-	categoryDescName := categoryFields[2].Descriptor()
+	categoryDescName := categoryFields[3].Descriptor()
 	// category.NameValidator is a validator for the "name" field. It is called by the builders before save.
 	category.NameValidator = categoryDescName.Validators[0].(func(string) error)
 	// categoryDescStatus is the schema descriptor for status field.
-	categoryDescStatus := categoryFields[3].Descriptor()
+	categoryDescStatus := categoryFields[4].Descriptor()
 	// category.DefaultStatus holds the default value on creation for the status field.
 	category.DefaultStatus = categoryDescStatus.Default.(int8)
 	transactionMixin := schema.Transaction{}.Mixin()
@@ -52,11 +52,11 @@ func init() {
 	// transaction.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
 	transaction.UpdateDefaultUpdatedAt = transactionDescUpdatedAt.UpdateDefault.(func() time.Time)
 	// transactionDescRecurring is the schema descriptor for recurring field.
-	transactionDescRecurring := transactionFields[5].Descriptor()
+	transactionDescRecurring := transactionFields[6].Descriptor()
 	// transaction.DefaultRecurring holds the default value on creation for the recurring field.
 	transaction.DefaultRecurring = transactionDescRecurring.Default.(int8)
 	// transactionDescDated is the schema descriptor for dated field.
-	transactionDescDated := transactionFields[6].Descriptor()
+	transactionDescDated := transactionFields[7].Descriptor()
 	// transaction.DefaultDated holds the default value on creation for the dated field.
 	transaction.DefaultDated = transactionDescDated.Default.(func() time.Time)
 }

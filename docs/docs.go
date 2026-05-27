@@ -36,6 +36,12 @@ const docTemplate = `{
                         "description": "Filter by category name (wildcard)",
                         "name": "name",
                         "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Filter by division ID",
+                        "name": "division_id",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -817,6 +823,9 @@ const docTemplate = `{
                 "created_at": {
                     "type": "string"
                 },
+                "division_id": {
+                    "type": "integer"
+                },
                 "id": {
                     "type": "integer"
                 },
@@ -926,6 +935,9 @@ const docTemplate = `{
                 },
                 "dated": {
                     "type": "string"
+                },
+                "division_id": {
+                    "type": "integer"
                 },
                 "id": {
                     "type": "integer"

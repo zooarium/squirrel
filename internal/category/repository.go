@@ -3,6 +3,7 @@ package category
 import (
 	"context"
 	"fmt"
+
 	"squirrel/ent"
 	"squirrel/ent/category"
 )
@@ -17,13 +18,18 @@ func NewRepository(client *ent.Client) *categoryRepository {
 }
 
 func (r *categoryRepository) Create(ctx context.Context, c Category) (Category, error) {
-	entCat, err := r.client.Category.
+	builder := r.client.Category.
 		Create().
 		SetAppID(c.AppID).
 		SetUserID(c.UserID).
 		SetName(c.Name).
-		SetStatus(c.Status).
-		Save(ctx)
+		SetStatus(c.Status)
+
+	if c.DivisionID != nil {
+		builder = builder.SetDivisionID(*c.DivisionID)
+	}
+
+	entCat, err := builder.Save(ctx)
 	if err != nil {
 		return Category{}, fmt.Errorf("create category: %w", err)
 	}
@@ -31,10 +37,14 @@ func (r *categoryRepository) Create(ctx context.Context, c Category) (Category, 
 	return r.mapToModel(entCat), nil
 }
 
-func (r *categoryRepository) List(ctx context.Context, appID, userID int, name string) ([]Category, error) {
+func (r *categoryRepository) List(ctx context.Context, appID int, divisionID *int, name string) ([]Category, error) {
 	query := r.client.Category.
 		Query().
 		Where(category.AppID(appID))
+
+	if divisionID != nil {
+		query = query.Where(category.DivisionID(*divisionID))
+	}
 
 	if name != "" {
 		query = query.Where(category.NameContains(name))
@@ -54,7 +64,7 @@ func (r *categoryRepository) List(ctx context.Context, appID, userID int, name s
 	return cats, nil
 }
 
-func (r *categoryRepository) GetByID(ctx context.Context, appID, userID, id int) (Category, error) {
+func (r *categoryRepository) GetByID(ctx context.Context, appID, id int) (Category, error) {
 	entCat, err := r.client.Category.
 		Query().
 		Where(category.ID(id), category.AppID(appID)).
@@ -69,7 +79,7 @@ func (r *categoryRepository) GetByID(ctx context.Context, appID, userID, id int)
 	return r.mapToModel(entCat), nil
 }
 
-func (r *categoryRepository) Update(ctx context.Context, appID, userID, id int, c Category) (Category, error) {
+func (r *categoryRepository) Update(ctx context.Context, appID, id int, c Category) (Category, error) {
 	count, err := r.client.Category.
 		Update().
 		Where(category.ID(id), category.AppID(appID)).
@@ -84,10 +94,10 @@ func (r *categoryRepository) Update(ctx context.Context, appID, userID, id int, 
 		return Category{}, ErrCategoryNotFound
 	}
 
-	return r.GetByID(ctx, appID, userID, id)
+	return r.GetByID(ctx, appID, id)
 }
 
-func (r *categoryRepository) Delete(ctx context.Context, appID, userID, id int) error {
+func (r *categoryRepository) Delete(ctx context.Context, appID, id int) error {
 	count, err := r.client.Category.
 		Delete().
 		Where(category.ID(id), category.AppID(appID)).
@@ -103,12 +113,13 @@ func (r *categoryRepository) Delete(ctx context.Context, appID, userID, id int) 
 
 func (r *categoryRepository) mapToModel(entCat *ent.Category) Category {
 	return Category{
-		ID:        entCat.ID,
-		AppID:     entCat.AppID,
-		UserID:    entCat.UserID,
-		Name:      entCat.Name,
-		Status:    entCat.Status,
-		CreatedAt: entCat.CreatedAt,
-		UpdatedAt: entCat.UpdatedAt,
+		ID:         entCat.ID,
+		AppID:      entCat.AppID,
+		UserID:     entCat.UserID,
+		DivisionID: entCat.DivisionID,
+		Name:       entCat.Name,
+		Status:     entCat.Status,
+		CreatedAt:  entCat.CreatedAt,
+		UpdatedAt:  entCat.UpdatedAt,
 	}
 }

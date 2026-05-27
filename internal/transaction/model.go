@@ -9,6 +9,7 @@ type Transaction struct {
 	ID         int       `json:"id"`
 	AppID      int       `json:"app_id"`
 	UserID     int       `json:"user_id"`
+	DivisionID *int      `json:"division_id"`
 	Amount     float64   `json:"amount"`
 	Type       string    `json:"type"` // income, expense
 	CategoryID *int      `json:"category_id,omitempty"`

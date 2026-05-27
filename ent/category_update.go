@@ -77,6 +77,33 @@ func (_u *CategoryUpdate) AddUserID(v int) *CategoryUpdate {
 	return _u
 }
 
+// SetDivisionID sets the "division_id" field.
+func (_u *CategoryUpdate) SetDivisionID(v int) *CategoryUpdate {
+	_u.mutation.ResetDivisionID()
+	_u.mutation.SetDivisionID(v)
+	return _u
+}
+
+// SetNillableDivisionID sets the "division_id" field if the given value is not nil.
+func (_u *CategoryUpdate) SetNillableDivisionID(v *int) *CategoryUpdate {
+	if v != nil {
+		_u.SetDivisionID(*v)
+	}
+	return _u
+}
+
+// AddDivisionID adds value to the "division_id" field.
+func (_u *CategoryUpdate) AddDivisionID(v int) *CategoryUpdate {
+	_u.mutation.AddDivisionID(v)
+	return _u
+}
+
+// ClearDivisionID clears the value of the "division_id" field.
+func (_u *CategoryUpdate) ClearDivisionID() *CategoryUpdate {
+	_u.mutation.ClearDivisionID()
+	return _u
+}
+
 // SetName sets the "name" field.
 func (_u *CategoryUpdate) SetName(v string) *CategoryUpdate {
 	_u.mutation.SetName(v)
@@ -226,6 +253,15 @@ func (_u *CategoryUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	if value, ok := _u.mutation.AddedUserID(); ok {
 		_spec.AddField(category.FieldUserID, field.TypeInt, value)
 	}
+	if value, ok := _u.mutation.DivisionID(); ok {
+		_spec.SetField(category.FieldDivisionID, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.AddedDivisionID(); ok {
+		_spec.AddField(category.FieldDivisionID, field.TypeInt, value)
+	}
+	if _u.mutation.DivisionIDCleared() {
+		_spec.ClearField(category.FieldDivisionID, field.TypeInt)
+	}
 	if value, ok := _u.mutation.Name(); ok {
 		_spec.SetField(category.FieldName, field.TypeString, value)
 	}
@@ -345,6 +381,33 @@ func (_u *CategoryUpdateOne) SetNillableUserID(v *int) *CategoryUpdateOne {
 // AddUserID adds value to the "user_id" field.
 func (_u *CategoryUpdateOne) AddUserID(v int) *CategoryUpdateOne {
 	_u.mutation.AddUserID(v)
+	return _u
+}
+
+// SetDivisionID sets the "division_id" field.
+func (_u *CategoryUpdateOne) SetDivisionID(v int) *CategoryUpdateOne {
+	_u.mutation.ResetDivisionID()
+	_u.mutation.SetDivisionID(v)
+	return _u
+}
+
+// SetNillableDivisionID sets the "division_id" field if the given value is not nil.
+func (_u *CategoryUpdateOne) SetNillableDivisionID(v *int) *CategoryUpdateOne {
+	if v != nil {
+		_u.SetDivisionID(*v)
+	}
+	return _u
+}
+
+// AddDivisionID adds value to the "division_id" field.
+func (_u *CategoryUpdateOne) AddDivisionID(v int) *CategoryUpdateOne {
+	_u.mutation.AddDivisionID(v)
+	return _u
+}
+
+// ClearDivisionID clears the value of the "division_id" field.
+func (_u *CategoryUpdateOne) ClearDivisionID() *CategoryUpdateOne {
+	_u.mutation.ClearDivisionID()
 	return _u
 }
 
@@ -526,6 +589,15 @@ func (_u *CategoryUpdateOne) sqlSave(ctx context.Context) (_node *Category, err 
 	}
 	if value, ok := _u.mutation.AddedUserID(); ok {
 		_spec.AddField(category.FieldUserID, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.DivisionID(); ok {
+		_spec.SetField(category.FieldDivisionID, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.AddedDivisionID(); ok {
+		_spec.AddField(category.FieldDivisionID, field.TypeInt, value)
+	}
+	if _u.mutation.DivisionIDCleared() {
+		_spec.ClearField(category.FieldDivisionID, field.TypeInt)
 	}
 	if value, ok := _u.mutation.Name(); ok {
 		_spec.SetField(category.FieldName, field.TypeString, value)

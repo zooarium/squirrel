@@ -16,6 +16,7 @@ var (
 		{Name: "updated_at", Type: field.TypeTime},
 		{Name: "app_id", Type: field.TypeInt},
 		{Name: "user_id", Type: field.TypeInt},
+		{Name: "division_id", Type: field.TypeInt, Nullable: true},
 		{Name: "name", Type: field.TypeString},
 		{Name: "status", Type: field.TypeInt8, Default: 1},
 	}
@@ -32,6 +33,7 @@ var (
 		{Name: "updated_at", Type: field.TypeTime},
 		{Name: "app_id", Type: field.TypeInt},
 		{Name: "user_id", Type: field.TypeInt},
+		{Name: "division_id", Type: field.TypeInt, Nullable: true},
 		{Name: "amount", Type: field.TypeFloat64},
 		{Name: "type", Type: field.TypeEnum, Enums: []string{"income", "expense"}},
 		{Name: "recurring", Type: field.TypeInt8, Default: 0},
@@ -46,7 +48,7 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "sqrl_transaction_sqrl_category_transactions",
-				Columns:    []*schema.Column{SqrlTransactionColumns[9]},
+				Columns:    []*schema.Column{SqrlTransactionColumns[10]},
 				RefColumns: []*schema.Column{SqrlCategoryColumns[0]},
 				OnDelete:   schema.SetNull,
 			},

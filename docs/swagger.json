@@ -30,6 +30,12 @@
                         "description": "Filter by category name (wildcard)",
                         "name": "name",
                         "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Filter by division ID",
+                        "name": "division_id",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -811,6 +817,9 @@
                 "created_at": {
                     "type": "string"
                 },
+                "division_id": {
+                    "type": "integer"
+                },
                 "id": {
                     "type": "integer"
                 },
@@ -920,6 +929,9 @@
                 },
                 "dated": {
                     "type": "string"
+                },
+                "division_id": {
+                    "type": "integer"
                 },
                 "id": {
                     "type": "integer"

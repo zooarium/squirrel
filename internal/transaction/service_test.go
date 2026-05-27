@@ -33,7 +33,7 @@ func TestTransactionService(t *testing.T) {
 			CategoryID: &cat.ID,
 			Recurring:  &recurring,
 		}
-		tx, err := svc.Create(ctx, 1, 1, req)
+		tx, err := svc.Create(ctx, 1, 1, 1, req)
 		assert.NoError(t, err)
 		assert.Equal(t, 100.50, tx.Amount)
 		assert.Equal(t, "expense", tx.Type)
@@ -90,7 +90,7 @@ func TestTransactionService(t *testing.T) {
 			Amount: 50.0,
 			Type:   "expense",
 		}
-		_, err := svc.Create(ctx, 1, 1, req)
+		_, err := svc.Create(ctx, 1, 1, 1, req)
 		assert.NoError(t, err)
 
 		// Stats should only show the expense (50.0), not the income (200.75)
@@ -109,7 +109,7 @@ func TestTransactionService(t *testing.T) {
 	t.Run("Multi-user and Multi-app Isolation", func(t *testing.T) {
 		// App 1, User 1 creates a transaction
 		req1 := CreateTransactionRequest{Amount: 50.0, Type: "expense"}
-		tx1, err := svc.Create(ctx, 1, 1, req1)
+		tx1, err := svc.Create(ctx, 1, 1, 1, req1)
 		assert.NoError(t, err)
 
 		// App 1, User 2 should be able to see App 1, User 1's transaction

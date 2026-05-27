@@ -77,7 +77,7 @@ func (h *Handler) Create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	cat, err := h.svc.Create(r.Context(), claims.AppID, claims.UserID, req)
+	cat, err := h.svc.Create(r.Context(), claims.AppID, claims.UserID, claims.DivisionID, req)
 	if err != nil {
 		render.Error(w, http.StatusInternalServerError, err.Error())
 		return
@@ -92,6 +92,7 @@ func (h *Handler) Create(w http.ResponseWriter, r *http.Request) {
 // @Tags categories
 // @Produce json
 // @Param name query string false "Filter by category name (wildcard)"
+// @Param division_id query int false "Filter by division ID"
 // @Success 200 {object} render.Response{data=[]Category}
 // @Failure 401 {object} render.Response
 // @Failure 500 {object} render.Response
@@ -106,7 +107,17 @@ func (h *Handler) List(w http.ResponseWriter, r *http.Request) {
 
 	name := r.URL.Query().Get("name")
 
-	cats, err := h.svc.List(r.Context(), claims.AppID, claims.UserID, name)
+	var divisionID *int
+	if didStr := r.URL.Query().Get("division_id"); didStr != "" {
+		did, err := strconv.Atoi(didStr)
+		if err != nil {
+			render.Error(w, http.StatusBadRequest, "invalid division_id")
+			return
+		}
+		divisionID = &did
+	}
+
+	cats, err := h.svc.List(r.Context(), claims.AppID, divisionID, name)
 	if err != nil {
 		render.Error(w, http.StatusInternalServerError, err.Error())
 		return
@@ -141,7 +152,7 @@ func (h *Handler) GetByID(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	cat, err := h.svc.GetByID(r.Context(), claims.AppID, claims.UserID, id)
+	cat, err := h.svc.GetByID(r.Context(), claims.AppID, id)
 	if err != nil {
 		if errors.Is(err, ErrCategoryNotFound) {
 			render.Error(w, http.StatusNotFound, "category not found")
@@ -188,7 +199,7 @@ func (h *Handler) Update(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	cat, err := h.svc.Update(r.Context(), claims.AppID, claims.UserID, id, req)
+	cat, err := h.svc.Update(r.Context(), claims.AppID, id, req)
 	if err != nil {
 		if errors.Is(err, ErrCategoryNotFound) {
 			render.Error(w, http.StatusNotFound, "category not found")
@@ -227,7 +238,7 @@ func (h *Handler) Delete(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = h.svc.Delete(r.Context(), claims.AppID, claims.UserID, id)
+	err = h.svc.Delete(r.Context(), claims.AppID, id)
 	if err != nil {
 		if errors.Is(err, ErrCategoryNotFound) {
 			render.Error(w, http.StatusNotFound, "category not found")

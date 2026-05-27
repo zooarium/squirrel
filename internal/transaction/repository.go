@@ -29,8 +29,12 @@ func (r *transactionRepository) Create(ctx context.Context, t Transaction) (Tran
 		SetRecurring(t.Recurring).
 		SetDated(t.Dated)
 
+	if t.DivisionID != nil {
+		builder = builder.SetDivisionID(*t.DivisionID)
+	}
+
 	if t.CategoryID != nil {
-		builder.SetCategoryID(*t.CategoryID)
+		builder = builder.SetCategoryID(*t.CategoryID)
 	}
 
 	entTx, err := builder.Save(ctx)
@@ -228,6 +232,7 @@ func (r *transactionRepository) mapToModel(entTx *ent.Transaction) Transaction {
 		ID:         entTx.ID,
 		AppID:      entTx.AppID,
 		UserID:     entTx.UserID,
+		DivisionID: entTx.DivisionID,
 		Amount:     entTx.Amount,
 		Type:       string(entTx.Type),
 		CategoryID: entTx.CategoryID,

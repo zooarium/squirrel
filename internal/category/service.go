@@ -17,19 +17,19 @@ var (
 // Repository defines the data access contract for categories.
 type Repository interface {
 	Create(ctx context.Context, c Category) (Category, error)
-	List(ctx context.Context, appID, userID int, name string) ([]Category, error)
-	GetByID(ctx context.Context, appID, userID, id int) (Category, error)
-	Update(ctx context.Context, appID, userID, id int, c Category) (Category, error)
-	Delete(ctx context.Context, appID, userID, id int) error
+	List(ctx context.Context, appID int, divisionID *int, name string) ([]Category, error)
+	GetByID(ctx context.Context, appID, id int) (Category, error)
+	Update(ctx context.Context, appID, id int, c Category) (Category, error)
+	Delete(ctx context.Context, appID, id int) error
 }
 
 // Service defines the business logic for categories.
 type Service interface {
-	Create(ctx context.Context, appID, userID int, req CreateCategoryRequest) (Category, error)
-	List(ctx context.Context, appID, userID int, name string) ([]Category, error)
-	GetByID(ctx context.Context, appID, userID, id int) (Category, error)
-	Update(ctx context.Context, appID, userID, id int, req UpdateCategoryRequest) (Category, error)
-	Delete(ctx context.Context, appID, userID, id int) error
+	Create(ctx context.Context, appID, userID, divisionID int, req CreateCategoryRequest) (Category, error)
+	List(ctx context.Context, appID int, divisionID *int, name string) ([]Category, error)
+	GetByID(ctx context.Context, appID, id int) (Category, error)
+	Update(ctx context.Context, appID, id int, req UpdateCategoryRequest) (Category, error)
+	Delete(ctx context.Context, appID, id int) error
 }
 
 type service struct {
@@ -46,7 +46,7 @@ func NewService(repo Repository) Service {
 }
 
 // Create creates a new category.
-func (s *service) Create(ctx context.Context, appID, userID int, req CreateCategoryRequest) (Category, error) {
+func (s *service) Create(ctx context.Context, appID, userID, divisionID int, req CreateCategoryRequest) (Category, error) {
 	if err := s.validate.Struct(req); err != nil {
 		return Category{}, fmt.Errorf("validate request: %w", err)
 	}
@@ -56,38 +56,39 @@ func (s *service) Create(ctx context.Context, appID, userID int, req CreateCateg
 	}
 
 	cat := Category{
-		AppID:  appID,
-		UserID: userID,
-		Name:   req.Name,
-		Status: req.Status,
+		AppID:      appID,
+		UserID:     userID,
+		DivisionID: &divisionID,
+		Name:       req.Name,
+		Status:     req.Status,
 	}
 
 	created, err := s.repo.Create(ctx, cat)
 	if err != nil {
-		slog.Error("failed to create category", "error", err, "name", req.Name, "app_id", appID, "user_id", userID)
+		slog.Error("failed to create category", "error", err, "name", req.Name, "app_id", appID, "user_id", userID, "division_id", divisionID)
 		return Category{}, err
 	}
 
-	slog.Info("category created", "id", created.ID, "name", created.Name, "app_id", appID, "user_id", userID)
+	slog.Info("category created", "id", created.ID, "name", created.Name, "app_id", appID, "user_id", userID, "division_id", divisionID)
 	return created, nil
 }
 
-// List returns all categories for a user.
-func (s *service) List(ctx context.Context, appID, userID int, name string) ([]Category, error) {
-	cats, err := s.repo.List(ctx, appID, userID, name)
+// List returns all categories for an app, optionally filtered by division.
+func (s *service) List(ctx context.Context, appID int, divisionID *int, name string) ([]Category, error) {
+	cats, err := s.repo.List(ctx, appID, divisionID, name)
 	if err != nil {
-		slog.Error("failed to list categories", "error", err, "app_id", appID, "user_id", userID, "name", name)
+		slog.Error("failed to list categories", "error", err, "app_id", appID, "division_id", divisionID, "name", name)
 		return nil, err
 	}
 	return cats, nil
 }
 
-// GetByID returns a category by its ID and user ID.
-func (s *service) GetByID(ctx context.Context, appID, userID, id int) (Category, error) {
-	cat, err := s.repo.GetByID(ctx, appID, userID, id)
+// GetByID returns a category by its ID.
+func (s *service) GetByID(ctx context.Context, appID, id int) (Category, error) {
+	cat, err := s.repo.GetByID(ctx, appID, id)
 	if err != nil {
 		if !errors.Is(err, ErrCategoryNotFound) {
-			slog.Error("failed to get category by id", "error", err, "id", id, "app_id", appID, "user_id", userID)
+			slog.Error("failed to get category by id", "error", err, "id", id, "app_id", appID)
 		}
 		return Category{}, err
 	}
@@ -95,7 +96,7 @@ func (s *service) GetByID(ctx context.Context, appID, userID, id int) (Category,
 }
 
 // Update updates an existing category.
-func (s *service) Update(ctx context.Context, appID, userID, id int, req UpdateCategoryRequest) (Category, error) {
+func (s *service) Update(ctx context.Context, appID, id int, req UpdateCategoryRequest) (Category, error) {
 	if err := s.validate.Struct(req); err != nil {
 		return Category{}, fmt.Errorf("validate request: %w", err)
 	}
@@ -105,28 +106,28 @@ func (s *service) Update(ctx context.Context, appID, userID, id int, req UpdateC
 		Status: req.Status,
 	}
 
-	updated, err := s.repo.Update(ctx, appID, userID, id, cat)
+	updated, err := s.repo.Update(ctx, appID, id, cat)
 	if err != nil {
 		if !errors.Is(err, ErrCategoryNotFound) {
-			slog.Error("failed to update category", "error", err, "id", id, "app_id", appID, "user_id", userID)
+			slog.Error("failed to update category", "error", err, "id", id, "app_id", appID)
 		}
 		return Category{}, err
 	}
 
-	slog.Info("category updated", "id", updated.ID, "name", updated.Name, "app_id", appID, "user_id", userID)
+	slog.Info("category updated", "id", updated.ID, "name", updated.Name, "app_id", appID)
 	return updated, nil
 }
 
 // Delete deletes a category by its ID.
-func (s *service) Delete(ctx context.Context, appID, userID, id int) error {
-	err := s.repo.Delete(ctx, appID, userID, id)
+func (s *service) Delete(ctx context.Context, appID, id int) error {
+	err := s.repo.Delete(ctx, appID, id)
 	if err != nil {
 		if !errors.Is(err, ErrCategoryNotFound) {
-			slog.Error("failed to delete category", "error", err, "id", id, "app_id", appID, "user_id", userID)
+			slog.Error("failed to delete category", "error", err, "id", id, "app_id", appID)
 		}
 		return err
 	}
 
-	slog.Info("category deleted", "id", id, "app_id", appID, "user_id", userID)
+	slog.Info("category deleted", "id", id, "app_id", appID)
 	return nil
 }
