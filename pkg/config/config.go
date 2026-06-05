@@ -13,9 +13,15 @@ type Config struct {
 	Environment string `mapstructure:"ENVIRONMENT"`
 	Server      ServerConfig
 	Database    DatabaseConfig
-	Log         LogConfig  `mapstructure:"LOG"`
-	Auth        AuthConfig `mapstructure:"AUTH"`
+	Log         LogConfig   `mapstructure:"LOG"`
+	Auth        AuthConfig  `mapstructure:"AUTH"`
+	Cache       CacheConfig `mapstructure:"CACHE"`
 	CORS        CORSConfig
+}
+
+// CacheConfig holds in-memory cache configuration.
+type CacheConfig struct {
+	StatsTTL time.Duration `mapstructure:"STATS_TTL"`
 }
 
 // CORSConfig holds CORS-specific configuration.
@@ -40,7 +46,9 @@ type AuthConfig struct {
 
 // DatabaseConfig holds database related configuration.
 type DatabaseConfig struct {
-	Path string `mapstructure:"PATH"`
+	Driver string `mapstructure:"DRIVER"`
+	Path   string `mapstructure:"PATH"`
+	DSN    string `mapstructure:"DSN"`
 }
 
 // LogConfig holds logging-specific configuration.
@@ -60,11 +68,14 @@ func Load() (*Config, error) {
 	v.SetDefault("SERVER.READ_TIMEOUT", 5*time.Second)
 	v.SetDefault("SERVER.WRITE_TIMEOUT", 10*time.Second)
 	v.SetDefault("SERVER.IDLE_TIMEOUT", 120*time.Second)
+	v.SetDefault("DATABASE.DRIVER", "sqlite3")
 	v.SetDefault("DATABASE.PATH", "data/squirrel.db")
+	v.SetDefault("DATABASE.DSN", "")
 	v.SetDefault("LOG.DIR", "log")
 	v.SetDefault("LOG.LEVEL", "info")
 	v.SetDefault("AUTH.JWT_SECRET", "a-very-secure-and-shared-secret-key")
 	v.SetDefault("AUTH.JWT_EXPIRY", 24*time.Hour)
+	v.SetDefault("CACHE.STATS_TTL", 30*time.Second)
 	v.SetDefault("CORS.ALLOWED_ORIGINS", []string{"*"})
 
 	// Environment variables

@@ -35,7 +35,7 @@ func TestCategoryService(t *testing.T) {
 	})
 
 	t.Run("List Categories", func(t *testing.T) {
-		cats, err := svc.List(ctx, 1, nil, "")
+		cats, err := svc.List(ctx, 1, nil, "", 50, 0)
 		assert.NoError(t, err)
 		assert.Len(t, cats, 1)
 	})
@@ -64,7 +64,7 @@ func TestCategoryService(t *testing.T) {
 		assert.NoError(t, err)
 
 		// App 1 should see it
-		cats, err := svc.List(ctx, 1, nil, "")
+		cats, err := svc.List(ctx, 1, nil, "", 50, 0)
 		assert.NoError(t, err)
 		found := false
 		for _, c := range cats {
@@ -81,7 +81,7 @@ func TestCategoryService(t *testing.T) {
 		assert.Equal(t, cat1.ID, catById.ID)
 
 		// App 2 should NOT see App 1's category
-		catsApp2, err := svc.List(ctx, 2, nil, "")
+		catsApp2, err := svc.List(ctx, 2, nil, "", 50, 0)
 		assert.NoError(t, err)
 		for _, c := range catsApp2 {
 			assert.NotEqual(t, cat1.ID, c.ID)
@@ -123,6 +123,6 @@ func BenchmarkListCategories(b *testing.B) {
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		_, _ = svc.List(ctx, 1, nil, "")
+		_, _ = svc.List(ctx, 1, nil, "", 50, 0)
 	}
 }

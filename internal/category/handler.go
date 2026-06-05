@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"strconv"
 
+	"squirrel/internal/platform/pagination"
 	"squirrel/internal/platform/render"
 
 	"keeper/pkg/auth"
@@ -93,6 +94,8 @@ func (h *Handler) Create(w http.ResponseWriter, r *http.Request) {
 // @Produce json
 // @Param name query string false "Filter by category name (wildcard)"
 // @Param division_id query int false "Filter by division ID"
+// @Param limit query int false "Max number of results (default 50, max 500)"
+// @Param offset query int false "Number of results to skip (default 0)"
 // @Success 200 {object} render.Response{data=[]Category}
 // @Failure 401 {object} render.Response
 // @Failure 500 {object} render.Response
@@ -117,7 +120,9 @@ func (h *Handler) List(w http.ResponseWriter, r *http.Request) {
 		divisionID = &did
 	}
 
-	cats, err := h.svc.List(r.Context(), claims.AppID, divisionID, name)
+	page := pagination.Parse(r)
+
+	cats, err := h.svc.List(r.Context(), claims.AppID, divisionID, name, page.Limit, page.Offset)
 	if err != nil {
 		render.Error(w, http.StatusInternalServerError, err.Error())
 		return

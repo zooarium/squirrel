@@ -38,6 +38,10 @@ type UpdateTransactionRequest struct {
 }
 
 // TransactionFilter defines the filters for listing transactions.
+//
+// Limit and Offset are pagination controls applied only to the transaction
+// list query. They are intentionally excluded from the stats cache key and
+// from the stats queries, which must aggregate over the full filtered set.
 type TransactionFilter struct {
 	CategoryID *int       `json:"category_id"`
 	Type       string     `json:"type"`
@@ -45,6 +49,8 @@ type TransactionFilter struct {
 	Dated      string     `json:"dated"`
 	From       *time.Time `json:"from"`
 	To         *time.Time `json:"to"`
+	Limit      int        `json:"-"`
+	Offset     int        `json:"-"`
 }
 
 // CategoryAmountSum represents the sum of amounts for a category.

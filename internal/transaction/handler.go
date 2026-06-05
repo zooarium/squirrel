@@ -7,6 +7,7 @@ import (
 	"strconv"
 	"time"
 
+	"squirrel/internal/platform/pagination"
 	"squirrel/internal/platform/render"
 
 	"keeper/pkg/auth"
@@ -99,6 +100,8 @@ func (h *Handler) Create(w http.ResponseWriter, r *http.Request) {
 // @Param dated query string false "Filter by predefined date ranges (today, yesterday, this month, last month, this year, last year)"
 // @Param from query string false "Filter from date (YYYY-MM-DD)"
 // @Param to query string false "Filter to date (YYYY-MM-DD)"
+// @Param limit query int false "Max number of transactions (default 50, max 500)"
+// @Param offset query int false "Number of transactions to skip (default 0)"
 // @Success 200 {object} render.Response{data=TransactionListResponse}
 // @Failure 401 {object} render.Response
 // @Failure 500 {object} render.Response
@@ -186,6 +189,10 @@ func (h *Handler) parseFilter(r *http.Request) TransactionFilter {
 			filter.To = &t
 		}
 	}
+
+	page := pagination.Parse(r)
+	filter.Limit = page.Limit
+	filter.Offset = page.Offset
 
 	return filter
 }

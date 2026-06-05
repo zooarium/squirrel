@@ -17,7 +17,7 @@ var (
 // Repository defines the data access contract for categories.
 type Repository interface {
 	Create(ctx context.Context, c Category) (Category, error)
-	List(ctx context.Context, appID int, divisionID *int, name string) ([]Category, error)
+	List(ctx context.Context, appID int, divisionID *int, name string, limit, offset int) ([]Category, error)
 	GetByID(ctx context.Context, appID, id int) (Category, error)
 	Update(ctx context.Context, appID, id int, c Category) (Category, error)
 	Delete(ctx context.Context, appID, id int) error
@@ -26,7 +26,7 @@ type Repository interface {
 // Service defines the business logic for categories.
 type Service interface {
 	Create(ctx context.Context, appID, userID, divisionID int, req CreateCategoryRequest) (Category, error)
-	List(ctx context.Context, appID int, divisionID *int, name string) ([]Category, error)
+	List(ctx context.Context, appID int, divisionID *int, name string, limit, offset int) ([]Category, error)
 	GetByID(ctx context.Context, appID, id int) (Category, error)
 	Update(ctx context.Context, appID, id int, req UpdateCategoryRequest) (Category, error)
 	Delete(ctx context.Context, appID, id int) error
@@ -74,8 +74,8 @@ func (s *service) Create(ctx context.Context, appID, userID, divisionID int, req
 }
 
 // List returns all categories for an app, optionally filtered by division.
-func (s *service) List(ctx context.Context, appID int, divisionID *int, name string) ([]Category, error) {
-	cats, err := s.repo.List(ctx, appID, divisionID, name)
+func (s *service) List(ctx context.Context, appID int, divisionID *int, name string, limit, offset int) ([]Category, error) {
+	cats, err := s.repo.List(ctx, appID, divisionID, name, limit, offset)
 	if err != nil {
 		slog.Error("failed to list categories", "error", err, "app_id", appID, "division_id", divisionID, "name", name)
 		return nil, err

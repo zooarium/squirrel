@@ -22,7 +22,7 @@ func TestTransactionService(t *testing.T) {
 	cat, _ := catRepo.Create(context.Background(), category.Category{AppID: 1, UserID: 1, Name: "Food", Status: 1})
 
 	repo := NewRepository(client)
-	svc := NewService(repo)
+	svc := NewService(repo, nil)
 	ctx := context.Background()
 
 	t.Run("Create Transaction", func(t *testing.T) {

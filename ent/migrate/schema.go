@@ -25,6 +25,13 @@ var (
 		Name:       "sqrl_category",
 		Columns:    SqrlCategoryColumns,
 		PrimaryKey: []*schema.Column{SqrlCategoryColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "category_app_id_user_id",
+				Unique:  false,
+				Columns: []*schema.Column{SqrlCategoryColumns[3], SqrlCategoryColumns[4]},
+			},
+		},
 	}
 	// SqrlTransactionColumns holds the columns for the "sqrl_transaction" table.
 	SqrlTransactionColumns = []*schema.Column{
@@ -51,6 +58,18 @@ var (
 				Columns:    []*schema.Column{SqrlTransactionColumns[10]},
 				RefColumns: []*schema.Column{SqrlCategoryColumns[0]},
 				OnDelete:   schema.SetNull,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "transaction_app_id_dated",
+				Unique:  false,
+				Columns: []*schema.Column{SqrlTransactionColumns[3], SqrlTransactionColumns[9]},
+			},
+			{
+				Name:    "transaction_app_id_user_id",
+				Unique:  false,
+				Columns: []*schema.Column{SqrlTransactionColumns[3], SqrlTransactionColumns[4]},
 			},
 		},
 	}

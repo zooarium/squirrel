@@ -46,11 +46,17 @@ func (r *transactionRepository) Create(ctx context.Context, t Transaction) (Tran
 }
 
 func (r *transactionRepository) List(ctx context.Context, appID, userID int, filter TransactionFilter) ([]Transaction, error) {
-	query := r.buildFilteredQuery(appID, userID, filter)
+	query := r.buildFilteredQuery(appID, userID, filter).
+		Order(ent.Desc(transaction.FieldDated))
 
-	entTxs, err := query.
-		Order(ent.Desc(transaction.FieldDated)).
-		All(ctx)
+	if filter.Limit > 0 {
+		query = query.Limit(filter.Limit)
+	}
+	if filter.Offset > 0 {
+		query = query.Offset(filter.Offset)
+	}
+
+	entTxs, err := query.All(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("list transactions: %w", err)
 	}

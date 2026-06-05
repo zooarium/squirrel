@@ -8,6 +8,7 @@ import (
 	"entgo.io/ent/schema"
 	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
+	"entgo.io/ent/schema/index"
 	"entgo.io/ent/schema/mixin"
 )
 
@@ -63,5 +64,12 @@ func (Category) Fields() []ent.Field {
 func (Category) Edges() []ent.Edge {
 	return []ent.Edge{
 		edge.To("transactions", Transaction.Type),
+	}
+}
+
+// Indexes of the Category.
+func (Category) Indexes() []ent.Index {
+	return []ent.Index{
+		index.Fields("app_id", "user_id"),
 	}
 }

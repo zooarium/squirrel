@@ -17,6 +17,7 @@ import (
 	"squirrel/internal/db"
 	platformhttp "squirrel/internal/platform/http"
 	"squirrel/internal/transaction"
+	"squirrel/pkg/cache"
 	"squirrel/pkg/config"
 
 	"keeper/pkg/auth"
@@ -77,14 +78,14 @@ func main() {
 	// Override Swagger host
 	docs.SwaggerInfo.Host = cfg.Server.Host
 
-	client, err := db.NewSQLiteClient(cfg.Database.Path)
+	client, err := db.NewClient(cfg.Database.Driver, cfg.Database.Path, cfg.Database.DSN)
 	if err != nil {
-		slog.Error("failed to open sqlite client", "error", err)
+		slog.Error("failed to open database client", "error", err, "driver", cfg.Database.Driver)
 		os.Exit(1)
 	}
 	defer func() {
 		if err := client.Close(); err != nil {
-			slog.Error("failed to close sqlite client", "error", err)
+			slog.Error("failed to close database client", "error", err)
 		}
 	}()
 
@@ -93,8 +94,9 @@ func main() {
 	categorySvc := category.NewService(categoryRepo)
 	categoryHandler := category.NewHandler(categorySvc)
 
+	statsCache := cache.New(cfg.Cache.StatsTTL)
 	transactionRepo := transaction.NewRepository(client)
-	transactionSvc := transaction.NewService(transactionRepo)
+	transactionSvc := transaction.NewService(transactionRepo, statsCache)
 	transactionHandler := transaction.NewHandler(transactionSvc)
 
 	jwtManager := auth.NewJWTManager(cfg.Auth.JWTSecret, cfg.Auth.JWTExpiry)

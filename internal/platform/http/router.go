@@ -14,6 +14,7 @@ import (
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/cors"
 	"github.com/go-chi/httprate"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	httpSwagger "github.com/swaggo/http-swagger/v2"
 )
 
@@ -28,6 +29,7 @@ func NewRouter(cfg *config.Config, categoryHandler *category.Handler, transactio
 	}))
 	r.Use(middleware.Logger)
 	r.Use(middleware.Recoverer)
+	r.Use(MetricsMiddleware)
 	r.Use(httprate.LimitByIP(100, 1*time.Minute))
 
 	r.Get("/swagger/*", httpSwagger.Handler(
@@ -35,6 +37,9 @@ func NewRouter(cfg *config.Config, categoryHandler *category.Handler, transactio
 	))
 
 	r.Get("/health", HealthHandler)
+
+	// Prometheus metrics endpoint, exempt from JWT auth.
+	r.Handle("/metrics", promhttp.Handler())
 
 	// Protected routes
 	r.Group(func(r chi.Router) {

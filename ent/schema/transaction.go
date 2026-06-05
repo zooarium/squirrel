@@ -8,6 +8,7 @@ import (
 	"entgo.io/ent/schema"
 	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
+	"entgo.io/ent/schema/index"
 )
 
 // Transaction holds the schema definition for the Transaction entity.
@@ -55,5 +56,13 @@ func (Transaction) Edges() []ent.Edge {
 			Ref("transactions").
 			Unique().
 			Field("category_id"),
+	}
+}
+
+// Indexes of the Transaction.
+func (Transaction) Indexes() []ent.Index {
+	return []ent.Index{
+		index.Fields("app_id", "dated"),
+		index.Fields("app_id", "user_id"),
 	}
 }

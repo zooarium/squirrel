@@ -37,7 +37,7 @@ func (r *categoryRepository) Create(ctx context.Context, c Category) (Category, 
 	return r.mapToModel(entCat), nil
 }
 
-func (r *categoryRepository) List(ctx context.Context, appID int, divisionID *int, name string) ([]Category, error) {
+func (r *categoryRepository) List(ctx context.Context, appID int, divisionID *int, name string, limit, offset int) ([]Category, error) {
 	query := r.client.Category.
 		Query().
 		Where(category.AppID(appID))
@@ -51,7 +51,9 @@ func (r *categoryRepository) List(ctx context.Context, appID int, divisionID *in
 	}
 
 	entCats, err := query.
-		Order(ent.Asc(category.FieldName)).
+		Order(ent.Asc(category.FieldName), ent.Asc(category.FieldID)).
+		Limit(limit).
+		Offset(offset).
 		All(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("list categories: %w", err)
