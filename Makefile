@@ -1,7 +1,47 @@
 CUR_DIR := $(notdir $(shell pwd))
 export GO_VERSION ?= 1.26.3
 
-.PHONY: all build up down restart logs ps test benchmark fmt lint swag clean shell help tidy vet generate vendor coverage coverage-view build-local build-prod sql config-check
+# Per-service dev image: build-base + git + pinned tools, baked once (see Dockerfile.dev).
+DEV_IMAGE := $(CUR_DIR)-godev:$(GO_VERSION)
+
+# Pinned base image for the final prod stage (kept in sync with Dockerfile by docker-upgrade).
+ALPINE_IMAGE := alpine:3.22
+
+# Tool versions sourced from go.mod (single source of truth; goimports ships in x/tools).
+TOOLS_VER := $(shell awk '$$1=="golang.org/x/tools"{print $$2; exit}' go.mod)
+SWAG_VER  := $(shell awk '$$1=="github.com/swaggo/swag"{print $$2; exit}' go.mod)
+
+# Per-service persistent Go caches (module + build) — survive across ephemeral docker runs.
+# Named per service (squirrel-gomod, squirrel-gobuild) so each repo keeps its own cache, no cross-service sharing.
+GO_CACHE := -v $(CUR_DIR)-gomod:/go/pkg/mod -v $(CUR_DIR)-gobuild:/root/.cache/go-build
+
+# Common Go docker invocation: workspace mount + persistent caches + CGO env, using the prebuilt dev image.
+DOCKER_GO := docker run --rm \
+	-v $(shell pwd)/..:/workspace -w /workspace/$(CUR_DIR) \
+	$(GO_CACHE) \
+	-e CGO_ENABLED=1 -e CGO_CFLAGS="-D_LARGEFILE64_SOURCE" \
+	$(DEV_IMAGE)
+
+.PHONY: all build up down restart logs ps test benchmark fmt lint swag clean shell help tidy vet generate vendor coverage coverage-view build-local build-prod sql config-check migrate-gen migrate-apply deps-upgrade go-upgrade dev-image sync-tools docker-upgrade
+
+# Build the per-service dev image. Layer-cached: rebuilds only when Dockerfile.dev or GO_VERSION changes.
+dev-image:
+	@docker build -q -f Dockerfile.dev --build-arg GO_VERSION=$(GO_VERSION) -t $(DEV_IMAGE) . >/dev/null
+
+# Sync Dockerfile.dev tool pins (goimports/swag) to the versions in go.mod.
+sync-tools:
+	@if [ -z "$(TOOLS_VER)" ] || [ -z "$(SWAG_VER)" ]; then echo "sync-tools: could not read tool versions from go.mod"; exit 1; fi
+	sed -i -E 's#(goimports@)v[0-9.]+#\1$(TOOLS_VER)#' Dockerfile.dev
+	sed -i -E 's#(swag@)v[0-9.]+#\1$(SWAG_VER)#' Dockerfile.dev
+	@echo "sync-tools: goimports@$(TOOLS_VER) swag@$(SWAG_VER)"
+
+# Refresh dockerized toolchain: sync tool pins to go.mod, pull latest base-image patches, rebuild dev image.
+docker-upgrade: sync-tools
+	docker pull golang:$(GO_VERSION)-alpine
+	docker pull $(ALPINE_IMAGE)
+	docker pull golangci/golangci-lint:latest
+	docker build --pull -f Dockerfile.dev --build-arg GO_VERSION=$(GO_VERSION) -t $(DEV_IMAGE) .
+	@echo "docker-upgrade: tool pins synced, base images pulled, dev image rebuilt"
 
 # Docker Compose commands
 build: vendor
@@ -28,62 +68,50 @@ ps:
 	docker-compose ps
 
 # Run tests inside the container
-test: fmt
-	docker run --rm -v $(shell pwd)/..:/workspace -w /workspace/$(CUR_DIR) \
-		-e CGO_ENABLED=1 \
-		-e CGO_CFLAGS="-D_LARGEFILE64_SOURCE" \
-		golang:$(GO_VERSION)-alpine \
-		sh -c "apk add --no-cache build-base && go test -mod=vendor -v ./..."
+test: fmt dev-image
+	$(DOCKER_GO) go test -mod=vendor -v ./...
 
 # Run benchmarks inside the container
-benchmark:
-	docker run --rm -v $(shell pwd)/..:/workspace -w /workspace/$(CUR_DIR) \
-		-e CGO_ENABLED=1 \
-		-e CGO_CFLAGS="-D_LARGEFILE64_SOURCE" \
-		golang:$(GO_VERSION)-alpine \
-		sh -c "apk add --no-cache build-base && go test -mod=vendor -bench=. -run=^# -benchmem ./..."
+benchmark: dev-image
+	$(DOCKER_GO) go test -mod=vendor -bench=. -run=^# -benchmem ./...
 
 # Format code and manage imports
-fmt:
-	docker run --rm -v $(shell pwd)/..:/workspace -w /workspace/$(CUR_DIR) golang:$(GO_VERSION)-alpine sh -c "go install golang.org/x/tools/cmd/goimports@latest && goimports -w ."
+fmt: dev-image
+	$(DOCKER_GO) goimports -w .
 
 # Run linter using a docker container
 lint:
-	docker run --rm -v $(shell pwd)/..:/workspace -w /workspace/$(CUR_DIR) golangci/golangci-lint:latest golangci-lint run -v --modules-download-mode=vendor
+	docker run --rm -v $(shell pwd)/..:/workspace -w /workspace/$(CUR_DIR) \
+		$(GO_CACHE) \
+		golangci/golangci-lint:latest golangci-lint run -v --modules-download-mode=vendor
 
 # Generate Swagger documentation
-swag:
-	docker run --rm -v $(shell pwd)/..:/workspace -w /workspace/$(CUR_DIR) golang:$(GO_VERSION) sh -c "go install github.com/swaggo/swag/cmd/swag@latest && swag init -g cmd/api/main.go --parseDependency --parseInternal"
+swag: dev-image
+	$(DOCKER_GO) swag init -g cmd/api/main.go --parseDependency --parseInternal
 
 # Open a shell in the running api container
 shell:
 	docker-compose exec api sh
 
 # Clean up go.mod and go.sum
-tidy:
-	docker run --rm -v $(shell pwd)/..:/workspace -w /workspace/$(CUR_DIR) golang:$(GO_VERSION)-alpine sh -c "apk add git && go mod tidy"
+tidy: dev-image
+	$(DOCKER_GO) go mod tidy
 
 # Run go vet for static analysis
-vet:
-	docker run --rm -v $(shell pwd)/..:/workspace -w /workspace/$(CUR_DIR) golang:$(GO_VERSION)-alpine go vet -mod=vendor ./...
+vet: dev-image
+	$(DOCKER_GO) go vet -mod=vendor ./...
 
 # Run go generate for code generation
-generate:
-	docker run --rm -v $(shell pwd)/..:/workspace -w /workspace/$(CUR_DIR) \
-		golang:$(GO_VERSION)-alpine \
-		go generate -mod=vendor ./...
+generate: dev-image
+	$(DOCKER_GO) go generate -mod=vendor ./...
 
 # Create vendor directory
-vendor:
-	docker run --rm -v $(shell pwd)/..:/workspace -w /workspace/$(CUR_DIR) golang:$(GO_VERSION)-alpine sh -c "apk add git && go mod tidy && go mod vendor"
+vendor: dev-image
+	$(DOCKER_GO) sh -c "go mod tidy && go mod vendor"
 
 # Generate test coverage report
-coverage:
-	docker run --rm -v $(shell pwd)/..:/workspace -w /workspace/$(CUR_DIR) \
-		-e CGO_ENABLED=1 \
-		-e CGO_CFLAGS="-D_LARGEFILE64_SOURCE" \
-		golang:$(GO_VERSION)-alpine \
-		sh -c "apk add --no-cache build-base && go test -mod=vendor -coverprofile=coverage.out ./... && go tool cover -html=coverage.out -o coverage.html"
+coverage: dev-image
+	$(DOCKER_GO) sh -c "go test -mod=vendor -coverprofile=coverage.out ./... && go tool cover -html=coverage.out -o coverage.html"
 
 # Open the coverage report in a browser
 coverage-view:
@@ -94,18 +122,12 @@ build-local:
 	go build -o bin/api ./cmd/api/main.go
 
 # Build the final binary for production (statically linked, stripped symbols)
-build-prod: vendor
-	docker run --rm -v $(shell pwd)/..:/workspace -w /workspace/$(CUR_DIR) \
-		-e CGO_ENABLED=1 \
-		-e CGO_CFLAGS="-D_LARGEFILE64_SOURCE" \
-		golang:$(GO_VERSION)-alpine \
-		sh -c "apk add --no-cache build-base && go build -mod=vendor -ldflags='-s -w -extldflags \"-static\"' -o bin/squirrel ./cmd/api/main.go"
+build-prod: vendor dev-image
+	$(DOCKER_GO) sh -c "go build -mod=vendor -ldflags='-s -w -extldflags \"-static\"' -o bin/squirrel ./cmd/api/main.go"
 
 # Update Go dependencies
-deps-upgrade:
-	docker run --rm -v $(shell pwd)/..:/workspace -w /workspace/$(CUR_DIR) \
-		golang:$(GO_VERSION)-alpine \
-		sh -c "apk add git && go get -u ./... && go mod tidy && go mod vendor"
+deps-upgrade: dev-image
+	$(DOCKER_GO) sh -c "go get -u ./... && go mod tidy && go mod vendor"
 	$(MAKE) test
 
 # Upgrade Go version across the project
@@ -114,15 +136,12 @@ go-upgrade:
 	sed -i 's/^go [0-9.]*/go $(version)/' go.mod
 	sed -i 's/^export GO_VERSION ?= [0-9.]*/export GO_VERSION ?= $(version)/' Makefile
 	sed -i 's/^ARG GO_VERSION=[0-9.]*/ARG GO_VERSION=$(version)/' Dockerfile
+	sed -i 's/^ARG GO_VERSION=[0-9.]*/ARG GO_VERSION=$(version)/' Dockerfile.dev
 	$(MAKE) build
 
 # Database migrations
-migrate-gen:
-	docker run --rm -v $(shell pwd)/..:/workspace -w /workspace/$(CUR_DIR) \
-		-e CGO_ENABLED=1 \
-		-e CGO_CFLAGS="-D_LARGEFILE64_SOURCE" \
-		golang:$(GO_VERSION)-alpine \
-		sh -c "apk add --no-cache build-base && go run -mod=vendor ent/migrate/main.go $(name)"
+migrate-gen: dev-image
+	$(DOCKER_GO) go run -mod=vendor ent/migrate/main.go $(name)
 
 
 migrate-apply:
@@ -137,12 +156,8 @@ sql:
 	sqlite3 data/squirrel.db "$(query)"
 
 # Validate config/config.yaml (server, secondary listeners, route patterns) without starting servers
-config-check:
-	docker run --rm -v $(shell pwd)/..:/workspace -w /workspace/$(CUR_DIR) \
-		-e CGO_ENABLED=1 \
-		-e CGO_CFLAGS="-D_LARGEFILE64_SOURCE" \
-		golang:$(GO_VERSION)-alpine \
-		sh -c "apk add --no-cache build-base && go run -mod=vendor ./cmd/api -check-config"
+config-check: dev-image
+	$(DOCKER_GO) go run -mod=vendor ./cmd/api -check-config
 
 # Clean up containers, images, and volumes
 clean:
@@ -176,6 +191,8 @@ help:
 	@echo "  build-prod    Build final production binary (static)"
 	@echo "  deps-upgrade  Upgrade Go dependencies"
 	@echo "  go-upgrade    Upgrade Go version (use version=1.x)"
+	@echo "  docker-upgrade Sync tool pins to go.mod + pull latest base images + rebuild dev image"
+	@echo "  sync-tools    Sync Dockerfile.dev tool pins (goimports/swag) to go.mod"
 	@echo "  sql           Run SQL query (use query=...)"
 	@echo "  config-check  Validate config incl. secondary listeners"
 	@echo "  clean         Deep clean containers/images"
