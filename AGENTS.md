@@ -16,7 +16,7 @@ Squirrel is a microservice for expense management, providing RESTful APIs for ca
 - **Validation**: [validator v10](https://github.com/go-playground/validator)
 - **Documentation**: Swagger (via `swag`)
 - **Logging**: Structured logging with `log/slog`
-- **Rate Limiting**: `httprate` (100 req/min per IP)
+- **Rate Limiting**: `httprate` (primary: 100 req/min per IP; secondary listeners: per-listener config)
 - **Migrations**: Atlas (integrated with Ent)
 
 ## Directory Structure
@@ -60,6 +60,17 @@ Squirrel is a microservice for expense management, providing RESTful APIs for ca
 The application uses `viper` for configuration management, supporting multiple environments via the `SQUIRREL_ENVIRONMENT` environment variable or the `ENVIRONMENT` key in config files.
 - Configuration is loaded from `config/config.yaml` and merged with environment-specific overrides (e.g., `config.development.yaml`).
 - Environment variables can override configuration values using the `SQUIRREL_` prefix and underscore-separated format (e.g., `SQUIRREL_SERVER_ADDR` for `server.addr`).
+
+## Secondary Listeners
+Config-driven extra HTTP servers in the same process (`SECONDARY:` list in config — see README.md for the full reference). Each entry: `NAME`, `ENABLED`, `ADDR` (unique, required), `JWT_SECRET` (optional — listener verifies with this signing key instead of `AUTH.JWT_SECRET`), `RATE_LIMIT` (default 100/1m), `ROUTES` (chi-syntax `"METHOD /path"` allow-list; non-listed = 404).
+
+Key facts:
+- Identity ALWAYS comes from JWT — no anonymous mode. Public surfaces use keeper guest tokens (publishable site key → `POST /guest-keys/auth` → short-lived tenant-scoped JWT, role=guest, signed with keeper's `GUEST_JWT_SECRET`); set the listener's `JWT_SECRET` to that secret to accept them — they fail everywhere else.
+- Built by `internal/platform/http/secondary.go` (`NewSecondaryRouter`); reuses the same handlers via the `mount` hook in `cmd/api/main.go` — when mounting a new entity in the primary router, mount it in the hook too. Never duplicate handler wiring.
+- `/health` + `/metrics` always exposed per listener; swagger only on primary (covers all routes — shared handlers).
+- Validation at startup via `pkg/config` `normalizeSecondary()` + `allowRoutes()` pattern checks; `make config-check` (or binary `-check-config` flag) vets config without starting servers.
+- Env vars cannot override list entries (viper limitation) — YAML only.
+- New secondary port → publish it in docker-compose.yml `ports:` (skip for internal s2s listeners — network isolation is the guard).
 
 ## Architecture & Design Patterns
 - **Directional Dependencies**: HTTP (Handler) → Service → Repository.
@@ -122,6 +133,7 @@ To ensure codebase health and consistency, the following steps **must** be compl
 - `make migrate-gen name=NAME`: Generate a new database migration.
 - `make migrate-apply`: Apply pending migrations.
 - `make sql query=QUERY`: Run a SQL query against the SQLite database.
+- `make config-check`: Validate config (incl. secondary listeners) without starting servers.
 
 ### Database Migrations
 1.  **Modify Schema**: Edit `ent/schema/category.go`.

@@ -72,6 +72,83 @@ The application uses `viper` for configuration management. It supports multiple 
 - To change the port the server listens on: set `SQUIRREL_SERVER_ADDR=:9090`.
 - To change the address used in Swagger documentation: set `SQUIRREL_SERVER_HOST=api.example.com`.
 
+## Secondary listeners
+
+Besides the primary server, any number of **secondary listeners** can be
+declared in config: extra ports served by the same process, each exposing
+only an allow-listed subset of the API, with auth and rate limiting
+configured per listener.
+
+```yaml
+SECONDARY:
+  - NAME: "partner-readonly"     # used in logs; defaults to secondary-<index>
+    ENABLED: true                # must be true to start the listener
+    ADDR: ":8085"                # required, must be unique across listeners
+    # Optional: verify with a different signing key (e.g. keeper's guest
+    # secret) — tokens for this surface are then useless everywhere else.
+    JWT_SECRET: "a-separate-guest-token-secret-key"
+    RATE_LIMIT:
+      REQUESTS: 60               # default 100
+      WINDOW: 1m                 # default 1m
+    ROUTES:                      # chi-syntax "METHOD /path" allow-list;
+      - "GET /categories"        # anything not listed returns 404
+      - "GET /transactions"
+```
+
+Behavior:
+
+- Listeners reuse the same handlers, services and DB client as the primary
+  server — no extra process, no duplicate state.
+- `/health` and `/metrics` are always exposed on every listener. Swagger is
+  only served on the primary port; it documents all routes since the
+  handlers are shared.
+- Identity **always** comes from JWT — no anonymous mode. For public
+  surfaces, clients exchange a publishable site key for a short-lived
+  tenant-scoped guest token at keeper (`POST /guest-keys/auth`); the
+  listener's `JWT_SECRET` must then match keeper's `AUTH.GUEST_JWT_SECRET`.
+- Config is validated at startup: missing/duplicate `ADDR` or malformed
+  `ROUTES` patterns abort boot. Run `make config-check` to vet config
+  without starting servers.
+- Caveat: environment variables cannot override list entries (viper
+  limitation) — secondary listeners are configured via YAML only.
+- Docker: publish each secondary port in `docker-compose.yml` (e.g. add
+  `- "8085:8085"` under `ports:`).
+
+### Service-to-service (internal) use
+
+A secondary listener doubles as an internal API port for other zooarium
+services — a dedicated allow-listed surface instead of sharing the public
+port.
+
+```yaml
+SECONDARY:
+  - NAME: "internal-s2s"
+    ENABLED: true
+    ADDR: ":8087"              # do NOT publish in docker-compose ports:
+    RATE_LIMIT:
+      REQUESTS: 1000           # generous — internal traffic comes from few IPs
+      WINDOW: 1m
+    ROUTES:
+      - "GET /categories"
+      - "GET /transactions"
+```
+
+Rules of thumb:
+
+- **Isolation is the guard**: keep the port out of `docker-compose.yml`
+  `ports:` — it stays reachable only on the compose network via service DNS
+  (`http://squirrel:8087/categories`). On bare metal, bind to a private
+  interface (`ADDR: "127.0.0.1:8087"`).
+- **Identity**: the calling service forwards the user's JWT (data stays
+  scoped per real user), or presents a guest token if the listener is
+  configured with keeper's guest `JWT_SECRET`.
+- **Rate limit**: internal traffic comes from few caller IPs — raise
+  `RATE_LIMIT` well above the public default so legitimate bursts don't
+  throttle.
+- **Caller side**: per the zooarium constraint, the calling service must use
+  a shared HTTP client with a timeout sourced from config (never the
+  zero-timeout default client).
+
 ## Code architecture
 
 ### Use directional dependencies:
@@ -167,6 +244,7 @@ The project uses Docker and a Makefile for development.
 - `make shell`: Open an interactive shell inside the API container.
 - `make migrate-gen name=migration_name`: Generate a new versioned migration file.
 - `make migrate-apply`: Apply all pending migrations to the database.
+- `make config-check`: Validate `config/config.yaml` (server, secondary listeners, route patterns) without starting servers.
 - `make clean`: Deep clean of containers, images, and volumes.
 
 ## Upgrading Go Version
@@ -284,7 +362,7 @@ By default, the services are available at:
 
 ## Rate Limiting
 
-The API implements rate limiting using `httprate` middleware. By default, it is limited to **100 requests per minute per IP address**. This is configured in `internal/platform/http/router.go`.
+The API implements rate limiting using `httprate` middleware. By default, it is limited to **100 requests per minute per IP address**. This is configured in `internal/platform/http/router.go`. Each secondary listener has its own independent limit from its `RATE_LIMIT` config (default 100 req/min).
 
 ## Logging
 

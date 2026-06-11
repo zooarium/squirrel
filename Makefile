@@ -1,7 +1,7 @@
 CUR_DIR := $(notdir $(shell pwd))
 export GO_VERSION ?= 1.26.3
 
-.PHONY: all build up down restart logs ps test benchmark fmt lint swag clean shell help tidy vet generate vendor coverage coverage-view build-local build-prod sql
+.PHONY: all build up down restart logs ps test benchmark fmt lint swag clean shell help tidy vet generate vendor coverage coverage-view build-local build-prod sql config-check
 
 # Docker Compose commands
 build: vendor
@@ -136,6 +136,14 @@ sql:
 	@if [ -z "$(query)" ]; then echo "Usage: make sql query=\"SQL_QUERY\""; exit 1; fi
 	sqlite3 data/squirrel.db "$(query)"
 
+# Validate config/config.yaml (server, secondary listeners, route patterns) without starting servers
+config-check:
+	docker run --rm -v $(shell pwd)/..:/workspace -w /workspace/$(CUR_DIR) \
+		-e CGO_ENABLED=1 \
+		-e CGO_CFLAGS="-D_LARGEFILE64_SOURCE" \
+		golang:$(GO_VERSION)-alpine \
+		sh -c "apk add --no-cache build-base && go run -mod=vendor ./cmd/api -check-config"
+
 # Clean up containers, images, and volumes
 clean:
 	docker-compose down --rmi all --volumes --remove-orphans
@@ -169,5 +177,6 @@ help:
 	@echo "  deps-upgrade  Upgrade Go dependencies"
 	@echo "  go-upgrade    Upgrade Go version (use version=1.x)"
 	@echo "  sql           Run SQL query (use query=...)"
+	@echo "  config-check  Validate config incl. secondary listeners"
 	@echo "  clean         Deep clean containers/images"
 	@echo "  help          Show this help message"
