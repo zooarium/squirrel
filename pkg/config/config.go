@@ -10,14 +10,31 @@ import (
 
 // Config holds all configuration for the application.
 type Config struct {
-	Environment string `mapstructure:"ENVIRONMENT"`
-	Server      ServerConfig
-	Database    DatabaseConfig
-	Log         LogConfig   `mapstructure:"LOG"`
-	Auth        AuthConfig  `mapstructure:"AUTH"`
-	Cache       CacheConfig `mapstructure:"CACHE"`
-	CORS        CORSConfig
-	Secondary   []SecondaryConfig `mapstructure:"SECONDARY"`
+	Environment   string `mapstructure:"ENVIRONMENT"`
+	Server        ServerConfig
+	Database      DatabaseConfig
+	Log           LogConfig   `mapstructure:"LOG"`
+	Auth          AuthConfig  `mapstructure:"AUTH"`
+	Cache         CacheConfig `mapstructure:"CACHE"`
+	CORS          CORSConfig
+	Secondary     []SecondaryConfig   `mapstructure:"SECONDARY"`
+	Impersonation ImpersonationConfig `mapstructure:"IMPERSONATION"`
+}
+
+// ImpersonationConfig lets this service accept keeper-minted impersonation
+// tokens (a sysadmin acting as a user). Tokens are signed with a dedicated
+// secret and scoped to Audience; this service rejects any whose audience is not
+// its own. When RevocationCheck is enabled, the auth middleware asks keeper
+// whether a session is still active (cached for RevocationTTL) so sessions can
+// be killed before their short expiry. Disabled by default.
+type ImpersonationConfig struct {
+	Enabled         bool          `mapstructure:"ENABLED"`
+	JWTSecret       string        `mapstructure:"JWT_SECRET"`
+	Audience        string        `mapstructure:"AUDIENCE"`
+	KeeperBaseURL   string        `mapstructure:"KEEPER_BASE_URL"`
+	RevocationCheck bool          `mapstructure:"REVOCATION_CHECK"`
+	RevocationTTL   time.Duration `mapstructure:"REVOCATION_TTL"`
+	RevocationHTTP  time.Duration `mapstructure:"REVOCATION_TIMEOUT"`
 }
 
 // SecondaryConfig drives one optional secondary listener: an additional HTTP
@@ -98,6 +115,13 @@ func Load() (*Config, error) {
 	v.SetDefault("AUTH.JWT_SECRET", "a-very-secure-and-shared-secret-key")
 	v.SetDefault("AUTH.JWT_EXPIRY", 24*time.Hour)
 	v.SetDefault("CACHE.STATS_TTL", 30*time.Second)
+	v.SetDefault("IMPERSONATION.ENABLED", false)
+	v.SetDefault("IMPERSONATION.JWT_SECRET", "a-separate-impersonation-token-secret-key")
+	v.SetDefault("IMPERSONATION.AUDIENCE", "squirrel")
+	v.SetDefault("IMPERSONATION.KEEPER_BASE_URL", "http://keeper:8080")
+	v.SetDefault("IMPERSONATION.REVOCATION_CHECK", true)
+	v.SetDefault("IMPERSONATION.REVOCATION_TTL", 30*time.Second)
+	v.SetDefault("IMPERSONATION.REVOCATION_TIMEOUT", 5*time.Second)
 	v.SetDefault("CORS.ALLOWED_ORIGINS", []string{"*"})
 
 	// Environment variables

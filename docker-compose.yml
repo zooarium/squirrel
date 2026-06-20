@@ -13,6 +13,11 @@ services:
       - SQUIRREL_ENVIRONMENT=development
       - SQUIRREL_DATABASE_PATH=/app/data/squirrel.db
       - SQUIRREL_LOG_DIR=/app/log
+      # Accept keeper-minted impersonation tokens (sysadmin "login as user").
+      # Off by default; the secret MUST match keeper's IMPERSONATION_JWT_SECRET.
+      # - SQUIRREL_IMPERSONATION_ENABLED=true
+      # - SQUIRREL_IMPERSONATION_JWT_SECRET=change-me-to-match-keeper
+      # - SQUIRREL_IMPERSONATION_KEEPER_BASE_URL=http://keeper:8080
     restart: always
 
   atlas:

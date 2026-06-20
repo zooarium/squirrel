@@ -124,7 +124,23 @@ func main() {
 
 	jwtManager := auth.NewJWTManager(cfg.Auth.JWTSecret, cfg.Auth.JWTExpiry)
 
-	router := platformhttp.NewRouter(cfg, categoryHandler, transactionHandler, jwtManager)
+	// Primary auth middleware. When impersonation is enabled it additionally
+	// accepts keeper-minted impersonation tokens scoped to this service's
+	// audience, enforcing audience match, read-only mode, and (optionally) live
+	// revocation against keeper. Otherwise it is the plain JWT middleware.
+	authMW := auth.Middleware(jwtManager)
+	if cfg.Impersonation.Enabled {
+		impMgr := auth.NewJWTManager(cfg.Impersonation.JWTSecret, 0)
+		var revoked auth.RevocationChecker
+		if cfg.Impersonation.RevocationCheck {
+			revClient := &http.Client{Timeout: cfg.Impersonation.RevocationHTTP}
+			revoked = auth.NewHTTPRevocationChecker(revClient, cfg.Impersonation.KeeperBaseURL, cfg.Impersonation.RevocationTTL)
+		}
+		authMW = auth.ImpersonationAwareMiddleware(jwtManager, impMgr, cfg.Impersonation.Audience, revoked)
+		slog.Info("impersonation token acceptance enabled", "audience", cfg.Impersonation.Audience, "revocation_check", cfg.Impersonation.RevocationCheck)
+	}
+
+	router := platformhttp.NewRouter(cfg, categoryHandler, transactionHandler, authMW)
 
 	srv := &http.Server{
 		Addr:         cfg.Server.Addr,

@@ -16,7 +16,8 @@ func TestRouter(t *testing.T) {
 	// Create handlers with nil services - just testing routing to public endpoints
 	catHandler := category.NewHandler(nil)
 	txHandler := transaction.NewHandler(nil)
-	router := NewRouter(&config.Config{}, catHandler, txHandler, nil)
+	passthrough := func(next http.Handler) http.Handler { return next }
+	router := NewRouter(&config.Config{}, catHandler, txHandler, passthrough)
 
 	tests := []struct {
 		name           string

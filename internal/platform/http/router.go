@@ -1,14 +1,13 @@
 package http
 
 import (
+	"net/http"
 	"time"
 
 	_ "squirrel/docs" // Import generated docs
 	"squirrel/internal/category"
 	"squirrel/internal/transaction"
 	"squirrel/pkg/config"
-
-	"keeper/pkg/auth"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
@@ -19,7 +18,7 @@ import (
 )
 
 // NewRouter creates a new chi router with default middleware and application routes.
-func NewRouter(cfg *config.Config, categoryHandler *category.Handler, transactionHandler *transaction.Handler, jwtManager *auth.JWTManager) *chi.Mux {
+func NewRouter(cfg *config.Config, categoryHandler *category.Handler, transactionHandler *transaction.Handler, authMW func(http.Handler) http.Handler) *chi.Mux {
 	r := chi.NewRouter()
 
 	r.Use(cors.Handler(cors.Options{
@@ -43,7 +42,7 @@ func NewRouter(cfg *config.Config, categoryHandler *category.Handler, transactio
 
 	// Protected routes
 	r.Group(func(r chi.Router) {
-		r.Use(auth.Middleware(jwtManager))
+		r.Use(authMW)
 		r.Mount("/categories", categoryHandler.Routes())
 		r.Mount("/transactions", transactionHandler.Routes())
 	})
