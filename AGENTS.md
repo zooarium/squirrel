@@ -4,6 +4,7 @@ This document provides a comprehensive overview of the Squirrel project, its arc
 
 ## Core Mandates
 - **MUST: Run Formatter**: You **MUST** run `make fmt` after every code change to ensure consistent code style and import organization.
+- **MUST**: Record every code change under `## [Unreleased]` in CHANGELOG.md (Added/Changed/Fixed/Removed) as part of the same change.
 
 ## Project Overview
 Squirrel is a microservice for expense management, providing RESTful APIs for category creation and management. It is built with Go, uses SQLite for persistence, and is containerized with Docker.

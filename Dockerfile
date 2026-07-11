@@ -35,6 +35,7 @@ WORKDIR /app
 
 # Copy the binary from the builder stage
 COPY --from=builder /app/squirrel .
+COPY CHANGELOG.md .
 
 # Expose port 8081
 EXPOSE 8081
