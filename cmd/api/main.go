@@ -14,6 +14,7 @@ import (
 	"time"
 
 	"squirrel/docs"
+	"squirrel/internal/audit"
 	"squirrel/internal/category"
 	"squirrel/internal/db"
 	platformhttp "squirrel/internal/platform/http"
@@ -22,6 +23,7 @@ import (
 
 	"keeper/pkg/auth"
 	"keeper/pkg/cache"
+	"keeper/pkg/httpclient"
 
 	"github.com/go-chi/chi/v5"
 )
@@ -98,10 +100,24 @@ func main() {
 	logger := slog.New(slog.NewJSONHandler(mw, &slog.HandlerOptions{Level: logLevel}))
 	slog.SetDefault(logger)
 
+	// Audit trail is a separate file from api.log — who-changed-what should
+	// stay readable on its own, not interleaved with request/debug noise.
+	auditLogFile, err := os.OpenFile(filepath.Join(cfg.Log.Dir, "audit.log"), os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	if err != nil {
+		fmt.Printf("failed to open audit log file: %v\n", err)
+		os.Exit(1)
+	}
+	defer func() {
+		if err := auditLogFile.Close(); err != nil {
+			slog.Error("failed to close audit log file", "error", err)
+		}
+	}()
+	auditLogger := slog.New(slog.NewJSONHandler(auditLogFile, &slog.HandlerOptions{Level: slog.LevelInfo}))
+
 	// Override Swagger host
 	docs.SwaggerInfo.Host = cfg.Server.Host
 
-	client, err := db.NewClient(cfg.Database.Driver, cfg.Database.Path, cfg.Database.DSN)
+	client, dbDriver, err := db.NewClient(cfg.Database.Driver, cfg.Database.Path, cfg.Database.DSN)
 	if err != nil {
 		slog.Error("failed to open database client", "error", err, "driver", cfg.Database.Driver)
 		os.Exit(1)
@@ -111,6 +127,7 @@ func main() {
 			slog.Error("failed to close database client", "error", err)
 		}
 	}()
+	client.Use(audit.Hook(auditLogger))
 
 	// Initialize components
 	categoryRepo := category.NewRepository(client)
@@ -133,14 +150,14 @@ func main() {
 		impMgr := auth.NewJWTManager(cfg.Impersonation.JWTSecret, 0)
 		var revoked auth.RevocationChecker
 		if cfg.Impersonation.RevocationCheck {
-			revClient := &http.Client{Timeout: cfg.Impersonation.RevocationHTTP}
+			revClient := httpclient.New(httpclient.Config{Timeout: cfg.Impersonation.RevocationHTTP, Name: "impersonation-revocation"})
 			revoked = auth.NewHTTPRevocationChecker(revClient, cfg.Impersonation.KeeperBaseURL, cfg.Impersonation.RevocationTTL)
 		}
 		authMW = auth.ImpersonationAwareMiddleware(jwtManager, impMgr, cfg.Impersonation.Audience, revoked)
 		slog.Info("impersonation token acceptance enabled", "audience", cfg.Impersonation.Audience, "revocation_check", cfg.Impersonation.RevocationCheck)
 	}
 
-	router := platformhttp.NewRouter(cfg, categoryHandler, transactionHandler, authMW)
+	router := platformhttp.NewRouter(cfg, categoryHandler, transactionHandler, authMW, dbDriver)
 
 	srv := &http.Server{
 		Addr:         cfg.Server.Addr,
@@ -171,7 +188,7 @@ func main() {
 			continue
 		}
 
-		secondaryRouter, err := platformhttp.NewSecondaryRouter(cfg, sec, jwtManager, mount)
+		secondaryRouter, err := platformhttp.NewSecondaryRouter(cfg, sec, jwtManager, mount, dbDriver)
 		if err != nil {
 			slog.Error("failed to build secondary router", "name", sec.Name, "error", err)
 			os.Exit(1)

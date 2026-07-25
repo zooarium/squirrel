@@ -9,6 +9,7 @@ import (
 	"squirrel/internal/transaction"
 	"squirrel/pkg/config"
 
+	entsql "entgo.io/ent/dialect/sql"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/cors"
@@ -18,7 +19,7 @@ import (
 )
 
 // NewRouter creates a new chi router with default middleware and application routes.
-func NewRouter(cfg *config.Config, categoryHandler *category.Handler, transactionHandler *transaction.Handler, authMW func(http.Handler) http.Handler) *chi.Mux {
+func NewRouter(cfg *config.Config, categoryHandler *category.Handler, transactionHandler *transaction.Handler, authMW func(http.Handler) http.Handler, dbDriver *entsql.Driver) *chi.Mux {
 	r := chi.NewRouter()
 
 	r.Use(cors.Handler(cors.Options{
@@ -26,7 +27,8 @@ func NewRouter(cfg *config.Config, categoryHandler *category.Handler, transactio
 		AllowedMethods: []string{"GET", "POST", "OPTIONS", "PUT", "DELETE"},
 		AllowedHeaders: []string{"Origin", "Content-Type", "Authorization"},
 	}))
-	r.Use(middleware.Logger)
+	r.Use(middleware.RequestID)
+	r.Use(RequestLogger)
 	r.Use(middleware.Recoverer)
 	r.Use(MetricsMiddleware)
 	r.Use(httprate.LimitByIP(100, 1*time.Minute))
@@ -36,6 +38,7 @@ func NewRouter(cfg *config.Config, categoryHandler *category.Handler, transactio
 	))
 
 	r.Get("/health", HealthHandler)
+	r.Get("/ready", ReadyHandler(dbDriver))
 
 	// Prometheus metrics endpoint, exempt from JWT auth.
 	r.Handle("/metrics", promhttp.Handler())

@@ -17,7 +17,7 @@ func TestRouter(t *testing.T) {
 	catHandler := category.NewHandler(nil)
 	txHandler := transaction.NewHandler(nil)
 	passthrough := func(next http.Handler) http.Handler { return next }
-	router := NewRouter(&config.Config{}, catHandler, txHandler, passthrough)
+	router := NewRouter(&config.Config{}, catHandler, txHandler, passthrough, nil)
 
 	tests := []struct {
 		name           string
