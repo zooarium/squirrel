@@ -17,9 +17,20 @@ AUTH:
   JWT_EXPIRY: 24h
 CACHE:
   STATS_TTL: 30s
+  # internal/policy's compiled role->permission map, pulled from falcon.
+  POLICY_TTL: 60s
 CORS:
   ALLOWED_ORIGINS:
     - "*"
+# internal/policy's Tier 1 authorization cache reads falcon's internal-s2s
+# listener over the shared "falcon" compose network (falcon-api-1, not
+# falcon's published service-name DNS, only the container name).
+FALCON:
+  BASE_URL: "http://falcon-api-1:9091"
+  TIMEOUT: 3s
+  # squirrel's own numeric id in falcon's fal_service table (register squirrel
+  # via POST /services on falcon first, then set this).
+  SERVICE_ID: 0
 # Optional secondary listeners: extra ports in the same process, each
 # exposing only its allow-listed routes. Identity always comes from JWT;
 # JWT_SECRET (optional) makes the listener verify with a different signing

@@ -19,6 +19,16 @@ type Config struct {
 	CORS          CORSConfig
 	Secondary     []SecondaryConfig   `mapstructure:"SECONDARY"`
 	Impersonation ImpersonationConfig `mapstructure:"IMPERSONATION"`
+	Falcon        FalconConfig        `mapstructure:"FALCON"`
+}
+
+// FalconConfig points internal/policy's Tier 1 (coarse CRUD) authorization
+// cache at falcon's internal-s2s listener. ServiceID is this service's own
+// numeric id in falcon's fal_service table (set once registered there).
+type FalconConfig struct {
+	BaseURL   string        `mapstructure:"BASE_URL"`
+	Timeout   time.Duration `mapstructure:"TIMEOUT"`
+	ServiceID int           `mapstructure:"SERVICE_ID"`
 }
 
 // ImpersonationConfig lets this service accept keeper-minted impersonation
@@ -61,6 +71,9 @@ type RateLimitConfig struct {
 // CacheConfig holds in-memory cache configuration.
 type CacheConfig struct {
 	StatsTTL time.Duration `mapstructure:"STATS_TTL"`
+	// PolicyTTL is how long internal/policy's compiled role->permission map is
+	// served from cache before the next request past expiry refreshes it.
+	PolicyTTL time.Duration `mapstructure:"POLICY_TTL"`
 }
 
 // CORSConfig holds CORS-specific configuration.
@@ -115,6 +128,10 @@ func Load() (*Config, error) {
 	v.SetDefault("AUTH.JWT_SECRET", "a-very-secure-and-shared-secret-key")
 	v.SetDefault("AUTH.JWT_EXPIRY", 24*time.Hour)
 	v.SetDefault("CACHE.STATS_TTL", 30*time.Second)
+	v.SetDefault("CACHE.POLICY_TTL", 60*time.Second)
+	v.SetDefault("FALCON.BASE_URL", "http://falcon-api-1:9091")
+	v.SetDefault("FALCON.TIMEOUT", 3*time.Second)
+	v.SetDefault("FALCON.SERVICE_ID", 0)
 	v.SetDefault("IMPERSONATION.ENABLED", false)
 	v.SetDefault("IMPERSONATION.JWT_SECRET", "a-separate-impersonation-token-secret-key")
 	v.SetDefault("IMPERSONATION.AUDIENCE", "squirrel")

@@ -18,6 +18,7 @@ import (
 	"squirrel/internal/category"
 	"squirrel/internal/db"
 	platformhttp "squirrel/internal/platform/http"
+	"squirrel/internal/policy"
 	"squirrel/internal/transaction"
 	"squirrel/pkg/config"
 
@@ -140,6 +141,17 @@ func main() {
 	transactionHandler := transaction.NewHandler(transactionSvc)
 
 	jwtManager := auth.NewJWTManager(cfg.Auth.JWTSecret, cfg.Auth.JWTExpiry)
+
+	// Tier 1 (coarse CRUD) authorization cache: role->permission map pulled
+	// from falcon and refreshed on a TTL. Warmed eagerly so the first request
+	// after boot isn't served against an empty (fail-closed) map; a warm
+	// failure only means falcon isn't reachable yet, not that squirrel can't boot.
+	falconHTTPClient := httpclient.New(httpclient.Config{Timeout: cfg.Falcon.Timeout, Name: "falcon-s2s"})
+	policyFetcher := policy.NewFetcher(falconHTTPClient, cfg.Falcon.BaseURL, cfg.Falcon.ServiceID, jwtManager)
+	policyStore := policy.NewStore(policyFetcher, cfg.Cache.PolicyTTL)
+	if err := policyStore.Warm(context.Background()); err != nil {
+		slog.Warn("policy cache: startup warm failed, serving fail-closed until falcon is reachable", "error", err)
+	}
 
 	// Primary auth middleware. When impersonation is enabled it additionally
 	// accepts keeper-minted impersonation tokens scoped to this service's

@@ -18,6 +18,9 @@ services:
       # - SQUIRREL_IMPERSONATION_ENABLED=true
       # - SQUIRREL_IMPERSONATION_JWT_SECRET=change-me-to-match-keeper
       # - SQUIRREL_IMPERSONATION_KEEPER_BASE_URL=http://keeper:8080
+    networks:
+      - default
+      - falcon
     restart: always
     mem_limit: 256m
     cpus: "1.0"
@@ -33,5 +36,10 @@ services:
       - .:/app
       - ./data:/data
     working_dir: /app
+
+networks:
+  falcon:
+    external: true
+    name: falcon_default
 
 # No volumes section needed for bind mounts
