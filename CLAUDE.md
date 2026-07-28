@@ -93,6 +93,7 @@ Key facts:
     - **Repositories**: `Repository` (e.g., `category.Repository`).
     - **Models**: Use generic names in packages and `[Action][Entity]Request/Response` for DTOs.
 - **Database**: Table names and Ent schemas **must** be singular and prefixed with `sqrl_` (e.g., `sqrl_category`). Use `entsql.Annotation{Table: "sqrl_singular_name"}` in the schema definition's `Annotations()` method.
+- **URL slugs**: hyphenated, never underscore.
 
 ## Development Workflow
 
