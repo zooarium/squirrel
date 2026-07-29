@@ -28,9 +28,9 @@ CORS:
 FALCON:
   BASE_URL: "http://falcon-api-1:9091"
   TIMEOUT: 3s
-  # squirrel's own numeric id in falcon's fal_service table (register squirrel
-  # via POST /services on falcon first, then set this).
-  SERVICE_ID: 0
+  # squirrel's own numeric id in falcon's fal_service table, seeded fixed
+  # across all envs by falcon's fal_service migration fixture.
+  SERVICE_ID: 2
 # Optional secondary listeners: extra ports in the same process, each
 # exposing only its allow-listed routes. Identity always comes from JWT;
 # JWT_SECRET (optional) makes the listener verify with a different signing
