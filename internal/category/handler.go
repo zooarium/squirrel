@@ -3,11 +3,13 @@ package category
 import (
 	"encoding/json"
 	"errors"
+	"log/slog"
 	"net/http"
 	"strconv"
 
 	"squirrel/internal/platform/pagination"
 	"squirrel/internal/platform/render"
+	"squirrel/internal/policy"
 
 	"keeper/pkg/auth"
 
@@ -18,13 +20,15 @@ import (
 // Handler handles HTTP requests for categories.
 type Handler struct {
 	svc      Service
+	policy   *policy.Store
 	validate *validator.Validate
 }
 
 // NewHandler creates a new category handler.
-func NewHandler(svc Service) *Handler {
+func NewHandler(svc Service, policyStore *policy.Store) *Handler {
 	return &Handler{
 		svc:      svc,
+		policy:   policyStore,
 		validate: validator.New(),
 	}
 }
@@ -69,6 +73,12 @@ func (h *Handler) Create(w http.ResponseWriter, r *http.Request) {
 	claims, err := h.getClaims(r)
 	if err != nil {
 		render.Error(w, http.StatusUnauthorized, err.Error())
+		return
+	}
+
+	if !policy.Can(r.Context(), h.policy, claims, claims.AppID, "category", "create", "") {
+		slog.Warn("create category rejected: caller lacks category.create permission", "app_id", claims.AppID, "user_id", claims.UserID)
+		render.Error(w, http.StatusForbidden, "access denied")
 		return
 	}
 
@@ -198,6 +208,12 @@ func (h *Handler) Update(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if !policy.Can(r.Context(), h.policy, claims, claims.AppID, "category", "update", "") {
+		slog.Warn("update category rejected: caller lacks category.update permission", "id", id, "user_id", claims.UserID)
+		render.Error(w, http.StatusForbidden, "access denied")
+		return
+	}
+
 	var req UpdateCategoryRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		render.Error(w, http.StatusBadRequest, "invalid request body")
@@ -240,6 +256,12 @@ func (h *Handler) Delete(w http.ResponseWriter, r *http.Request) {
 	id, err := h.getIDParam(r)
 	if err != nil {
 		render.Error(w, http.StatusBadRequest, "invalid category ID")
+		return
+	}
+
+	if !policy.Can(r.Context(), h.policy, claims, claims.AppID, "category", "delete", "") {
+		slog.Warn("delete category rejected: caller lacks category.delete permission", "id", id, "user_id", claims.UserID)
+		render.Error(w, http.StatusForbidden, "access denied")
 		return
 	}
 

@@ -3,12 +3,14 @@ package transaction
 import (
 	"encoding/json"
 	"errors"
+	"log/slog"
 	"net/http"
 	"strconv"
 	"time"
 
 	"squirrel/internal/platform/pagination"
 	"squirrel/internal/platform/render"
+	"squirrel/internal/policy"
 
 	"keeper/pkg/auth"
 
@@ -19,13 +21,15 @@ import (
 // Handler handles HTTP requests for transactions.
 type Handler struct {
 	svc      Service
+	policy   *policy.Store
 	validate *validator.Validate
 }
 
 // NewHandler creates a new transaction handler.
-func NewHandler(svc Service) *Handler {
+func NewHandler(svc Service, policyStore *policy.Store) *Handler {
 	return &Handler{
 		svc:      svc,
+		policy:   policyStore,
 		validate: validator.New(),
 	}
 }
@@ -71,6 +75,12 @@ func (h *Handler) Create(w http.ResponseWriter, r *http.Request) {
 	claims, err := h.getClaims(r)
 	if err != nil {
 		render.Error(w, http.StatusUnauthorized, err.Error())
+		return
+	}
+
+	if !policy.Can(r.Context(), h.policy, claims, claims.AppID, "transaction", "create", "") {
+		slog.Warn("create transaction rejected: caller lacks transaction.create permission", "app_id", claims.AppID, "user_id", claims.UserID)
+		render.Error(w, http.StatusForbidden, "access denied")
 		return
 	}
 
@@ -264,6 +274,12 @@ func (h *Handler) Update(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if !policy.Can(r.Context(), h.policy, claims, claims.AppID, "transaction", "update", "") {
+		slog.Warn("update transaction rejected: caller lacks transaction.update permission", "id", id, "user_id", claims.UserID)
+		render.Error(w, http.StatusForbidden, "access denied")
+		return
+	}
+
 	var req UpdateTransactionRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		render.Error(w, http.StatusBadRequest, "invalid request body")
@@ -306,6 +322,12 @@ func (h *Handler) Delete(w http.ResponseWriter, r *http.Request) {
 	id, err := h.getIDParam(r)
 	if err != nil {
 		render.Error(w, http.StatusBadRequest, "invalid transaction ID")
+		return
+	}
+
+	if !policy.Can(r.Context(), h.policy, claims, claims.AppID, "transaction", "delete", "") {
+		slog.Warn("delete transaction rejected: caller lacks transaction.delete permission", "id", id, "user_id", claims.UserID)
+		render.Error(w, http.StatusForbidden, "access denied")
 		return
 	}
 

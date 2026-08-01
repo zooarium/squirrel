@@ -130,16 +130,6 @@ func main() {
 	}()
 	client.Use(audit.Hook(auditLogger))
 
-	// Initialize components
-	categoryRepo := category.NewRepository(client)
-	categorySvc := category.NewService(categoryRepo)
-	categoryHandler := category.NewHandler(categorySvc)
-
-	statsCache := cache.New(cfg.Cache.StatsTTL)
-	transactionRepo := transaction.NewRepository(client)
-	transactionSvc := transaction.NewService(transactionRepo, statsCache)
-	transactionHandler := transaction.NewHandler(transactionSvc)
-
 	jwtManager := auth.NewJWTManager(cfg.Auth.JWTSecret, cfg.Auth.JWTExpiry)
 
 	// Tier 1 (coarse CRUD) authorization cache: role->permission map pulled
@@ -152,6 +142,16 @@ func main() {
 	if err := policyStore.Warm(context.Background()); err != nil {
 		slog.Warn("policy cache: startup warm failed, serving fail-closed until falcon is reachable", "error", err)
 	}
+
+	// Initialize components
+	categoryRepo := category.NewRepository(client)
+	categorySvc := category.NewService(categoryRepo)
+	categoryHandler := category.NewHandler(categorySvc, policyStore)
+
+	statsCache := cache.New(cfg.Cache.StatsTTL)
+	transactionRepo := transaction.NewRepository(client)
+	transactionSvc := transaction.NewService(transactionRepo, statsCache)
+	transactionHandler := transaction.NewHandler(transactionSvc, policyStore)
 
 	// Primary auth middleware. When impersonation is enabled it additionally
 	// accepts keeper-minted impersonation tokens scoped to this service's
