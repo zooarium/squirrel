@@ -93,6 +93,7 @@ Key facts:
     - **Repositories**: `Repository` (e.g., `category.Repository`).
     - **Models**: Use generic names in packages and `[Action][Entity]Request/Response` for DTOs.
 - **Database**: Table names and Ent schemas **must** be singular and prefixed with `sqrl_` (e.g., `sqrl_category`). Use `entsql.Annotation{Table: "sqrl_singular_name"}` in the schema definition's `Annotations()` method.
+- **URL slugs**: hyphenated, never underscore.
 
 ## Development Workflow
 
@@ -135,6 +136,7 @@ To ensure codebase health and consistency, the following steps **must** be compl
 - `make migrate-apply`: Apply pending migrations.
 - `make sql query=QUERY`: Run a SQL query against the SQLite database.
 - `make config-check`: Validate config (incl. secondary listeners) without starting servers.
+- `make release VERSION=x.y.z`: Release — rotates CHANGELOG.md `[Unreleased]` into dated version section, commits, tags `vx.y.z` (push tags manually).
 
 ### Database Migrations
 1.  **Modify Schema**: Edit `ent/schema/category.go`.
